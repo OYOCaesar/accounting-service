@@ -1,9 +1,17 @@
 spring:
   datasource:
-    name: default
-    url: jdbc:mysql://localhost:3306/oyo-workflow?useUnicode=true&characterEncoding=utf8
-    username: root
-    password: root
+    accounting:
+      url: jdbc:mysql://localhost:3306/oyo-workflow?useUnicode=true&characterEncoding=utf-8&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull
+      username: root
+      password: root
+      filters: stat,wall
+      driver-class-name: com.mysql.jdbc.Driver
+    crs:
+      url: jdbc:postgresql://localhost/acc1
+      username: productdb
+      password: productdb
+      filters: stat,wall
+      driver-class-name: org.postgresql.Driver
   activiti:
     database-schema-update: true
     check-process-definitions: true
