@@ -12,11 +12,6 @@ spring:
       password: productdb
       filters: stat,wall
       driver-class-name: org.postgresql.Driver
-  activiti:
-    database-schema-update: true
-    check-process-definitions: true
-    process-definition-location-prefix: classpath:/processes/
-    history-level: full   
     
     
     
