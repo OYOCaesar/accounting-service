@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    name: default
+    url: jdbc:mysql://localhost:3306/oyo-workflow?useUnicode=true&characterEncoding=utf8
+    username: root
+    password: root
+  activiti:
+    database-schema-update: true
+    check-process-definitions: true
+    process-definition-location-prefix: classpath:/processes/
+    history-level: full   
+    
+    
+    
+server:
+  port: 8001
+
+
+logging:
+  level:
+    root: INFO
