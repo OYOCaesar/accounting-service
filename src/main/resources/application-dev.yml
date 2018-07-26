@@ -1,9 +1,9 @@
 spring:
   datasource:
     accounting:
-      url: jdbc:mysql://localhost:3306/oyo-workflow?useUnicode=true&characterEncoding=utf-8&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull
+      url: jdbc:mysql://accounting-service.ckdb8i72sy2s.rds.cn-north-1.amazonaws.com.cn:3306/accounting?useUnicode=true&characterEncoding=utf-8&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull
       username: root
-      password: root
+      password: welcom1
       filters: stat,wall
       driver-class-name: com.mysql.jdbc.Driver
     crs:
