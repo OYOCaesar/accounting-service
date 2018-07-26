@@ -7,9 +7,9 @@ spring:
       filters: stat,wall
       driver-class-name: com.mysql.jdbc.Driver
     crs:
-      url: jdbc:postgresql://localhost/acc1
-      username: productdb
-      password: productdb
+      url: jdbc:postgresql://staging-crs-prod.ckdb8i72sy2s.rds.cn-north-1.amazonaws.com.cn:5432/oyoprod
+      username: uc0s0psnqc13qs
+      password: admin12345
       filters: stat,wall
       driver-class-name: org.postgresql.Driver
     
