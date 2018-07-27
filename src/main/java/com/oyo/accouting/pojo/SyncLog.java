@@ -8,9 +8,9 @@ public class SyncLog {
 
   @Id
   private Long id;
-  private long sourceId;
+  private Long sourceId;
   private String type;
-  private long version;
+  private Long version;
   private java.sql.Timestamp updateTime;
   private java.sql.Timestamp createTime;
 
@@ -24,11 +24,11 @@ public class SyncLog {
   }
 
 
-  public long getSourceId() {
+  public Long getSourceId() {
     return sourceId;
   }
 
-  public void setSourceId(long sourceId) {
+  public void setSourceId(Long sourceId) {
     this.sourceId = sourceId;
   }
 
@@ -42,11 +42,11 @@ public class SyncLog {
   }
 
 
-  public long getVersion() {
+  public Long getVersion() {
     return version;
   }
 
-  public void setVersion(long version) {
+  public void setVersion(Long version) {
     this.version = version;
   }
 

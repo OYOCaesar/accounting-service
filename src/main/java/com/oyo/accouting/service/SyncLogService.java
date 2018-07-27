@@ -36,6 +36,12 @@ public class SyncLogService {
 
     public int deleteSyncLog(SyncLog syncLog){
         if(syncLog==null)return -99;
-        return this.accountingSyncLogMapper.delete(syncLog);
+        int i = 0;
+        try {
+            i = this.accountingSyncLogMapper.delete(syncLog);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return i;
     }
 }
