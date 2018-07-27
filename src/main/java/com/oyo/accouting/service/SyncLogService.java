@@ -1,0 +1,35 @@
+package com.oyo.accouting.service;
+
+import com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper;
+import com.oyo.accouting.pojo.SyncLog;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class SyncLogService {
+
+    @Autowired
+    private AccountingSyncLogMapper accountingSyncLogMapper;
+
+    public List<SyncLog> querySyncLog(SyncLog syncLog){
+        List list = null;
+        try {
+            list = this.accountingSyncLogMapper.select(syncLog);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public int insertSyncLog(SyncLog syncLog){
+        return this.accountingSyncLogMapper.insert(syncLog);
+    }
+
+
+    public int deleteSyncLog(SyncLog syncLog){
+        if(syncLog==null)return -99;
+        return this.accountingSyncLogMapper.delete(syncLog);
+    }
+}

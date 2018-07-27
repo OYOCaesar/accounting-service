@@ -1,0 +1,9 @@
+CREATE TABLE sync_log
+(
+  id int AUTO_INCREMENT primary key ,
+  source_id int comment '同步对象的id',
+  type varchar(64) comment '同步对象的类型',
+  version int comment '版本号',
+  update_time timestamp comment '同步对象的修改时间',
+  create_time timestamp comment '同步日志创建时间'
+) comment '同步日志';
