@@ -24,7 +24,13 @@ public class SyncLogService {
     }
 
     public int insertSyncLog(SyncLog syncLog){
-        return this.accountingSyncLogMapper.insert(syncLog);
+        int i = 0;
+        try {
+            i = this.accountingSyncLogMapper.insert(syncLog);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return i;
     }
 
 
