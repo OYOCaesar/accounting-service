@@ -1,4 +1,8 @@
-package com.oyo.accouting.pojo;
+package com.oyo.accouting.bean;
+
+import com.oyo.accouting.pojo.AccountDetails;
+import com.oyo.accouting.pojo.Cities;
+import com.oyo.accouting.pojo.UserProfiles;
 
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -6,8 +10,8 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-@Table(name = "hotels")
-public class Hotel {
+
+public class HotelDto {
 
   private Long id;
   private String name;
@@ -27,8 +31,8 @@ public class Hotel {
   private String phone;
   private String landmark;
   private String directions;
-  private java.sql.Timestamp createdAt;
-  private java.sql.Timestamp updatedAt;
+  private Timestamp createdAt;
+  private Timestamp updatedAt;
   private Long status;
   private Long category;
   private Long clusterId;
@@ -56,7 +60,7 @@ public class Hotel {
   private String landline;
   private String managerName;
   private Long leadType;
-  private java.sql.Timestamp activationDate;
+  private Timestamp activationDate;
   private String oyoEmail;
   private Long tabletStatus;
   private Long createdBy;
@@ -70,16 +74,16 @@ public class Hotel {
   private Long cityId;
   private Long currencyId;
   private String holidayIqUrl;
-  private java.sql.Time checkinTime;
-  private java.sql.Time checkoutTime;
+  private Time checkinTime;
+  private Time checkoutTime;
   private String statusTrack;
   private Long totalRooms;
   private Long hotelType;
   private String billingEntity;
   private String hotelLogo;
   private String nearbyJson;
-  private java.sql.Date trainingDate;
-  private java.sql.Time callingActiveTime;
+  private Date trainingDate;
+  private Time callingActiveTime;
   private String desiredPricingSplit;
   private Long migratedFromHotelId;
   private String flagshipTransitionCategory;
@@ -107,6 +111,26 @@ public class Hotel {
   private String hawkEyeHotelId;
   private String hawkEyeUrl;
 
+  ////SELECT  "account_details".* FROM "account_details" WHERE "account_details"."item_id" = $1
+  // AND "account_details"."item_type" = $2 LIMIT 1  [["item_id", 15385], ["item_type", "Hotel"]]
+  @Transient
+  private AccountDetails accountDetails;
+  //SELECT  "user_profiles".* FROM "user_profiles"
+  // INNER JOIN "hotel_user_profiles" ON "user_profiles"."id" = "hotel_user_profiles"."user_profile_id"
+  @Transient
+  private UserProfiles userProfiles;
+
+  //关联hotel中的city_id
+  @Transient
+  private Cities cities;
+
+  public Cities getCities() {
+    return cities;
+  }
+
+  public void setCities(Cities cities) {
+    this.cities = cities;
+  }
 
   public Long getId() {
     return id;
@@ -884,5 +908,19 @@ public class Hotel {
     this.hawkEyeUrl = hawkEyeUrl;
   }
 
+  public AccountDetails getAccountDetails() {
+    return accountDetails;
+  }
 
+  public void setAccountDetails(AccountDetails accountDetails) {
+    this.accountDetails = accountDetails;
+  }
+
+  public UserProfiles getUserProfiles() {
+    return userProfiles;
+  }
+
+  public void setUserProfiles(UserProfiles userProfiles) {
+    this.userProfiles = userProfiles;
+  }
 }
