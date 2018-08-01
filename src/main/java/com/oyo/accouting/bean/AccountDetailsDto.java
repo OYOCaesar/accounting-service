@@ -1,7 +1,5 @@
 package com.oyo.accouting.bean;
 
-
-import javax.persistence.Table;
 import java.sql.Date;
 import java.sql.Timestamp;
 

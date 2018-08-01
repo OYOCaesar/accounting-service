@@ -1,17 +1,12 @@
 package com.oyo.accouting.bean;
 
 import com.oyo.accouting.common.SapConfig;
-import com.oyo.accouting.pojo.AccountDetails;
-import com.oyo.accouting.pojo.Hotel;
-import com.oyo.accouting.pojo.SyncLog;
-import com.oyo.accouting.pojo.UserProfiles;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SyncHotel {

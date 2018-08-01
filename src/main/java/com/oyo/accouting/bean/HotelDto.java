@@ -1,11 +1,6 @@
 package com.oyo.accouting.bean;
 
-import com.oyo.accouting.pojo.AccountDetails;
 import com.oyo.accouting.pojo.Cities;
-import com.oyo.accouting.pojo.UserProfiles;
-
-import javax.persistence.Column;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.sql.Date;
 import java.sql.Time;
