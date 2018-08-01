@@ -46,7 +46,7 @@
         <result column="activation_date" property="activationDate" />
         <result column="oyo_email" property="oyoEmail" />
         <result column="tablet_status" property="tabletStatus" />
-        <result column="created_by" property="createBy" />
+        <result column="created_by" property="createdBy" />
         <result column="only_prepaid" property="onlyPrepaid" />
         <result column="bd_manager_id" property="bdManagerId"/>
         <result column="discount" property="discount"/>
@@ -60,7 +60,7 @@
         <result column="checkin_time" property="checkinTime"/>
         <result column="checkout_time" property="checkoutTime"/>
         <result column="status_track" property="statusTrack"/>
-        <result column="total_rooms" property="total_rooms" />
+        <result column="total_rooms" property="totalRooms" />
         <result column="hotel_type" property="hotelType" />
         <result column="billing_entity" property="billingEntity" />
         <result column="hotel_logo" property="hotelLogo" />
@@ -94,24 +94,7 @@
     </resultMap>
 
 
-    <select id="queryHotelList" resultType="com.oyo.accouting.bean.HotelDto" parameterType="com.oyo.accouting.bean.HotelDto">
-        select h.id,h.name,h.alternate_name as alternateName,h.oyo_id as oyoId,h.summary,h.description,h.location_description as locationDescription,
-          h.keywords,h.priority,h.clientele,h.map_link as mapLink,h.rating,h.website,h.meta_description as metaDescription,h.email,h.phone,h.landmark,h.directions,
-          h.created_at as createdAt,h.updated_at as updatedAt,h.status,h.category,h.cluster_id as clusterId,h.plot_number as plotNumber,h.street,h.city,h.state,h.country,
-          h.pincode,h.latitude,h.longitude,h.new_oyo as newOyo,h.featured,h.transformed_by_id as tranformedById,h.mintariff,h.send_manager_details as sendManagerDetails,
-          h.primary_contact as primaryContact,h.trip_advisor_url as tripAdvisorUrl,h.operation_manager_id as operationManagerId,h.hostess_manager_id as hostessManagerId,
-          h.training_manager_id as trainingManagerId,h.board_type as boardType,h.hoarding,h.over_sellable_rooms as overSellableRooms,h.landline,h.manager_name as managerName,
-          h.lead_type as leadType,h.activation_date as activationDate,h.oyo_email as oyoEmail,h.tablet_status as tabletStatus,h.created_by as createBy,
-          h.only_prepaid as onlyPrepaid,h.bd_manager_id as bdManagerId,h.discount,h.mini_cluster_id as miniClusterId,h.short_description as shortDescription,
-          h.ota_listed as otaListed,h.country_id as countryId,h.city_id as cityId,h.currency_id as currencyId,h.holiday_iq_url as holidayIqUrl,h.checkin_time as checkinTime,
-          h.checkout_time checkoutTime,h.status_track as statusTrack,h.total_rooms as totalRooms,h.hotel_type hotelType,h.billing_entity as billingEntity,h.hotel_logo as hotelLogo,
-          h.nearby_json as nearbyJson,h.training_date as trainingDate,h.calling_active_time as callingActiveTime,h.desired_pricing_split as desiredPricingSplit,
-          h.migrated_from_hotel_id as migratedFromHotelId,h.flagship_transition_category as flagshipTransitionCategory,h.prev_oyo_id as prevOyoId,
-          h.wifi_device_type as wifiDeviceType,h.is_only_mm_sellable as isOnlyMmSellable,h.is_only_home_mm_sellable as isOnlyHomeMmSellable,
-          h.studio_stays_property_type as studioStaysPropertyType,h.authorized_imei as authorizedImei,h.partner_description as partnerDescription,
-          h.one_liner as oneLiner,h.smart_pta_done as smartPtaDone,h.no_mm_sellable as noMmSellable,h.is_live_at_google as isLiveAtGoogle,h.gstn_no as gstnNo,
-          h.short_address as shortAddress,h.use_oyo_name as useOyoName,h.display_category as displayCategory,h.sap_sync as sapSync,h.alcott_sap_sync as alcottSapSync,
-          h.on_boarding_details as onBoardingDetails,h.unique_code as uniqueCode,h.atlas_id as atlasId,h.hawk_eye_hotel_id as hawkEyeHotelId,h.hawk_eye_url as hawkEyeUrl
-        from hotels h where h.id = 15385
+    <select id="queryHotelList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.HotelDto">
+        select * from hotels h where h.id = 15385
     </select>
 </mapper>

@@ -118,13 +118,13 @@ public class HotelDto {
 
   //关联hotel中的city_id
   @Transient
-  private Cities cities;
+  private CitiesDto cities;
 
-  public Cities getCities() {
+  public CitiesDto getCities() {
     return cities;
   }
 
-  public void setCities(Cities cities) {
+  public void setCities(CitiesDto cities) {
     this.cities = cities;
   }
 

@@ -4,6 +4,7 @@ import com.oyo.accouting.common.SapConfig;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -11,11 +12,11 @@ import java.util.regex.Pattern;
 
 public class SyncHotel {
 
-    private ConcurrentMap<String ,Object> syncHotelMap;
+    private HashMap<String ,Object> syncHotelMap;
 
     public SyncHotel(){
         if(this.syncHotelMap != null)return;
-        syncHotelMap = new ConcurrentHashMap<String ,Object>();
+        syncHotelMap = new LinkedHashMap<String ,Object>();
         syncHotelMap.put("CardCode","");
         syncHotelMap.put("CRSID","");
         syncHotelMap.put("CardName","");
@@ -30,10 +31,10 @@ public class SyncHotel {
         syncHotelMap.put("U_EComMerchID","");
         syncHotelMap.put("PayTermsGrpCode","");
 
-        Map<String ,Object> bPFiscalTaxId = new HashMap<String ,Object>();
+        Map<String ,Object> bPFiscalTaxId = new LinkedHashMap<String ,Object>();
         bPFiscalTaxId.put("association",new String[]{""});
-        Map<String ,Object>[] bPFiscalTaxIdFields = new HashMap[1];
-        Map<String ,Object> bPFiscalTaxIdFields0 = new HashMap<String ,Object>();
+        Map<String ,Object>[] bPFiscalTaxIdFields = new LinkedHashMap[1];
+        Map<String ,Object> bPFiscalTaxIdFields0 = new LinkedHashMap<String ,Object>();
         bPFiscalTaxIdFields0.put("TaxId0","");
         bPFiscalTaxIdFields0.put("TaxId1","");
         bPFiscalTaxIdFields0.put("TaxId2","");
@@ -43,62 +44,62 @@ public class SyncHotel {
         syncHotelMap.put("BPFiscalTaxID",bPFiscalTaxId);
 
 
-        Map<String ,Object> contactEmployees = new HashMap<String ,Object>();
+        Map<String ,Object> contactEmployees = new LinkedHashMap<String ,Object>();
         contactEmployees.put("association",new String[]{""});
-        Map<String ,Object>[] contactEmployeesFields = new HashMap[1];
-        Map<String ,Object> contactEmployeesFields0 = new HashMap<String ,Object>();
-        contactEmployeesFields0.put("Title","get_sap_pan_no");
-        contactEmployeesFields0.put("Name","name");
-        contactEmployeesFields0.put("FirstName","vat_no");
-        contactEmployeesFields0.put("LastName","last_name");
-        contactEmployeesFields0.put("MobilePhone","phone");
-        contactEmployeesFields0.put("Phone1","phone");
-        contactEmployeesFields0.put("E_Mail","email");
-        contactEmployeesFields0.put("Gender","get_sap_sex");
+        Map<String ,Object>[] contactEmployeesFields = new LinkedHashMap[1];
+        Map<String ,Object> contactEmployeesFields0 = new LinkedHashMap<String ,Object>();
+        contactEmployeesFields0.put("Title","");
+        contactEmployeesFields0.put("Name","");
+        contactEmployeesFields0.put("FirstName","");
+        contactEmployeesFields0.put("LastName","");
+        contactEmployeesFields0.put("MobilePhone","");
+        contactEmployeesFields0.put("Phone1","");
+        contactEmployeesFields0.put("E_Mail","");
+        contactEmployeesFields0.put("Gender","");
         contactEmployeesFields[0] = contactEmployeesFields0;
         contactEmployees.put("fields",contactEmployeesFields);
         syncHotelMap.put("ContactEmployees",contactEmployees);
 
-        Map<String ,Object> bPAddresses = new HashMap<String ,Object>();
+        Map<String ,Object> bPAddresses = new LinkedHashMap<String ,Object>();
         bPAddresses.put("association",new String[]{"",""});
-        Map<String ,Object>[] bPAddressesFields = new HashMap[2];
-        Map<String ,Object> bPAddressesFields0 = new HashMap<String ,Object>();
+        Map<String ,Object>[] bPAddressesFields = new LinkedHashMap[2];
+        Map<String ,Object> bPAddressesFields0 = new LinkedHashMap<String ,Object>();
         bPAddressesFields0.put("RowNum","");
-        bPAddressesFields0.put("AddressName","get_sap_address");
-        bPAddressesFields0.put("AddressType","set_bill_to");
-        bPAddressesFields0.put("City","get_sap_city_code");
-        bPAddressesFields0.put("State","get_state_name");
-        bPAddressesFields0.put("ZipCode","pincode");
-        bPAddressesFields0.put("Block","plot_number");
-        bPAddressesFields0.put("Street","street");
-        bPAddressesFields0.put("GSTIN","get_gstin");
+        bPAddressesFields0.put("AddressName","");
+        bPAddressesFields0.put("AddressType","");
+        bPAddressesFields0.put("City","");
+        bPAddressesFields0.put("State","");
+        bPAddressesFields0.put("ZipCode","");
+        bPAddressesFields0.put("Block","");
+        bPAddressesFields0.put("Street","");
+        bPAddressesFields0.put("GSTIN","");
         bPAddressesFields0.put("GstType","");
-        Map<String ,Object> bPAddressesFields1 = new HashMap<String ,Object>();
+        Map<String ,Object> bPAddressesFields1 = new LinkedHashMap<String ,Object>();
         bPAddressesFields1.put("RowNum","");
-        bPAddressesFields1.put("AddressName","get_sap_address");
-        bPAddressesFields1.put("AddressType","set_ship_to");
-        bPAddressesFields1.put("City","get_sap_city_code");
-        bPAddressesFields1.put("State","get_state_name");
-        bPAddressesFields1.put("ZipCode","pincode");
-        bPAddressesFields1.put("Block","plot_number");
-        bPAddressesFields1.put("Street","street");
+        bPAddressesFields1.put("AddressName","");
+        bPAddressesFields1.put("AddressType","");
+        bPAddressesFields1.put("City","");
+        bPAddressesFields1.put("State","");
+        bPAddressesFields1.put("ZipCode","");
+        bPAddressesFields1.put("Block","");
+        bPAddressesFields1.put("Street","");
         bPAddressesFields[0] = bPAddressesFields0;
         bPAddressesFields[1] = bPAddressesFields1;
         bPAddresses.put("fields",bPAddressesFields);
         syncHotelMap.put("BPAddresses",bPAddresses);
 
 
-        Map<String ,Object> bankAccounts = new HashMap<String ,Object>();
+        Map<String ,Object> bankAccounts = new LinkedHashMap<String ,Object>();
         bankAccounts.put("association",new String[]{""});
-        Map<String ,Object>[] bankAccountsFields = new HashMap[1];
-        Map<String ,Object> bankAccountsFields0 = new HashMap<String ,Object>();
-        bankAccountsFields0.put("AccountNo","bank_account_details('oyo')['account_no']");
-        bankAccountsFields0.put("AccountName","bank_account_details('oyo')['account_name']");
-        bankAccountsFields0.put("BankName","bank_account_details('alcott')['bank_name']");
+        Map<String ,Object>[] bankAccountsFields = new LinkedHashMap[1];
+        Map<String ,Object> bankAccountsFields0 = new LinkedHashMap<String ,Object>();
+        bankAccountsFields0.put("AccountNo","");
+        bankAccountsFields0.put("AccountName","");
+        bankAccountsFields0.put("BankName","");
         bankAccountsFields0.put("Branch","");
-        bankAccountsFields0.put("IFSC","bank_account_details('oyo')['ifsc']");
-        bankAccountsFields0.put("MICR","bank_account_details('oyo')['micr']");
-        bankAccountsFields0.put("BankAddress","bank_account_details('oyo')['bank_address']");
+        bankAccountsFields0.put("IFSC","");
+        bankAccountsFields0.put("MICR","");
+        bankAccountsFields0.put("BankAddress","");
         bankAccountsFields[0] = bankAccountsFields0;
         bankAccounts.put("fields",bankAccountsFields);
         syncHotelMap.put("BankAccounts",bankAccounts);
@@ -170,12 +171,4 @@ public class SyncHotel {
         return t == null? "" : t;
     }
 
-
-    @Override
-    public String toString() {
-        for (Map.Entry<String, Object> s : this.syncHotelMap.entrySet()) {
-            System.out.println(s);
-        }
-        return null;
-    }
 }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oyo.accouting.mapper.crs.CrsCitiesMapper">
+
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.CitiesDto" >
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="keywords" property="keywords" />
+        <result column="priority" property="priority" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="status" property="status" />
+        <result column="city_data" property="cityData" />
+        <result column="tax" property="tax" />
+        <result column="title" property="title" />
+        <result column="description" property="description" />
+        <result column="code" property="code" />
+        <result column="city_manager_id" property="cityManagerId" />
+        <result column="image_name" property="imageName" />
+        <result column="meta_description" property="metaDescription" />
+        <result column="country_id" property="countryId" />
+        <result column="hub_id" property="hubId" />
+        <result column="city_type" property="cityType" />
+        <result column="time_zone" property="timeZone" />
+        <result column="state_id" property="stateId"/>
+        <result column="boundary" property="boundary"/>
+        <!--<result column="centre" property="centre" jdbcType="point" javaType="java.awt.Point"/>-->
+        <result column="osm_data" property="osmData"/>
+        <result column="metadata" property="metadata"/>
+        <result column="partner_description" property="partnerDescription"/>
+        <result column="deals_notification_value" property="dealsNotificationValue"/>
+        <result column="sap_sync" property="sapSync"/>
+    </resultMap>
+
+    <select id="queryCityesById" resultMap="BaseResultMap" parameterType="java.lang.Long">
+
+        SELECT * FROM cities c where c.id =#{id}
+    </select>
+</mapper>

@@ -1,14 +1,10 @@
 package com.oyo.accouting.service;
 
-import com.oyo.accouting.bean.AccountDetailsDto;
-import com.oyo.accouting.bean.HotelDto;
-import com.oyo.accouting.bean.SyncHotel;
-import com.oyo.accouting.bean.UserProfilesDto;
+import com.oyo.accouting.bean.*;
 import com.oyo.accouting.mapper.crs.CrsAccountDetailsMapper;
+import com.oyo.accouting.mapper.crs.CrsCitiesMapper;
 import com.oyo.accouting.mapper.crs.CrsHotelMapper;
 import com.oyo.accouting.mapper.crs.CrsUserProfilesMapper;
-import com.oyo.accouting.pojo.AccountDetails;
-import com.oyo.accouting.pojo.UserProfiles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +23,9 @@ public class SyncHotelToSapService {
     @Autowired
     private CrsUserProfilesMapper crsUserProfilesMapper;
 
+    @Autowired
+    private CrsCitiesMapper crsCitiesMapper;
+
     public SyncHotel syncHotelToSap(){
 
         List<HotelDto> hotelList = this.crsHotelMapper.queryHotelList();
@@ -38,6 +37,9 @@ public class SyncHotelToSapService {
             //查询UserProfiles
             UserProfilesDto userProfiles = crsUserProfilesMapper.queryUserProfilesByHotelIdAndRole(h.getId());
             h.setUserProfiles(userProfiles);
+
+            CitiesDto cities = this.crsCitiesMapper.queryCityesById(h.getCityId());
+            h.setCities(cities);
 
             SyncHotel syncHotel = new SyncHotel();
             Map<String ,Object> syncHotemMap = syncHotel.getSyncHotelMap();

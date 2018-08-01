@@ -1,20 +1,20 @@
-package com.oyo.accouting.pojo;
+package com.oyo.accouting.bean;
 
 
 import java.awt.*;
 import java.sql.Timestamp;
 
-public class Cities {
+public class CitiesDto {
 
   private Long id;
   private String name;
   private String keywords;
   private Long priority;
-  private java.sql.Timestamp createdAt;
-  private java.sql.Timestamp updatedAt;
+  private Timestamp createdAt;
+  private Timestamp updatedAt;
   private Long status;
   private String cityData;
-  private double tax;
+  private Double tax;
   private String title;
   private String description;
   private String code;
@@ -99,11 +99,11 @@ public class Cities {
     this.cityData = cityData;
   }
 
-  public double getTax() {
+  public Double getTax() {
     return tax;
   }
 
-  public void setTax(double tax) {
+  public void setTax(Double tax) {
     this.tax = tax;
   }
 
