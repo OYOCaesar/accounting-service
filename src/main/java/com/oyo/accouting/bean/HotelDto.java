@@ -4,6 +4,7 @@ import com.oyo.accouting.pojo.AccountDetails;
 import com.oyo.accouting.pojo.Cities;
 import com.oyo.accouting.pojo.UserProfiles;
 
+import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.sql.Date;
@@ -114,11 +115,11 @@ public class HotelDto {
   ////SELECT  "account_details".* FROM "account_details" WHERE "account_details"."item_id" = $1
   // AND "account_details"."item_type" = $2 LIMIT 1  [["item_id", 15385], ["item_type", "Hotel"]]
   @Transient
-  private AccountDetails accountDetails;
+  private AccountDetailsDto accountDetails;
   //SELECT  "user_profiles".* FROM "user_profiles"
   // INNER JOIN "hotel_user_profiles" ON "user_profiles"."id" = "hotel_user_profiles"."user_profile_id"
   @Transient
-  private UserProfiles userProfiles;
+  private UserProfilesDto userProfiles;
 
   //关联hotel中的city_id
   @Transient
@@ -908,19 +909,19 @@ public class HotelDto {
     this.hawkEyeUrl = hawkEyeUrl;
   }
 
-  public AccountDetails getAccountDetails() {
+  public AccountDetailsDto getAccountDetails() {
     return accountDetails;
   }
 
-  public void setAccountDetails(AccountDetails accountDetails) {
+  public void setAccountDetails(AccountDetailsDto accountDetails) {
     this.accountDetails = accountDetails;
   }
 
-  public UserProfiles getUserProfiles() {
+  public UserProfilesDto getUserProfiles() {
     return userProfiles;
   }
 
-  public void setUserProfiles(UserProfiles userProfiles) {
+  public void setUserProfiles(UserProfilesDto userProfiles) {
     this.userProfiles = userProfiles;
   }
 }

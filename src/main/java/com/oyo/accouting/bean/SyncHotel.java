@@ -18,8 +18,8 @@ public class SyncHotel {
 
     private ConcurrentMap<String ,Object> syncHotelMap;
 
-    public Map<String ,Object> getSyncHotelMap(){
-
+    public SyncHotel(){
+        if(this.syncHotelMap != null)return;
         syncHotelMap = new ConcurrentHashMap<String ,Object>();
         syncHotelMap.put("CardCode","");
         syncHotelMap.put("CRSID","");
@@ -89,7 +89,7 @@ public class SyncHotel {
         bPAddressesFields1.put("Street","street");
         bPAddressesFields[0] = bPAddressesFields0;
         bPAddressesFields[1] = bPAddressesFields1;
-        contactEmployees.put("fields",bPAddressesFields);
+        bPAddresses.put("fields",bPAddressesFields);
         syncHotelMap.put("BPAddresses",bPAddresses);
 
 
@@ -106,45 +106,46 @@ public class SyncHotel {
         bankAccountsFields0.put("BankAddress","bank_account_details('oyo')['bank_address']");
         bankAccountsFields[0] = bankAccountsFields0;
         bankAccounts.put("fields",bankAccountsFields);
-        syncHotelMap.put("ContactEmployees",contactEmployees);
+        syncHotelMap.put("BankAccounts",bankAccounts);
+    }
 
+    public Map<String ,Object> getSyncHotelMap(){
         return syncHotelMap;
-
     }
 
 
-    public Map<String ,Object> initSyncHotelMap(HotelDto hotel,Map<String ,Object> syncHotel){
+    public Map<String ,Object> setSyncHotelMap(HotelDto hotel,Map<String ,Object> syncHotel){
 
         syncHotel.put("CardCode",(hotel.getId().toString().length()<7?"H-":"")+hotel.getId().toString());
-        syncHotel.put("CRSID",hotel.getOyoId());
-        syncHotel.put("CardName",hotel.getOyoId() + " - " + hotel.getName());
-        syncHotel.put("CardFName",hotel.getAlternateName());
-        syncHotel.put("BillingName",hotel.getBillingEntity());
-        syncHotel.put("Cellular",hotel.getPhone());
-        syncHotel.put("EmailAddress",hotel.getEmail());
+        syncHotel.put("CRSID",checkNull(hotel.getOyoId()));
+        syncHotel.put("CardName",hotel.getOyoId()==null? "" : (hotel.getOyoId() + " - " + hotel.getName()));
+        syncHotel.put("CardFName",checkNull(hotel.getAlternateName()));
+        syncHotel.put("BillingName",checkNull(hotel.getBillingEntity()));
+        syncHotel.put("Cellular",checkNull(hotel.getPhone()));
+        syncHotel.put("EmailAddress",checkNull(hotel.getEmail()));
         syncHotel.put("U_EComMerchID",hotel.getId());
         syncHotel.put("PayTermsGrpCode","-1");
 
         Map<String ,Object> bPFiscalTaxId = (Map<String, Object>) syncHotel.get("BPFiscalTaxID");
-        AccountDetails accountDetails = hotel.getAccountDetails();
+        AccountDetailsDto accountDetails = hotel.getAccountDetails();
         Map<String ,Object>[] bPFiscalTaxIdFields = (Map<String, Object>[]) bPFiscalTaxId.get("fields");
 
         String regEx = "/\\A[A-Z]{5}[0-9]{4}[A-Z]{1}\\z/";
         Pattern pattern = Pattern.compile(regEx);
         boolean checkPanNo = accountDetails!=null && !StringUtils.isEmpty(accountDetails.getPanNo()) && pattern.matcher(accountDetails.getPanNo().trim()).find();
         bPFiscalTaxIdFields[0].put("TaxId0",checkPanNo?accountDetails.getPanNo():SapConfig.NILCLASS_PAN_NO);
-        bPFiscalTaxIdFields[0].put("TaxId1",accountDetails.getCstNo());
-        bPFiscalTaxIdFields[0].put("TaxId2",accountDetails.getVatNo());
-        bPFiscalTaxIdFields[0].put("TaxId3",accountDetails.getServiceTaxNo());
+        bPFiscalTaxIdFields[0].put("TaxId1",checkNull(accountDetails.getCstNo()));
+        bPFiscalTaxIdFields[0].put("TaxId2",checkNull(accountDetails.getVatNo()));
+        bPFiscalTaxIdFields[0].put("TaxId3",checkNull(accountDetails.getServiceTaxNo()));
 
         Map<String ,Object> contactEmployees = (Map<String, Object>) syncHotel.get("ContactEmployees");
-        UserProfiles userProfiles = hotel.getUserProfiles();
+        UserProfilesDto userProfiles = hotel.getUserProfiles();
         Map<String ,Object>[] contactEmployeesFields = (Map<String, Object>[]) contactEmployees.get("fields");
-        contactEmployeesFields[0].put("Name",userProfiles.getFirstName());
-        contactEmployeesFields[0].put("FirstName",userProfiles.getFirstName());
-        contactEmployeesFields[0].put("LastName",userProfiles.getLastName());
-        contactEmployeesFields[0].put("MobilePhone",userProfiles.getPhone());
-        contactEmployeesFields[0].put("E_Mail",userProfiles.getEmail());
+        contactEmployeesFields[0].put("Name",checkNull(userProfiles.getFirstName()));
+        contactEmployeesFields[0].put("FirstName",checkNull(userProfiles.getFirstName()));
+        contactEmployeesFields[0].put("LastName",checkNull(userProfiles.getLastName()));
+        contactEmployeesFields[0].put("MobilePhone",checkNull(userProfiles.getPhone()));
+        contactEmployeesFields[0].put("E_Mail",checkNull(userProfiles.getEmail()));
         contactEmployeesFields[0].put("Gender",(StringUtils.isEmpty(userProfiles.getSex())?userProfiles.getSex() : 0)==0?"Male":"Female");
 
         Map<String ,Object> bPAddresses = (Map<String, Object>) syncHotel.get("BPAddresses");
@@ -152,23 +153,34 @@ public class SyncHotel {
         bPAddressesFields[0].put("RowNum","0");
         bPAddressesFields[0].put("AddressName",hotel.getStreet()+","+hotel.getCity());
         bPAddressesFields[0].put("AddressType",SapConfig.SET_BILL_TO);
-        bPAddressesFields[0].put("City",hotel.getCities().getCode());
+        bPAddressesFields[0].put("City",hotel.getCities() == null? "" : hotel.getCities().getCode());
         bPAddressesFields[0].put("State",StringUtils.isEmpty(userProfiles.getState())?userProfiles.getState():SapConfig.USERPROFILE_STATE);
         bPAddressesFields[1].put("RowNum","1");
         bPAddressesFields[1].put("AddressName",hotel.getStreet()+","+hotel.getCity());
         bPAddressesFields[1].put("AddressType",SapConfig.SET_BILL_TO);
-        bPAddressesFields[1].put("City",hotel.getCities().getCode());
+        bPAddressesFields[1].put("City",hotel.getCities() == null? "" : hotel.getCities().getCode());
 
         Map<String ,Object> bankAccounts = (Map<String, Object>) syncHotel.get("BankAccounts");
         Map<String ,Object>[] bankAccountsFields = (Map<String, Object>[]) bankAccounts.get("fields");
-        bankAccountsFields[0].put("AccountNo",accountDetails.getBankAccountNo());
-        bankAccountsFields[0].put("AccountName",accountDetails.getName());
-        bankAccountsFields[0].put("BankName",accountDetails.getBankName());
-        bankAccountsFields[0].put("IFSC",accountDetails.getBankIfscCode());
-        bankAccountsFields[0].put("MICR",accountDetails.getBankMicrCode());
-        bankAccountsFields[0].put("BankAddress",accountDetails.getBankAddress());
+        bankAccountsFields[0].put("AccountNo",checkNull(accountDetails.getBankAccountNo()));
+        bankAccountsFields[0].put("AccountName",checkNull(accountDetails.getName()));
+        bankAccountsFields[0].put("BankName",checkNull(accountDetails.getBankName()));
+        bankAccountsFields[0].put("IFSC",checkNull(accountDetails.getBankIfscCode()));
+        bankAccountsFields[0].put("MICR",checkNull(accountDetails.getBankMicrCode()));
+        bankAccountsFields[0].put("BankAddress",checkNull(accountDetails.getBankAddress()));
         return syncHotel;
     }
 
+    private Object checkNull(Object t){
+        return t == null? "" : t;
+    }
 
+
+    @Override
+    public String toString() {
+        for (Map.Entry<String, Object> s : this.syncHotelMap.entrySet()) {
+            System.out.println(s);
+        }
+        return null;
+    }
 }

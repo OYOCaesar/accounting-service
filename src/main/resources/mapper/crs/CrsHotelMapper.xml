@@ -1,6 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.oyo.accouting.mapper.crs.CrsHotelMapper">
-	
 
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.HotelDto" >
+
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="alternate_name" property="alternateName"/>
+        <result column="oyo_id" property="oyoId"/>
+        <result column="location_description" property="locationDescription"/>
+        <result column="keywords" property="keywords"/>
+        <result column="priority" property="priority"/>
+        <result column="clientele" property="clientele"/>
+        <result column="map_link" property="mapLink"/>
+        <result column="rating" property="rating"/>
+        <result column="website" property="website"/>
+        <result column="meta_description" property="metaDescription"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="landmark" property="landmark"/>
+        <result column="directions" property="directions"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="status" property="status"/>
+        <result column="category" property="category"/>
+        <result column="cluster_id" property="clusterId"/>
+        <result column="plot_number" property="plotNumber"/>
+        <result column="street" property="street"/>
+        <result column="city" property="city"/>
+        <result column="state" property="state"/>
+        <result column="country" property="country"/>
+        <result column="pincode" property="pincode"/>
+        <result column="longitude" property="longitude"/>
+        <result column="new_oyo" property="newOyo"/>
+        <result column="featured" property="featured"/>
+        <result column="transformed_by_id" property="operationManagerId"/>
+        <result column="hostess_manager_id" property="hostessManagerId"/>
+        <result column="training_manager_id" property="trainingManagerId"/>
+        <result column="board_type" property="boardType"/>
+        <result column="hoarding" property="hoarding" />
+        <result column="over_sellable_rooms" property="overSellableRooms" />
+        <result column="landline" property="landline" />
+        <result column="manager_name" property="managerName" />
+        <result column="lead_type" property="leadType" />
+        <result column="activation_date" property="activationDate" />
+        <result column="oyo_email" property="oyoEmail" />
+        <result column="tablet_status" property="tabletStatus" />
+        <result column="created_by" property="createBy" />
+        <result column="only_prepaid" property="onlyPrepaid" />
+        <result column="bd_manager_id" property="bdManagerId"/>
+        <result column="discount" property="discount"/>
+        <result column="mini_cluster_id" property="miniClusterId"/>
+        <result column="short_description" property="shortDescription"/>
+        <result column="ota_listed" property="otaListed"/>
+        <result column="country_id" property="countryId"/>
+        <result column="city_id" property="cityId"/>
+        <result column="currency_id" property="currencyId"/>
+        <result column="holiday_iq_url" property="holidayIqUrl"/>
+        <result column="checkin_time" property="checkinTime"/>
+        <result column="checkout_time" property="checkoutTime"/>
+        <result column="status_track" property="statusTrack"/>
+        <result column="total_rooms" property="total_rooms" />
+        <result column="hotel_type" property="hotelType" />
+        <result column="billing_entity" property="billingEntity" />
+        <result column="hotel_logo" property="hotelLogo" />
+        <result column="nearby_json" property="nearbyJson" />
+        <result column="training_date" property="trainingDate" />
+        <result column="calling_active_time" property="callingActiveTime" />
+        <result column="desired_pricing_split" property="desiredPricingSplit" />
+        <result column="migrated_from_hotel_id" property="migratedFromHotelId"/>
+        <result column="flagship_transition_category" property="flagshipTransitionCategory"/>
+        <result column="prev_oyo_id" property="prevOyoId"/>
+        <result column="wifi_device_type" property="wifiDeviceType"/>
+        <result column="is_only_mm_sellable" property="isOnlyMmSellable"/>
+        <result column="is_only_home_mm_sellable" property="isOnlyHomeMmSellable"/>
+        <result column="studio_stays_property_type" property="studioStaysPropertyType" />
+        <result column="authorized_imei" property="authorizedImei" />
+        <result column="partner_description" property="partnerDescription" />
+        <result column="one_liner" property="oneLiner" />
+        <result column="smart_pta_done" property="smartPtaDone" />
+        <result column="no_mm_sellable" property="noMmSellable" />
+        <result column="is_live_at_google" property="isLiveAtGoogle" />
+        <result column="short_address" property="shortAddress"/>
+        <result column="use_oyo_name" property="useOyoName"/>
+        <result column="display_category" property="displayCategory"/>
+        <result column="sap_sync" property="sapSync"/>
+        <result column="alcott_sap_sync" property="alcottSapSync"/>
+        <result column="on_boarding_details" property="onBoardingDetails"/>
+        <result column="unique_code" property="uniqueCode"/>
+        <result column="atlas_id" property="atlasId"/>
+        <result column="hawk_eye_hotel_id" property="hawkEyeHotelId" />
+        <result column="hawk_eye_url" property="hawkEyeUrl" />
+    </resultMap>
+
+
+    <select id="queryHotelList" resultType="com.oyo.accouting.bean.HotelDto" parameterType="com.oyo.accouting.bean.HotelDto">
+        select h.id,h.name,h.alternate_name as alternateName,h.oyo_id as oyoId,h.summary,h.description,h.location_description as locationDescription,
+          h.keywords,h.priority,h.clientele,h.map_link as mapLink,h.rating,h.website,h.meta_description as metaDescription,h.email,h.phone,h.landmark,h.directions,
+          h.created_at as createdAt,h.updated_at as updatedAt,h.status,h.category,h.cluster_id as clusterId,h.plot_number as plotNumber,h.street,h.city,h.state,h.country,
+          h.pincode,h.latitude,h.longitude,h.new_oyo as newOyo,h.featured,h.transformed_by_id as tranformedById,h.mintariff,h.send_manager_details as sendManagerDetails,
+          h.primary_contact as primaryContact,h.trip_advisor_url as tripAdvisorUrl,h.operation_manager_id as operationManagerId,h.hostess_manager_id as hostessManagerId,
+          h.training_manager_id as trainingManagerId,h.board_type as boardType,h.hoarding,h.over_sellable_rooms as overSellableRooms,h.landline,h.manager_name as managerName,
+          h.lead_type as leadType,h.activation_date as activationDate,h.oyo_email as oyoEmail,h.tablet_status as tabletStatus,h.created_by as createBy,
+          h.only_prepaid as onlyPrepaid,h.bd_manager_id as bdManagerId,h.discount,h.mini_cluster_id as miniClusterId,h.short_description as shortDescription,
+          h.ota_listed as otaListed,h.country_id as countryId,h.city_id as cityId,h.currency_id as currencyId,h.holiday_iq_url as holidayIqUrl,h.checkin_time as checkinTime,
+          h.checkout_time checkoutTime,h.status_track as statusTrack,h.total_rooms as totalRooms,h.hotel_type hotelType,h.billing_entity as billingEntity,h.hotel_logo as hotelLogo,
+          h.nearby_json as nearbyJson,h.training_date as trainingDate,h.calling_active_time as callingActiveTime,h.desired_pricing_split as desiredPricingSplit,
+          h.migrated_from_hotel_id as migratedFromHotelId,h.flagship_transition_category as flagshipTransitionCategory,h.prev_oyo_id as prevOyoId,
+          h.wifi_device_type as wifiDeviceType,h.is_only_mm_sellable as isOnlyMmSellable,h.is_only_home_mm_sellable as isOnlyHomeMmSellable,
+          h.studio_stays_property_type as studioStaysPropertyType,h.authorized_imei as authorizedImei,h.partner_description as partnerDescription,
+          h.one_liner as oneLiner,h.smart_pta_done as smartPtaDone,h.no_mm_sellable as noMmSellable,h.is_live_at_google as isLiveAtGoogle,h.gstn_no as gstnNo,
+          h.short_address as shortAddress,h.use_oyo_name as useOyoName,h.display_category as displayCategory,h.sap_sync as sapSync,h.alcott_sap_sync as alcottSapSync,
+          h.on_boarding_details as onBoardingDetails,h.unique_code as uniqueCode,h.atlas_id as atlasId,h.hawk_eye_hotel_id as hawkEyeHotelId,h.hawk_eye_url as hawkEyeUrl
+        from hotels h where h.id = 15385
+    </select>
 </mapper>
