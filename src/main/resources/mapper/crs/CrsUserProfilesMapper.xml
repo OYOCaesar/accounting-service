@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oyo.accouting.mapper.crs.CrsUserProfilesMapper">
+
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.UserProfilesDto" >
+        <id column="id" property="id" />
+        <result column="first_name" property="firstName" />
+        <result column="last_name" property="lastName" />
+        <result column="phone" property="phone" />
+        <result column="email" property="email" />
+        <result column="address" property="address" />
+        <result column="city" property="city" />
+        <result column="state" property="state" />
+        <result column="date_of_birth" property="dateOfBirth" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="role" property="role" />
+        <result column="sex" property="sex" />
+        <result column="status" property="status" />
+        <result column="registration_id" property="registrationId" />
+        <result column="team" property="team" />
+        <result column="agent_id" property="agentId" />
+        <result column="country_code" property="countryCode" />
+        <result column="currency_id" property="currencyId" />
+        <result column="country_id" property="countryId"/>
+        <result column="devise_role" property="deviseRole"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="is_relationship_mode_on" property="isRelationshipModeOn"/>
+    </resultMap>
+
+    <select id="queryUserProfilesByHotelIdAndRole" resultMap="BaseResultMap" parameterType="java.lang.Long">
+
+        SELECT * FROM user_profiles up INNER JOIN hotel_user_profiles hup ON up.id = hup.user_profile_id
+        where hup.hotel_id =#{hotelId} and hup.role = 7 order by up.id desc limit 1
+    </select>
+</mapper>
