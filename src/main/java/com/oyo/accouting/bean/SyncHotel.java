@@ -6,10 +6,11 @@ import org.springframework.util.StringUtils;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
+/**
+ * @author zfguo
+ */
 public class SyncHotel {
 
     private HashMap<String ,Object> syncHotelMap;

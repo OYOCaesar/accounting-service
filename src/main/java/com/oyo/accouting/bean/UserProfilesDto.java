@@ -7,6 +7,9 @@ import lombok.Setter;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+/**
+ * @author zfguo
+ */
 @Getter
 @Setter
 public class UserProfilesDto {

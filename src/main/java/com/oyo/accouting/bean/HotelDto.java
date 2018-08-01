@@ -1,14 +1,14 @@
 package com.oyo.accouting.bean;
 
-import com.oyo.accouting.pojo.Cities;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Transient;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
-
+/**
+ * @author zfguo
+ */
 @Getter
 @Setter
 public class HotelDto {

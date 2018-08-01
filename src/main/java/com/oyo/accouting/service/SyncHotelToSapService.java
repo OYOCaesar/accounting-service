@@ -37,13 +37,21 @@ public class SyncHotelToSapService {
             //查询UserProfiles
             UserProfilesDto userProfiles = crsUserProfilesMapper.queryUserProfilesByHotelIdAndRole(h.getId());
             h.setUserProfiles(userProfiles);
-
+            //查询Cities
             CitiesDto cities = this.crsCitiesMapper.queryCityesById(h.getCityId());
             h.setCities(cities);
 
+            //初始化SyncHotel
             SyncHotel syncHotel = new SyncHotel();
+            //处理业务逻辑
             Map<String ,Object> syncHotemMap = syncHotel.getSyncHotelMap();
             syncHotel.setSyncHotelMap(h,syncHotemMap);
+
+            //查询同步日志，判断是否需要同步
+
+            //同步到sap
+
+            //插入日志
             return syncHotel;
         }
         return null;
