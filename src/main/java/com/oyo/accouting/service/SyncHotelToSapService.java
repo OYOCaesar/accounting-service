@@ -1,13 +1,18 @@
 package com.oyo.accouting.service;
 
 import com.oyo.accouting.bean.*;
+import com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountDetailsMapper;
 import com.oyo.accouting.mapper.crs.CrsCitiesMapper;
 import com.oyo.accouting.mapper.crs.CrsHotelMapper;
 import com.oyo.accouting.mapper.crs.CrsUserProfilesMapper;
+
+import com.oyo.accouting.pojo.SyncLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +33,9 @@ public class SyncHotelToSapService {
 
     @Autowired
     private CrsCitiesMapper crsCitiesMapper;
+
+    @Autowired
+    private AccountingSyncLogMapper accountingSyncLogMapper;
 
     public SyncHotel syncHotelToSap(){
 
@@ -51,10 +59,29 @@ public class SyncHotelToSapService {
             syncHotel.setSyncHotelMap(h,syncHotemMap);
 
             //查询同步日志，判断是否需要同步
+            SyncLog syncLogSearch = new SyncLog();
+            syncLogSearch.setSourceId(h.getId());
+            List<SyncLogDto> syncLogDtoList = this.accountingSyncLogMapper.querySyncList(syncLogSearch);
 
-            //同步到sap
+            boolean syncLogDtoListIsNull = syncLogDtoList==null || syncLogDtoList.size()== 0;  //同步日志是否为null
+            SyncLogDto syncLogDto = null;
+            if(!syncLogDtoListIsNull)syncLogDto = syncLogDtoList.get(0);   //不为null
+            //判断是否需要同步
+            boolean isSync = syncLogDtoListIsNull || (!syncLogDtoListIsNull && h.getUpdatedAt().equals(syncLogDto.getUpdateTime()));
+            //同步sap
+            if(isSync){
+                //同步到sap
+                    //TODO
+                //插入日志
+                SyncLog sl = new SyncLog();
+                sl.setSourceId(h.getId());
+                sl.setCreateTime(new Timestamp(new Date().getTime()));
+                sl.setUpdateTime(h.getUpdatedAt());
+                sl.setType("Hotel");
+                sl.setVersion(syncLogDtoListIsNull?1:syncLogDto.getVersion()+1);
+                this.accountingSyncLogMapper.insert(sl);
 
-            //插入日志
+            }
             return syncHotel;
         }
         return null;
