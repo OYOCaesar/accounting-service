@@ -12,7 +12,8 @@ spring:
       password: admin12345
       filters: stat,wall
       driver-class-name: org.postgresql.Driver
-    
+
+
     
     
 server:
