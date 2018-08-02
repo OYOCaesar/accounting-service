@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper">
-	
-	
+
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.SyncLogDto" >
+        <id column="id" property="id" />
+        <result column="source_id" property="sourceId" />
+        <result column="type" property="type" />
+        <result column="version" property="version" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <select id="querySyncList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.SyncLogDto">
+
+        SELECT * FROM sync_log sl where sl.source_id =#{syncLog.sourceId} order by sl.id desc limit 1
+    </select>
 	
 </mapper>
