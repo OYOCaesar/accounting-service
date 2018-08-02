@@ -1,27 +1,28 @@
-package com.oyo.accouting.pojo;
+package com.oyo.accouting.bean;
 
 
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Table;
 import java.awt.*;
 import java.sql.Timestamp;
 
+/**
+ * @author zfguo
+ */
 @Getter
 @Setter
-@Table(name = "cities")
-public class Cities {
+public class CitiesDto {
 
   private Long id;
   private String name;
   private String keywords;
   private Long priority;
-  private java.sql.Timestamp createdAt;
-  private java.sql.Timestamp updatedAt;
+  private Timestamp createdAt;
+  private Timestamp updatedAt;
   private Long status;
   private String cityData;
-  private double tax;
+  private Double tax;
   private String title;
   private String description;
   private String code;

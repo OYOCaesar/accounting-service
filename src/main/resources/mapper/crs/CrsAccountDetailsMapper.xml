@@ -2,15 +2,50 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.oyo.accouting.mapper.crs.CrsAccountDetailsMapper">
 
-    <select id="queryAccountDetailsByItemId" resultType="com.oyo.accouting.bean.AccountDetailsDto" parameterType="java.lang.Long">
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.AccountDetailsDto" >
+        <id column="id" property="id" />
+        <result column="hotel_id" property="hotelId" />
+        <result column="name" property="name" />
+        <result column="bank_name" property="bankName" />
+        <result column="bank_address" property="bankAddress" />
+        <result column="bank_account_no" property="bankAccountNo" />
+        <result column="account_type" property="accountType" />
+        <result column="bank_ifsc_code" property="bankIfscCode" />
+        <result column="bank_micr_code" property="bankMicrCode" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="item_id" property="itemId" />
+        <result column="item_type" property="itemType" />
+        <result column="service_tax_no" property="serviceTaxNo" />
+        <result column="pan_no" property="panNo" />
+        <result column="vat_no" property="vatNo" />
+        <result column="cst_no" property="cstNo" />
+        <result column="credit_limit" property="creditLimit" />
+        <result column="credit_usage_ueriod" property="creditUsagePeriod" />
+        <result column="last_billed_date" property="lastBilledDate"/>
+        <result column="settlement_period" property="settlementPeriod"/>
+        <result column="discount" property="discount"/>
+        <result column="discount_type" property="discountType"/>
+        <result column="btc_allowed" property="btcAllowed"/>
+        <result column="status" property="status"/>
+        <result column="skip_prepaid" property="skipPrepaid"/>
+        <result column="walletId" property="walletId"/>
+        <result column="ach_status" property="achStatus" />
+        <result column="share_pc" property="sharePc" />
+        <result column="coupon_allowed" property="couponAllowed" />
+        <result column="billing_cycle" property="billingCycle" />
+        <result column="payment_cycle" property="paymentCycle" />
+        <result column="metadata" property="metadata" />
+        <result column="fixed_pricing" property="fixedPricing" />
+        <result column="generate_invoice" property="generateInvoice" />
+        <result column="commission_payout_trigger" property="commissionPayoutTrigger" />
+        <result column="aadhar_no" property="aadharNo"/>
 
-        SELECT ad.id,ad.hotel_id as hotelId,ad.name,ad.bank_name as bankName,ad.bank_address as bankAddress,ad.bank_account_no as bankAccountNo,ad.account_type as accountType,
-         ad.bank_ifsc_code as bankIfscCode,ad.bank_micr_code as bankMicrCode,ad.created_at as createdAt,ad.updated_at as updatedAt,ad.item_id as itemId ,
-         ad.item_type as itemType,ad.service_tax_no as serviceTaxNo,ad.pan_no as panNo,ad.vat_no as vatNo,ad.cst_no as cstNo,ad.credit_limit as creditLimit,ad.credit_usage_period as creditUsagePeriod,
-         ad.last_billed_date as lastBilledDate,ad.settlement_period as settlementPeriod,ad.discount as discount,ad.discount_type as discountType,ad.btc_allowed as btcAllowed,ad.status,
-         ad.skip_prepaid as skipPrepaid,ad.wallet_id as walletId,ad.ach_status as achStatus,ad.share_pc as sharePc,ad.coupon_allowed as couponAllowed,ad.billing_cycle as billingCycle,
-         ad.payment_cycle as paymentCycle,ad.metadata,ad.fixed_pricing as fixedPricing,ad.generate_invoice as generateInvoice,ad.commission_payout_trigger as commissionPayoutTrigger,ad.aadhar_no as aadharNo
-         FROM account_details ad WHERE item_id = #{itemId} AND item_type = 'Hotel' LIMIT 1
+    </resultMap>
+
+    <select id="queryAccountDetailsByItemId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+
+        SELECT * FROM account_details ad WHERE item_id = #{itemId} AND item_type = 'Hotel' LIMIT 1
 
     </select>
 
