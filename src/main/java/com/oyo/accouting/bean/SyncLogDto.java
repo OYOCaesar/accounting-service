@@ -13,10 +13,11 @@ public class SyncLogDto {
   private Long id;
   private Long sourceId;
   private String type;
-  private Long version;
+  private Integer version;
   private java.sql.Timestamp updateTime;
   private java.sql.Timestamp createTime;
-
+  private Integer status;
+  private String jsonData;
 
 
 }

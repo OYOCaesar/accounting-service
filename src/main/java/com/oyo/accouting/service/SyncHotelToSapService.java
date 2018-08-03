@@ -8,6 +8,7 @@ import com.oyo.accouting.mapper.crs.CrsHotelMapper;
 import com.oyo.accouting.mapper.crs.CrsUserProfilesMapper;
 
 import com.oyo.accouting.pojo.SyncLog;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -79,8 +80,9 @@ public class SyncHotelToSapService {
                 sl.setUpdateTime(h.getUpdatedAt());
                 sl.setType("Hotel");
                 sl.setVersion(syncLogDtoListIsNull?1:syncLogDto.getVersion()+1);
+                JSONObject jsonObject = JSONObject.fromObject(syncHotel.getSyncHotelMap());
+                sl.setJsonData(jsonObject.toString());
                 this.accountingSyncLogMapper.insert(sl);
-
             }
             return syncHotel;
         }
