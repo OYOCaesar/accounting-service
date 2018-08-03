@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oyo.accouting.mapper.crs.CrsAccountMapper">
+<!-- 	<resultMap type="" id=""> -->
+
+	
+<!-- 	</resultMap> -->
+	
+	<select id="calHotelAmount"  resultType="hashmap">
+		SELECT
+			A .HOTEL_ID,
+			SUM (A .OWNER_AMOUNT)
+		FROM
+			BOOKINGS A
+		WHERE
+			A .CHECKIN <![CDATA[>=]]> date_trunc('month', now() :: DATE)
+		AND A .CHECKIN <![CDATA[<=]]> date_trunc('month', now() :: DATE) + INTERVAL '1 month' - INTERVAL '1 day'
+		AND A .STATUS = 1
+		GROUP BY
+			A .HOTEL_ID
+		ORDER BY
+			A .HOTEL_ID
+	</select>
+</mapper>
