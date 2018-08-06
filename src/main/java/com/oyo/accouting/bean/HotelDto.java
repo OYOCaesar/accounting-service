@@ -117,4 +117,6 @@ public class HotelDto {
 
   private CitiesDto cities;
 
+  private String oyoShare;
+
 }

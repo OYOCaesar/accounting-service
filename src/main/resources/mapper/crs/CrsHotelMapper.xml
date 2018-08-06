@@ -91,10 +91,12 @@
         <result column="atlas_id" property="atlasId"/>
         <result column="hawk_eye_hotel_id" property="hawkEyeHotelId" />
         <result column="hawk_eye_url" property="hawkEyeUrl" />
+        <result column="rs_slabs" property="oyoShare"/>
     </resultMap>
 
 
     <select id="queryHotelList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.HotelDto">
-        select * from hotels h where h.id = 15385
+        select h.*,a.rs_slabs from hotels h left join hotel_agreement_details had on h.id = had.hotel_id
+          left join agreements a on had.agreement_id = a.id where h.id = 15385 and had.valid_from &lt;= current_date and had.valid_till >= current_date
     </select>
 </mapper>

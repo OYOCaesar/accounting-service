@@ -68,7 +68,7 @@ public class SyncHotelToSapService {
             SyncLogDto syncLogDto = null;
             if(!syncLogDtoListIsNull)syncLogDto = syncLogDtoList.get(0);   //不为null
             //判断是否需要同步
-            boolean isSync = syncLogDtoListIsNull || (!syncLogDtoListIsNull && h.getUpdatedAt().equals(syncLogDto.getUpdateTime()));
+            boolean isSync = syncLogDtoListIsNull || (!syncLogDtoListIsNull && h.getUpdatedAt().equals(syncLogDto.getSourceUpdateTime()));
             //同步sap
             if(isSync){
                 //同步到sap
@@ -77,7 +77,7 @@ public class SyncHotelToSapService {
                 SyncLog sl = new SyncLog();
                 sl.setSourceId(h.getId());
                 sl.setCreateTime(new Timestamp(new Date().getTime()));
-                sl.setUpdateTime(h.getUpdatedAt());
+                sl.setSourceUpdateTime(h.getUpdatedAt());
                 sl.setType("Hotel");
                 sl.setVersion(syncLogDtoListIsNull?1:syncLogDto.getVersion()+1);
                 JSONObject jsonObject = JSONObject.fromObject(syncHotel.getSyncHotelMap());

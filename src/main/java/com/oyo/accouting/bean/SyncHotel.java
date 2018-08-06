@@ -1,12 +1,9 @@
 package com.oyo.accouting.bean;
 
-import com.oyo.accouting.common.SapConfig;
-import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * @author zfguo
@@ -100,6 +97,8 @@ public class SyncHotel {
         bankAccountsFields[0] = bankAccountsFields0;
         bankAccounts.put("fields",bankAccountsFields);
         syncHotelMap.put("bankaccounts",bankAccounts);
+
+        syncHotelMap.put("oyoShare","");
     }
 
     public Map<String ,Object> getSyncHotelMap(){
@@ -112,7 +111,7 @@ public class SyncHotel {
         syncHotel.put("cardcode",(hotel.getId().toString().length()<7?"H-":"")+hotel.getId().toString());
         syncHotel.put("crsid",checkNull(hotel.getOyoId()));
         syncHotel.put("cardname",hotel.getOyoId()==null? "" : (hotel.getOyoId() + " - " + hotel.getName()));
-        syncHotel.put("cardfname",checkNull(hotel.getAlternateName()));
+        /**syncHotel.put("cardfname",checkNull(hotel.getAlternateName()));
         syncHotel.put("billingname",checkNull(hotel.getBillingEntity()));
         syncHotel.put("cellular",checkNull(hotel.getPhone()));
         syncHotel.put("emailaddress",checkNull(hotel.getEmail()));
@@ -138,6 +137,7 @@ public class SyncHotel {
         contactEmployeesFields[0].put("firstname",checkNull(userProfiles.getFirstName()));
         contactEmployeesFields[0].put("lastname",checkNull(userProfiles.getLastName()));
         contactEmployeesFields[0].put("mobilephone",checkNull(userProfiles.getPhone()));
+        contactEmployeesFields[0].put("phone",checkNull(userProfiles.getPhone()));
         contactEmployeesFields[0].put("e_mail",checkNull(userProfiles.getEmail()));
         contactEmployeesFields[0].put("gender",(StringUtils.isEmpty(userProfiles.getSex())?userProfiles.getSex() : 0)==0?"Male":"Female");
 
@@ -145,11 +145,9 @@ public class SyncHotel {
         Map<String ,Object>[] bPAddressesFields = (Map<String, Object>[]) bPAddresses.get("fields");
         bPAddressesFields[0].put("addressname",hotel.getStreet()+","+hotel.getCity());
         bPAddressesFields[0].put("addresstype",SapConfig.SET_BILL_TO);
-        bPAddressesFields[0].put("city",hotel.getCities() == null? "" : hotel.getCities().getCode());
-        bPAddressesFields[0].put("state",StringUtils.isEmpty(userProfiles.getState())?userProfiles.getState():SapConfig.USERPROFILE_STATE);
-        bPAddressesFields[1].put("addressname",hotel.getStreet()+","+hotel.getCity());
-        bPAddressesFields[1].put("addresstype",SapConfig.SET_BILL_TO);
-        bPAddressesFields[1].put("city",hotel.getCities() == null? "" : hotel.getCities().getCode());
+        bPAddressesFields[0].put("city",hotel.getCity());
+        bPAddressesFields[0].put("state",hotel.getState());
+        bPAddressesFields[0].put("street",hotel.getStreet());
 
         Map<String ,Object> bankAccounts = (Map<String, Object>) syncHotel.get("bankaccounts");
         Map<String ,Object>[] bankAccountsFields = (Map<String, Object>[]) bankAccounts.get("fields");
@@ -159,6 +157,8 @@ public class SyncHotel {
         bankAccountsFields[0].put("ifsc",checkNull(accountDetails.getBankIfscCode()));
         bankAccountsFields[0].put("micr",checkNull(accountDetails.getBankMicrCode()));
         bankAccountsFields[0].put("bankaddress",checkNull(accountDetails.getBankAddress()));
+        **/
+        syncHotelMap.put("oyoShare",hotel.getOyoShare());
         return syncHotel;
     }
 
