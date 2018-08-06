@@ -9,6 +9,8 @@
         <result column="version" property="version" />
         <result column="update_time" property="updateTime" />
         <result column="create_time" property="createTime" />
+        <result column="status" property="status"/>
+        <result column="json_data" property="jsonData"/>
     </resultMap>
 
     <select id="querySyncList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.SyncLogDto">

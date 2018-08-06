@@ -16,7 +16,7 @@ public class SyncLog {
   private Long sourceId;
   private String type;
   private Integer version;
-  private java.sql.Timestamp updateTime;
+  private java.sql.Timestamp sourceUpdateTime;
   private java.sql.Timestamp createTime;
   private Integer status;
   private String jsonData;

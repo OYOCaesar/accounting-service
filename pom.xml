@@ -133,6 +133,12 @@
 		    <artifactId>woodstox-core</artifactId>
 		    <version>5.0.2</version>
 		</dependency>
+		<dependency>
+			<groupId>c3p0</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>0.9.0.4</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
