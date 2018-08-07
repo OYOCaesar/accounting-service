@@ -8,7 +8,9 @@ import com.oyo.accouting.mapper.crs.CrsHotelMapper;
 import com.oyo.accouting.mapper.crs.CrsUserProfilesMapper;
 
 import com.oyo.accouting.pojo.SyncLog;
+import com.oyo.accouting.webservice.SAPWebServiceSoap;
 import net.sf.json.JSONObject;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +74,19 @@ public class SyncHotelToSapService {
             //同步sap
             if(isSync){
                 //同步到sap
-                    //TODO
+                JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
+                jwpfb.setServiceClass(SAPWebServiceSoap.class);
+                jwpfb.setAddress("http://52.80.99.224:8080/SAPWebService.asmx");
+                SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
+
+                JSONObject hotelMapJson = JSONObject.fromObject(syncHotel.getSyncHotelMap());
+                String hotelMapStr = hotelMapJson.toString();
+
+                String result = s.businessPartners(hotelMapStr);
+
+                JSONObject resultJsonObj = JSONObject.fromObject(result);
+
+                System.out.println("======="+result);
                 //插入日志
                 SyncLog sl = new SyncLog();
                 sl.setSourceId(h.getId());
@@ -80,11 +94,11 @@ public class SyncHotelToSapService {
                 sl.setSourceUpdateTime(h.getUpdatedAt());
                 sl.setType("Hotel");
                 sl.setVersion(syncLogDtoListIsNull?1:syncLogDto.getVersion()+1);
-                JSONObject jsonObject = JSONObject.fromObject(syncHotel.getSyncHotelMap());
-                sl.setJsonData(jsonObject.toString());
+                sl.setJsonData(hotelMapStr);
+                sl.setStatus(Integer.valueOf(resultJsonObj.get("Code").toString()));
                 this.accountingSyncLogMapper.insert(sl);
             }
-            return syncHotel;
+            return null;
         }
         return null;
     }

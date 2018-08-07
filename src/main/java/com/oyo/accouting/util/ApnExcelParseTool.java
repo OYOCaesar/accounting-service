@@ -154,7 +154,7 @@ public class ApnExcelParseTool {
                 //保存到输出结果中
                 apnModelList.add(apnModel);
             } catch (Exception e) {
-                System.out.println(e.toString());
+                e.printStackTrace();
             }
         }
     }
@@ -167,31 +167,53 @@ public class ApnExcelParseTool {
 
         Cell cell;
 
-        //利用迭代器得到每一个cell
-        Iterator<Cell> iterator = row.iterator();
-        while (iterator.hasNext()) {
-            cell = iterator.next();
+        if(mUsedMethod == null || mUsedMethod.size() == 0) {
+            //利用迭代器得到每一个cell
+            Iterator<Cell> iterator = row.iterator();
+            while (iterator.hasNext()) {
 
-            //取出cell中的value
-            String value = null;
-            switch (cell.getCellTypeEnum()){
-                case NUMERIC:
-                    if (HSSFDateUtil.isCellDateFormatted(cell)) {
-                        //注：format格式 yyyy-MM-dd hh:mm:ss 中小时为12小时制，若要24小时制，则把小h变为H即可，yyyy-MM-dd HH:mm:ss
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        value=sdf.format(HSSFDateUtil.getJavaDate(cell.
-                                getNumericCellValue())).toString();
-                    } else {
-                        value = String.valueOf(cell.getNumericCellValue());
-                    }
-                    break;
-                case STRING:
-                    value = cell.getStringCellValue();
-                    break;
+                cell = iterator.next();
+                //取出cell中的value
+                String value = null;
+                value = getCellValue(cell);
+                rst.add(value);
             }
-            rst.add(value);
+        }else {
+            int c =0;
+            while (c < mUsedMethod.size()) {
+
+                cell = row.getCell(c);
+                //取出cell中的value
+                String value = null;
+                value = cell == null? "" : getCellValue(cell);
+                rst.add(value);
+                c++;
+            }
         }
         return rst;
+    }
+
+    private static String getCellValue(Cell cell){
+        String value = null;
+        switch (cell.getCellTypeEnum()) {
+            case NUMERIC:
+                if (HSSFDateUtil.isCellDateFormatted(cell)) {
+                    //注：format格式 yyyy-MM-dd hh:mm:ss 中小时为12小时制，若要24小时制，则把小h变为H即可，yyyy-MM-dd HH:mm:ss
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    value = sdf.format(HSSFDateUtil.getJavaDate(cell.
+                            getNumericCellValue())).toString();
+                } else {
+                    value = String.valueOf(cell.getNumericCellValue());
+                }
+                break;
+            case STRING:
+                value = cell.getStringCellValue();
+                break;
+            case BLANK:
+                value = "";
+                break;
+        }
+        return value;
     }
 
     public static void main(String[] args){
