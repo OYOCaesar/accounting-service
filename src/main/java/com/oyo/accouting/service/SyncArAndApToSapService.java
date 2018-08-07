@@ -190,10 +190,4 @@ public class SyncArAndApToSapService {
     	return result;
     }
     
-    public static void main(String[] args) {
-    	LocalDate now = LocalDate.now();
-    	LocalDate localDate8 = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()); 
-    	System.out.println(localDate8);
-	}
-    
 }
