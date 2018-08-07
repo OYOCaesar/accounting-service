@@ -44,9 +44,10 @@ public class FileUploadController {
             file.transferTo(targetFile);
             ApnExcelParseTool.setFilePath(targetFile.getPath());
             Workbook workbook = ApnExcelParseTool.initWorkBook();
-            List<PlanTemplet> apnModelList = new LinkedList<>();
-            ApnExcelParseTool.parseWorkbook(workbook,apnModelList);
-            for(PlanTemplet p : apnModelList){
+            List<Object> apnModelList = null;
+            apnModelList = ApnExcelParseTool.parseWorkbook(workbook,PlanTemplet.class);
+            for(Object o : apnModelList){
+            	PlanTemplet p = (PlanTemplet) o;
                 System.out.println(p.getOyoId()+"=="+p.getHotelId()+"=="+p.getOyoShare());
             }
             mode.addAttribute("data","success!");
