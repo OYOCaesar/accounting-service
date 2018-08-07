@@ -25,3 +25,9 @@ logging:
     root: INFO
     com.oyo.accouting.mapper: DEBUG
     
+spring:
+  mvc:
+    view:
+      suffix: .html
+      prefix: /
+    

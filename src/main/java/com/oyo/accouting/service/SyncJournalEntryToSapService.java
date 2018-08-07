@@ -29,13 +29,13 @@ import com.oyo.accouting.pojo.SyncLog;
 import net.sf.json.JSONObject;
 
 /**
- * sync ar and ap to sap interface.
+ * sync Journal Entry to sap interface.
  * @author ZhangSuYun
  * @date 2018-08-04 16:00
  */
 @Service
-public class SyncArAndApToSapService {
-	private static Logger log = LoggerFactory.getLogger(SyncArAndApToSapService.class);
+public class SyncJournalEntryToSapService {
+	private static Logger log = LoggerFactory.getLogger(SyncJournalEntryToSapService.class);
 
     @Autowired
     private CrsAccountMapper crsAccountMapper;
@@ -43,8 +43,8 @@ public class SyncArAndApToSapService {
     @Autowired
     private AccountingSyncLogMapper accountingSyncLogMapper;
 
-    public String syncArAndApToSap() throws Exception {
-    	log.info("----syncArAndApToSap start-------------");
+    public String syncJournalEntryToSap() throws Exception {
+    	log.info("----SyncJournalEntryToSap start-------------");
     	String result = "";
     	//AR列表数据
     	List<HashMap<String,String>> arMapList = null;//获取应收金额
@@ -159,7 +159,7 @@ public class SyncArAndApToSapService {
     		result = "sync throw exception.";
     		throw e;
     	} 
-    	log.info("----syncArAndApToSap end-------------");
+    	log.info("----SyncJournalEntryToSap end-------------");
         return result;
     }
     
