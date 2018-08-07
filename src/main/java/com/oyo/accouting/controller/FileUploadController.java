@@ -53,7 +53,7 @@ public class FileUploadController {
         } else {
             mode.addAttribute("data","error!");
         }
-        return "index.html";
+        return "index";
     }
 
 }

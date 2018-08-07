@@ -12,7 +12,10 @@ spring:
       password: admin12345
       filters: stat,wall
       driver-class-name: org.postgresql.Driver
-
+  mvc:
+      view:
+       suffix: .html
+       prefix: /
 
     
     
@@ -25,10 +28,7 @@ logging:
     root: INFO
     com.oyo.accouting.mapper: DEBUG
     
-spring:
-  mvc:
-    view:
-      suffix: .html
-      prefix: /
+
+
       
     
