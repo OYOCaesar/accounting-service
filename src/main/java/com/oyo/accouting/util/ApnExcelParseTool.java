@@ -1,6 +1,5 @@
 package com.oyo.accouting.util;
 
-import com.oyo.accouting.bean.PlanTemplet;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -225,19 +224,5 @@ public class ApnExcelParseTool {
         return value;
     }
 
-    public static void main(String[] args){
-        setFilePath("/Users/oyo/Desktop/aa.xlsx");
-        try {
-            Workbook workbook = initWorkBook();
-            List<Object> apnModelList = null;
-            apnModelList = parseWorkbook(workbook,PlanTemplet.class);
-            for(Object p : apnModelList){
-            	PlanTemplet pt = (PlanTemplet)p;
-                System.out.println(pt.getOyoId()+"=="+pt.getHotelId()+"=="+pt.getOyoShare());
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
 }
