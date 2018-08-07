@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
 public class ApnExcelParseTool {
 
     private static String mFilePath;
+    
+    private static List<Object> objList;
 
     //保存源文件内容
     public static void setFilePath(String filePath) {
@@ -34,6 +36,7 @@ public class ApnExcelParseTool {
     private static final String SUFFIX_2007 = ".xlsx";
 
     public static Workbook initWorkBook() throws IOException {
+    	objList = new LinkedList<>();
         File file = new File(mFilePath);
         InputStream is = new FileInputStream(file);
 
@@ -48,20 +51,21 @@ public class ApnExcelParseTool {
         return workbook;
     }
 
-    public static void parseWorkbook(Workbook workbook, List<PlanTemplet> apnModelList) {
+    public static List<Object> parseWorkbook(Workbook workbook, Class cls) {
         int numOfSheet = workbook.getNumberOfSheets();
         numOfSheet = 1;
         //依次解析每一个Sheet
         for (int i = 0; i < numOfSheet; ++i) {
             Sheet sheet = workbook.getSheetAt(i);
-            parseSheet(sheet, apnModelList);
+            parseSheet(sheet, cls);
         }
+        return objList;
     }
 
     //保存需要调用的ApnModel中的方法
     private static List<Method> mUsedMethod;
 
-    private static void parseSheet(Sheet sheet, List<PlanTemplet> apnModelList) {
+    private static void parseSheet(Sheet sheet, Class cls) {
         Row row;
 
         //利用迭代器，取出每一个Row
@@ -72,17 +76,17 @@ public class ApnExcelParseTool {
             //由于第一行是标题，因此这里单独处理
             if (rowNum == 0) {
                 mUsedMethod = new LinkedList<>();
-                parseRowAndFindMethod(row);
+                parseRowAndFindMethod(row,cls);
             } else {
                 //其它行都在这里处理
-                parseRowAndFillData(row, apnModelList);
+                parseRowAndFillData(row, cls);
             }
 
         }
     }
 
 
-    private static void parseRowAndFindMethod(Row row) {
+    private static void parseRowAndFindMethod(Row row,Class cls) {
         //利用parseRow处理每一行，得到每个cell中的String
         List<String> rst = parseRow(row);
 
@@ -93,7 +97,7 @@ public class ApnExcelParseTool {
                 methodName = "set" + regexMethodName(str);
                 //反射拿到method
                 mUsedMethod.add(
-                        PlanTemplet.class.getDeclaredMethod(methodName, String.class));
+                        cls.getDeclaredMethod(methodName, String.class));
             }
         } catch (NoSuchMethodException e) {
             System.out.println(e.toString());
@@ -134,11 +138,16 @@ public class ApnExcelParseTool {
     /**
      * 开始解析具体的数据
      */
-    private static void parseRowAndFillData(Row row, List<PlanTemplet> apnModelList) {
+    private static void parseRowAndFillData(Row row, Class cls) {
         //同样利用parseRow得到具体每一行的数据
         List<String> rst = parseRow(row);
 
-        PlanTemplet apnModel = new PlanTemplet();
+        Object obj = null;
+		try {
+			obj = cls.newInstance();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
         //这里主要debug一下，避免由于Excel的格式可能不太对
         //使得每一行的数据解析地不太对
@@ -148,11 +157,11 @@ public class ApnExcelParseTool {
             //利用反射，将数据填充到具体的ApnModel
             try {
                 for (int i = 0; i < mUsedMethod.size(); ++i) {
-                    mUsedMethod.get(i).invoke(apnModel, rst.get(i));
+                    mUsedMethod.get(i).invoke(obj, rst.get(i));
                 }
 
                 //保存到输出结果中
-                apnModelList.add(apnModel);
+                objList.add(obj);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -220,10 +229,11 @@ public class ApnExcelParseTool {
         setFilePath("/Users/oyo/Desktop/aa.xlsx");
         try {
             Workbook workbook = initWorkBook();
-            List<PlanTemplet> apnModelList = new LinkedList<>();
-            parseWorkbook(workbook,apnModelList);
-            for(PlanTemplet p : apnModelList){
-                System.out.println(p.getOyoId()+"=="+p.getHotelId()+"=="+p.getOyoShare());
+            List<Object> apnModelList = null;
+            apnModelList = parseWorkbook(workbook,PlanTemplet.class);
+            for(Object p : apnModelList){
+            	PlanTemplet pt = (PlanTemplet)p;
+                System.out.println(pt.getOyoId()+"=="+pt.getHotelId()+"=="+pt.getOyoShare());
             }
         }catch (Exception e){
             e.printStackTrace();
