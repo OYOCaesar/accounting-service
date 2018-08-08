@@ -59,4 +59,15 @@ public class OyoShareService {
         }
         return i;
     }
+
+    public int insertOyoShareList(List<OyoShare> oyoSharesList){
+        if(oyoSharesList==null || oyoSharesList.size() == 0)return -99;
+        int i = 0;
+        try {
+            i = this.accountingOyoShareMapper.insertOyoShareList(oyoSharesList);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return i;
+    }
 }

@@ -23,7 +23,7 @@ public class SyncHotel {
 
     public Map<String ,Object> setSyncHotelMap(HotelDto hotel,Map<String ,Object> syncHotel){
 
-        syncHotel.put("cardcode","C"+(hotel.getId().toString().length()<7?"H-":"")+hotel.getId().toString());
+        syncHotel.put("cardcode",(hotel.getId().toString().length()<7?"H-":"")+hotel.getId().toString());
         syncHotel.put("cardname",hotel.getOyoId()==null? "" : (hotel.getOyoId() + " - " + hotel.getName()));
         syncHotel.put("valid",hotel.getStatus()==1?"Y":"N");
         syncHotel.put("CntctPrsn",hotel.getManagerName());

@@ -1,10 +1,10 @@
 package com.oyo.accouting.controller;
 
 import com.oyo.accouting.bean.OyoShareDto;
-import com.oyo.accouting.bean.PlanTemplet;
 import com.oyo.accouting.pojo.OyoShare;
 import com.oyo.accouting.service.OyoShareService;
 import com.oyo.accouting.util.ApnExcelParseTool;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -58,11 +59,21 @@ public class FileUploadController {
             ApnExcelParseTool.setFilePath(targetFile.getPath());
             Workbook workbook = ApnExcelParseTool.initWorkBook();
             List<Object> apnModelList = null;
-            apnModelList = ApnExcelParseTool.parseWorkbook(workbook,PlanTemplet.class);
-            //更新OyoShare
+            apnModelList = ApnExcelParseTool.parseWorkbook(workbook,OyoShare.class);
+            List<OyoShare> oyoShareList = new ArrayList<>();
             for(Object o : apnModelList){
-            	PlanTemplet p = (PlanTemplet) o;
+            	OyoShare oyoShare = (OyoShare) o;
+            	if(StringUtils.isEmpty(oyoShare.getOyoShare())){
+            	    double d = Double.valueOf(oyoShare.getOyoShare());
+            	    oyoShare.setOyoShare(String.format("%.2f",d));
+                }
+                int i = oyoShare.getHotelId().indexOf(".");
+                oyoShare.setHotelId(oyoShare.getHotelId().substring(0,i<0?oyoShare.getHotelId().length():i));
+                int j = oyoShare.getUniqueCode().indexOf(".");
+                oyoShare.setUniqueCode(oyoShare.getUniqueCode().substring(0,j<0?oyoShare.getUniqueCode().length():j));
+                oyoShareList.add(oyoShare);
             }
+            this.oyoShareService.insertOyoShareList(oyoShareList);
             view.addObject("data","success!");
             mode.addAttribute("data","success!");
         } else {
@@ -73,4 +84,8 @@ public class FileUploadController {
         return view;
     }
 
+
+    public static void main(String[] args){
+	    
+    }
 }

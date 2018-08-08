@@ -12,5 +12,21 @@
 
         SELECT * FROM oyo_share where hotel_id = #{oyoShare.hotelId}
     </select>
+
+    <!-- 批量插入 -->
+    <insert id ="insertOyoShareList" parameterType="java.util.List" >
+        insert into oyo_share
+        (hotel_id, oyo_share, status, unique_code,oyo_id,hotel_name,city,zone_name,fixed_rate)
+        values
+        <foreach collection ="oyoShareList" item="oyoShare" index= "index" separator =",">
+            (
+            #{oyoShare.hotelId}, #{oyoShare.oyoShare},
+            #{oyoShare.status},#{oyoShare.uniqueCode},
+            #{oyoShare.oyoId}, #{oyoShare.hotelName},
+            #{oyoShare.city},#{oyoShare.zoneName},
+            #{oyoShare.fixedRate}
+            )
+        </foreach >
+    </insert >
 	
 </mapper>

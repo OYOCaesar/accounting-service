@@ -91,7 +91,6 @@ public class SyncHotelToSapService {
 
                 JSONObject resultJsonObj = JSONObject.fromObject(result);
 
-                System.out.println("======="+result);
                 //插入日志
                 SyncLog sl = new SyncLog();
                 sl.setSourceId(h.getId());
@@ -103,16 +102,6 @@ public class SyncHotelToSapService {
                 sl.setStatus(Integer.valueOf(resultJsonObj.get("Code").toString()));
                 this.accountingSyncLogMapper.insert(sl);
 
-                //插入oyoShare
-                OyoShareDto searchOyoShare = new OyoShareDto();
-                searchOyoShare.setHotelId(h.getId());
-                List list = this.accountingOyoShareMapper.queryOyoShareList(searchOyoShare);
-                if(list == null || list.size() == 0) {
-                    OyoShare oyoShare = new OyoShare();
-                    oyoShare.setHotelId(h.getId());
-                    oyoShare.setOyoShare(h.getOyoShare());
-                    this.accountingOyoShareMapper.insert(oyoShare);
-                }
             }
             return null;
         }
