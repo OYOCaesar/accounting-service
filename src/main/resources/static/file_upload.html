@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <title>文件上传</title>
+</head>
+<body>
+<form name="serForm" action="/fileUpload/upload" method="post"  enctype="multipart/form-data" onsubmit="return check(ele);">
+    <h1></h1>
+    <input id="file_input" height="30" type="file" name="file">
+    <input height="30" type="submit" value="上传"/>
+</form>
+
+<h2 th:text="${data}"/>
+<script>
+    function check(ele){
+        if(ele.value == null || ele.value == undefined || ele.value == ''){
+            alert("请选择一个文件！");
+            return false;
+        }else{
+            return true;
+        }
+    }
+
+</script>
+</body>
+</html>
