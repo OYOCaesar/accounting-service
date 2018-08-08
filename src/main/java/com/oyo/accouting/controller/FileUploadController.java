@@ -33,14 +33,17 @@ public class FileUploadController {
     @Autowired
     private OyoShareService oyoShareService;
 	
-	@RequestMapping(value = "/file_upload")
+	@RequestMapping(value = "/")
     public String upload() {
-		return "file_upload";
+
+	    return "file_upload";
 	}
 
     @RequestMapping(value = "upload",method={RequestMethod.POST,RequestMethod.GET})
     public ModelAndView fileUpload(HttpServletRequest request, Model mode, @RequestParam("file") MultipartFile file) throws IOException {
-    	ModelAndView view = new ModelAndView("/file_upload");
+
+	    ModelAndView view = new ModelAndView("file_upload");
+
         if(!file.isEmpty()) {
 
             //上传文件路径
@@ -63,7 +66,7 @@ public class FileUploadController {
             List<OyoShare> oyoShareList = new ArrayList<>();
             for(Object o : apnModelList){
             	OyoShare oyoShare = (OyoShare) o;
-            	if(StringUtils.isEmpty(oyoShare.getOyoShare())){
+            	if(!StringUtils.isEmpty(oyoShare.getOyoShare())){
             	    double d = Double.valueOf(oyoShare.getOyoShare());
             	    oyoShare.setOyoShare(String.format("%.2f",d));
                 }
@@ -73,7 +76,7 @@ public class FileUploadController {
                 oyoShare.setUniqueCode(oyoShare.getUniqueCode().substring(0,j<0?oyoShare.getUniqueCode().length():j));
                 oyoShareList.add(oyoShare);
             }
-            this.oyoShareService.insertOyoShareList(oyoShareList);
+            //this.oyoShareService.insertOyoShareList(oyoShareList);
             view.addObject("data","success!");
             mode.addAttribute("data","success!");
         } else {
@@ -86,6 +89,6 @@ public class FileUploadController {
 
 
     public static void main(String[] args){
-	    
+
     }
 }
