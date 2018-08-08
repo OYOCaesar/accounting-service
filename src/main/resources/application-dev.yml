@@ -43,8 +43,9 @@ logging:
   level:
     root: INFO
     com.oyo.accouting.mapper: DEBUG
-    
 
+#sap webservice url   
+sapWebServiceUrl: http://52.80.99.224:8080/SAPWebService.asmx
 
       
     
