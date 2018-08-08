@@ -136,13 +136,13 @@ public class SyncArAndApToSapService {
     		    	//TODO
     		    	
     		    	SyncLog sLog = new SyncLog();
-    		    	sLog.setSourceId(Long.valueOf(hotelId));
+    		    	sLog.setSourceId(Integer.valueOf(hotelId));
     		    	sLog.setCreateTime(new Timestamp(new Date().getTime()));
     		    	sLog.setType("ArAndAp");
     		    	
     		    	//查询同步日志，判断是否需要同步
     	            SyncLog syncLogSearch = new SyncLog();
-    	            syncLogSearch.setSourceId(Long.valueOf(hotelId));
+    	            syncLogSearch.setSourceId(Integer.valueOf(hotelId));
     	            syncLogSearch.setType("ArAndAp");
     	            List<SyncLogDto> syncLogDtoList = this.accountingSyncLogMapper.querySyncList(syncLogSearch);
     	            Integer versionNo = 1;

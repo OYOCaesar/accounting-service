@@ -7,6 +7,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CrsUserProfilesMapper {
 
-    public UserProfilesDto queryUserProfilesByHotelIdAndRole(Long hotelId);
+    public UserProfilesDto queryUserProfilesByHotelIdAndRole(Integer hotelId);
 
 }

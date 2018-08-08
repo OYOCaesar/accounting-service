@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    accounting:
+      url: jdbc:mysql://accounting-service.ckdb8i72sy2s.rds.cn-north-1.amazonaws.com.cn:3306/accounting?useUnicode=true&characterEncoding=utf-8&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull
+      username: root
+      password: welcome1
+      filters: stat,wall
+      driver-class-name: com.mysql.jdbc.Driver
+    crs:
+      url: jdbc:postgresql://staging-crs-prod.ckdb8i72sy2s.rds.cn-north-1.amazonaws.com.cn:5432/oyoprod
+      username: uc0s0psnqc13qs
+      password: admin12345
+      filters: stat,wall
+      driver-class-name: org.postgresql.Driver
+    
+    
+server:
+  port: 8001
+
+
+logging:
+  level:
+    root: INFO
+    com.oyo.accouting.mapper: DEBUG
+    
+
+
+      
+    

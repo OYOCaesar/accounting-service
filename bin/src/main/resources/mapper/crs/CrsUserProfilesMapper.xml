@@ -28,7 +28,7 @@
         <result column="is_relationship_mode_on" property="isRelationshipModeOn"/>
     </resultMap>
 
-    <select id="queryUserProfilesByHotelIdAndRole" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    <select id="queryUserProfilesByHotelIdAndRole" resultMap="BaseResultMap" parameterType="java.lang.Long">
 
         SELECT * FROM user_profiles up INNER JOIN hotel_user_profiles hup ON up.id = hup.user_profile_id
         where hup.hotel_id =#{hotelId} and hup.role = 7 order by up.id desc limit 1

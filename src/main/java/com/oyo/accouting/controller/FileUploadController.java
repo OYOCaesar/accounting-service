@@ -1,22 +1,25 @@
 package com.oyo.accouting.controller;
 
+import com.oyo.accouting.bean.OyoShareDto;
 import com.oyo.accouting.bean.PlanTemplet;
+import com.oyo.accouting.pojo.OyoShare;
+import com.oyo.accouting.service.OyoShareService;
 import com.oyo.accouting.util.ApnExcelParseTool;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -25,15 +28,18 @@ import java.util.List;
 @RequestMapping("fileUpload")
 @Controller
 public class FileUploadController {
+
+    @Autowired
+    private OyoShareService oyoShareService;
 	
-	@RequestMapping(value = "/")
+	@RequestMapping(value = "/file_upload")
     public String upload() {
 		return "file_upload";
 	}
 
     @RequestMapping(value = "upload",method={RequestMethod.POST,RequestMethod.GET})
     public ModelAndView fileUpload(HttpServletRequest request, Model mode, @RequestParam("file") MultipartFile file) throws IOException {
-    	ModelAndView view = new ModelAndView("file_upload");
+    	ModelAndView view = new ModelAndView("/file_upload");
         if(!file.isEmpty()) {
 
             //上传文件路径
@@ -53,9 +59,9 @@ public class FileUploadController {
             Workbook workbook = ApnExcelParseTool.initWorkBook();
             List<Object> apnModelList = null;
             apnModelList = ApnExcelParseTool.parseWorkbook(workbook,PlanTemplet.class);
+            //更新OyoShare
             for(Object o : apnModelList){
             	PlanTemplet p = (PlanTemplet) o;
-                System.out.println(p.getOyoId()+"=="+p.getHotelId()+"=="+p.getOyoShare());
             }
             view.addObject("data","success!");
             mode.addAttribute("data","success!");

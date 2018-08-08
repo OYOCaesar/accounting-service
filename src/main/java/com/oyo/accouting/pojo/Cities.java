@@ -13,27 +13,27 @@ import java.sql.Timestamp;
 @Table(name = "cities")
 public class Cities {
 
-  private Long id;
+  private Integer id;
   private String name;
   private String keywords;
-  private Long priority;
+  private Integer priority;
   private java.sql.Timestamp createdAt;
   private java.sql.Timestamp updatedAt;
-  private Long status;
+  private Integer status;
   private String cityData;
-  private double tax;
+  private Double tax;
   private String title;
   private String description;
   private String code;
-  private Long cityManagerId;
+  private Integer cityManagerId;
   private String popularLocation;
   private String imageName;
   private String metaDescription;
-  private Long countryId;
-  private Long hubId;
-  private Long cityType;
+  private Integer countryId;
+  private Integer hubId;
+  private Integer cityType;
   private String timeZone;
-  private Long stateId;
+  private Integer stateId;
   private String boundary;
   private Point centre;
   private String osmData;

@@ -1,12 +1,14 @@
 package com.oyo.accouting.service;
 
 import com.oyo.accouting.bean.*;
+import com.oyo.accouting.mapper.accounting.AccountingOyoShareMapper;
 import com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountDetailsMapper;
 import com.oyo.accouting.mapper.crs.CrsCitiesMapper;
 import com.oyo.accouting.mapper.crs.CrsHotelMapper;
 import com.oyo.accouting.mapper.crs.CrsUserProfilesMapper;
 
+import com.oyo.accouting.pojo.OyoShare;
 import com.oyo.accouting.pojo.SyncLog;
 import com.oyo.accouting.webservice.SAPWebServiceSoap;
 import net.sf.json.JSONObject;
@@ -39,6 +41,9 @@ public class SyncHotelToSapService {
 
     @Autowired
     private AccountingSyncLogMapper accountingSyncLogMapper;
+
+    @Autowired
+    private AccountingOyoShareMapper accountingOyoShareMapper;
 
     public SyncHotel syncHotelToSap(){
 
@@ -97,6 +102,17 @@ public class SyncHotelToSapService {
                 sl.setJsonData(hotelMapStr);
                 sl.setStatus(Integer.valueOf(resultJsonObj.get("Code").toString()));
                 this.accountingSyncLogMapper.insert(sl);
+
+                //插入oyoShare
+                OyoShareDto searchOyoShare = new OyoShareDto();
+                searchOyoShare.setHotelId(h.getId());
+                List list = this.accountingOyoShareMapper.queryOyoShareList(searchOyoShare);
+                if(list == null || list.size() == 0) {
+                    OyoShare oyoShare = new OyoShare();
+                    oyoShare.setHotelId(h.getId());
+                    oyoShare.setOyoShare(h.getOyoShare());
+                    this.accountingOyoShareMapper.insert(oyoShare);
+                }
             }
             return null;
         }

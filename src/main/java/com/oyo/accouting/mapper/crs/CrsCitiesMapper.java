@@ -7,6 +7,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CrsCitiesMapper {
 
-    public CitiesDto queryCityesById(Long id);
+    public CitiesDto queryCityesById(Integer id);
 
 }

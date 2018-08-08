@@ -43,7 +43,7 @@
 
     </resultMap>
 
-    <select id="queryAccountDetailsByItemId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    <select id="queryAccountDetailsByItemId" resultMap="BaseResultMap" parameterType="java.lang.Long">
 
         SELECT * FROM account_details ad WHERE item_id = #{itemId} AND item_type = 'Hotel' LIMIT 1
 

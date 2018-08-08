@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 @Table(name = "user_profiles")
 public class UserProfiles {
 
-  private Long id;
+  private Integer id;
   private String firstName;
   private String lastName;
   private String phone;
@@ -25,16 +25,16 @@ public class UserProfiles {
   private java.sql.Date dateOfBirth;
   private java.sql.Timestamp createdAt;
   private java.sql.Timestamp updatedAt;
-  private Long role;
-  private Long sex;
-  private Long status;
+  private Integer role;
+  private Integer sex;
+  private Integer status;
   private String registrationId;
-  private Long team;
-  private Long agentId;
+  private Integer team;
+  private Integer agentId;
   private String countryCode;
-  private Long currencyId;
-  private Long countryId;
-  private Long deviseRole;
+  private Integer currencyId;
+  private Integer countryId;
+  private Integer deviseRole;
   private String imageUrl;
   private String isRelationshipModeOn;
 

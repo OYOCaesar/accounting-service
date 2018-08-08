@@ -12,8 +12,8 @@ import javax.persistence.Table;
 public class SyncLog {
 
   @Id
-  private Long id;
-  private Long sourceId;
+  private Integer id;
+  private Integer sourceId;
   private String type;
   private Integer version;
   private java.sql.Timestamp sourceUpdateTime;

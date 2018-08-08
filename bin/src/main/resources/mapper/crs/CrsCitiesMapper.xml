@@ -32,7 +32,7 @@
         <result column="sap_sync" property="sapSync"/>
     </resultMap>
 
-    <select id="queryCityesById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    <select id="queryCityesById" resultMap="BaseResultMap" parameterType="java.lang.Long">
 
         SELECT * FROM cities c where c.id =#{id}
     </select>

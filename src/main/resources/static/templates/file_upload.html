@@ -8,7 +8,6 @@
     <form name="serForm" action="/fileUpload/upload" method="post"  enctype="multipart/form-data" onsubmit="return check(ele);">
         <h1></h1>
         <input id="file_input" height="30" type="file" name="file">
-        <input type="hidden" name = "data" onchange="showRes(this);"/>
         <input height="30" type="submit" value="上传"/>
     </form>
     
@@ -23,9 +22,6 @@ function check(ele){
     }
 }
 
-function showRes(ele) {
-    alert(ele.value);
-}
 </script>
 </body>
 </html>

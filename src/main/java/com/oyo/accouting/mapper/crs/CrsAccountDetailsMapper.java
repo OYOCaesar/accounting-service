@@ -6,6 +6,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CrsAccountDetailsMapper {
 
-    public AccountDetailsDto queryAccountDetailsByItemId(Long itemId);
+    public AccountDetailsDto queryAccountDetailsByItemId(Integer itemId);
 
 }

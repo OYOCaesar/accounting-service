@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oyo.accouting.mapper.accounting.AccountingOyoShareMapper">
+
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.OyoShareDto" >
+        <id column="id" property="id" />
+        <result column="hotel_id" property="hotelId" />
+        <result column="oyo_share" property="oyoShare" />
+    </resultMap>
+
+    <select id="queryOyoShareList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.OyoShareDto">
+
+        SELECT * FROM oyo_share where hotel_id = #{oyoShare.hotelId}
+    </select>
+	
+</mapper>
