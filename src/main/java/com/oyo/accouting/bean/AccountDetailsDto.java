@@ -13,42 +13,42 @@ import java.sql.Timestamp;
 @Setter
 public class AccountDetailsDto {
 
-  private Long id;
-  private Long hotelId;
+  private Integer id;
+  private Integer hotelId;
   private String name;
   private String bankName;
   private String bankAddress;
   private String bankAccountNo;
-  private Long accountType;
+  private Integer accountType;
   private String bankIfscCode;
   private String bankMicrCode;
   private Timestamp createdAt;
   private Timestamp updatedAt;
-  private Long itemId;
+  private Integer itemId;
   private String itemType;
   private String serviceTaxNo;
   private String panNo;
   private String vatNo;
   private String cstNo;
-  private Long creditLimit;
-  private Long creditUsagePeriod;
+  private Integer creditLimit;
+  private Integer creditUsagePeriod;
   private Date lastBilledDate;
-  private Long settlementPeriod;
+  private Integer settlementPeriod;
   private String discount;
-  private Long discountType;
+  private Integer discountType;
   private String btcAllowed;
-  private Long status;
+  private Integer status;
   private String skipPrepaid;
-  private Long walletId;
-  private Long achStatus;
-  private Long sharePc;
+  private Integer walletId;
+  private Integer achStatus;
+  private Integer sharePc;
   private String couponAllowed;
-  private Long billingCycle;
-  private Long paymentCycle;
+  private Integer billingCycle;
+  private Integer paymentCycle;
   private String metadata;
   private String fixedPricing;
   private String generateInvoice;
-  private Long commissionPayoutTrigger;
+  private Integer commissionPayoutTrigger;
   private String aadharNo;
 
 

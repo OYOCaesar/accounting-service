@@ -10,8 +10,8 @@ import javax.persistence.Table;
 @Setter
 public class SyncLogDto {
 
-  private Long id;
-  private Long sourceId;
+  private Integer id;
+  private Integer sourceId;
   private String type;
   private Integer version;
   private java.sql.Timestamp sourceUpdateTime;
