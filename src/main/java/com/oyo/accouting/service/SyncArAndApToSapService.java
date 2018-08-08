@@ -2,6 +2,7 @@ package com.oyo.accouting.service;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ import com.oyo.accouting.bean.SyncLogDto;
 import com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountMapper;
 import com.oyo.accouting.pojo.SyncLog;
+import com.oyo.accouting.util.YmlUtil;
+import com.oyo.accouting.webservice.SAPWebServiceSoap;
 
 import net.sf.json.JSONObject;
 
@@ -39,9 +43,39 @@ public class SyncArAndApToSapService {
 
     @Autowired
     private CrsAccountMapper crsAccountMapper;
+    
+    @Autowired  
+    private YmlUtil ymlUtil; 
 
     @Autowired
     private AccountingSyncLogMapper accountingSyncLogMapper;
+    
+    public String test() throws Exception {
+    	JSONObject jsonData = new JSONObject();
+    	jsonData.put("CardCode", "80280");//业务伙伴代码
+    	jsonData.put("CardName", "test");//业务伙伴名称
+        jsonData.put("DocDate", "2018-07-31");//过账日期,固定为每月最后一天
+    	jsonData.put("DocDueDate", "2018-08-15");//到期日,固定为下月15号
+    	jsonData.put("TaxDate", "2018-07-31");//单据日期,固定为每月最后一天
+    	jsonData.put("CurSource", "3");//币种,固定RMB
+    	jsonData.put("APTotal", 100);//AP含税总价
+    	jsonData.put("ARTotal", new BigDecimal(100));//AR含税总价
+    	
+    	log.info("----to sap data as follows:-------------");
+    	log.info("to sap data:" + jsonData.toString());
+    	
+    	//调用SAP接口同步AR和AP信息
+        JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
+        jwpfb.setServiceClass(SAPWebServiceSoap.class);
+        String sapWebServiceUrl = ymlUtil.getSapWebServiceUrl();
+        jwpfb.setAddress(sapWebServiceUrl);
+        SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
+
+        String syncSapResult = s.invoices(JSONObject.fromObject(jsonData).toString());
+        
+        log.info("Invoke sap result:" + syncSapResult);
+    	return null;
+    }
 
     public String syncArAndApToSap() throws Exception {
     	log.info("----syncArAndApToSap start-------------");
@@ -59,22 +93,25 @@ public class SyncArAndApToSapService {
         		JSONObject jsonData = new JSONObject();
         		for (Iterator<HashMap<String, String>> iterator = arMapList.iterator(); iterator.hasNext();) {
     				HashMap<String, String> hashMap = (HashMap<String, String>) iterator.next();
-    		    	String hotelId = hashMap.get("HOTEL_ID");
-    		    	Integer arAmount = Integer.valueOf(hashMap.get("OWNER_AMOUNT"));
-    		    	BigDecimal apAmount = new BigDecimal("");
+    				Integer hotelId = Integer.valueOf(String.valueOf(hashMap.get("hotel_id")));
+    		    	BigDecimal arAmount = StringUtils.isNotEmpty(hashMap.get("OWNER_AMOUNT")) ? new BigDecimal(hashMap.get("OWNER_AMOUNT")) : new BigDecimal("0");
+    		    	BigDecimal apAmount = new BigDecimal("0");
     		    	
     		    	if (null != ownerShareMapList && !ownerShareMapList.isEmpty()) {
-    		    		HashMap<String,String> ownerShareMap = ownerShareMapList.stream().filter(q->q.get("hotel_id").equals(hotelId)).collect(Collectors.toList()).get(0);
-    		    		String ownerShareJson = ownerShareMap.get("rs_slabs");
+    		    		HashMap<String,String> ownerShareMap = ownerShareMapList.stream().filter(q->Integer.valueOf(String.valueOf(q.get("hotel_id"))).equals(hotelId)).collect(Collectors.toList()).get(0);
+    		    		String ownerShareJson = String.valueOf(ownerShareMap.get("rs_slabs"));
     		    		if (StringUtils.isNotEmpty(ownerShareJson)) {
     			    		String[] ownerShareArray = ownerShareJson.split(",");
     			    		List<OwnerShare> list = new ArrayList<OwnerShare>();
     			    		if (null != ownerShareArray && ownerShareArray.length > 0) {
     			    			for (String eachOwnerShare : ownerShareArray) {
+    			    				eachOwnerShare = eachOwnerShare.replace("{", "");
+    			    				eachOwnerShare = eachOwnerShare.replace("}", "");
+    			    				eachOwnerShare = eachOwnerShare.replace("\"", "");
     			    				String [] array = eachOwnerShare.split(":");
     			    				if (null != array && array.length > 0) {
-    			    					OwnerShare ownerShare = null;
-    			    					ownerShare = new OwnerShare(Integer.valueOf(array[0]),Integer.valueOf(array[1]));
+    			    					OwnerShare ownerShare = null; 
+    			    					ownerShare = new OwnerShare(new BigDecimal(array[0]),new BigDecimal(array[1]));
     			    					list.add(ownerShare);
     			    				}
     							}
@@ -83,16 +120,15 @@ public class SyncArAndApToSapService {
     				    			Collections.sort(list,new Comparator<OwnerShare>() {
     				    	            @Override
     				    	            public int compare(OwnerShare o1, OwnerShare o2) {
-    				    	                return o2.key - o1.key;
+    				    	                return (int) (o2.key.compareTo(o1.key));
     				    	            }
     				    	        });
     				    			
     				    			HashMap<String,String> map = new HashMap<String,String>();
-    				    			map.put("HOTEL_ID", hotelId);
+    				    			map.put("HOTEL_ID", hotelId.toString());
     				    			
-    				    			Integer owerShare = getOwerShare(list,arAmount);
-    				    			BigDecimal owerShareBIg = new BigDecimal(owerShare);
-    				    			apAmount = owerShareBIg.multiply(new BigDecimal(arAmount));
+    				    			BigDecimal owerShare = getOwerShare(list,arAmount);
+    				    			apAmount = owerShare.multiply(arAmount);
     				    			map.put("cpAmount", apAmount.toString());
     				    			apMapList.add(map);
     				    			
@@ -101,9 +137,9 @@ public class SyncArAndApToSapService {
     			    		} else {
     			    			JSONObject jsonObj = JSONObject.fromObject(ownerShareJson);
     			    			Integer owerShare = Integer.valueOf(jsonObj.get("0").toString());
-    			    			apAmount = new BigDecimal(owerShare).multiply(new BigDecimal(arAmount));
+    			    			apAmount = new BigDecimal(owerShare).multiply(arAmount);
     			    			HashMap<String,String> map = new HashMap<String,String>();
-    			    			map.put("HOTEL_ID", hotelId);
+    			    			map.put("HOTEL_ID", hotelId.toString());
     			    			map.put("cpAmount", String.valueOf(apAmount));
     			    			apMapList.add(map);
     			    		}
@@ -120,20 +156,30 @@ public class SyncArAndApToSapService {
     		        LocalDate lastDayOfPreviousMonth = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()); 
     		        ZonedDateTime zdt2 = lastDayOfPreviousMonth.atStartOfDay(zoneId);
     		        Date lastDayOfPreviousMonthDate = Date.from(zdt2.toInstant());
+    		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
     		        
     		    	jsonData.put("CardCode", hotelId);//业务伙伴代码
     		    	jsonData.put("CardName", this.crsAccountMapper.getHotelNameById(hotelId));//业务伙伴名称
-    		    	jsonData.put("DocDate", lastDayOfPreviousMonthDate);//过账日期,固定为每月最后一天
-    		    	jsonData.put("DocDueDate", fifteenDayOfThisMonthDate);//到期日,固定为下月15号
-    		    	jsonData.put("TaxDate", lastDayOfPreviousMonthDate);//单据日期,固定为每月最后一天
+    		    	jsonData.put("DocDate", sdf.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
+    		    	jsonData.put("DocDueDate", sdf.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号
+    		    	jsonData.put("TaxDate", sdf.format(lastDayOfPreviousMonthDate));//单据日期,固定为每月最后一天
     		    	jsonData.put("CurSource", "3");//币种,固定RMB
     		    	jsonData.put("APTotal", apAmount);//AP含税总价
-    		    	jsonData.put("ARTotal", new BigDecimal(arAmount));//AR含税总价
+    		    	jsonData.put("ARTotal", arAmount);//AR含税总价
     		    	
     		    	log.info("----to sap data as follows:-------------");
     		    	log.info("to sap data:" + jsonData.toString());
+    		    	
     		    	//调用SAP接口同步AR和AP信息
-    		    	//TODO
+                    JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
+                    jwpfb.setServiceClass(SAPWebServiceSoap.class);
+                    String sapWebServiceUrl = ymlUtil.getSapWebServiceUrl();
+                    jwpfb.setAddress(sapWebServiceUrl);
+                    SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
+
+                    String syncSapResult = s.invoices(JSONObject.fromObject(jsonData).toString());
+                    
+                    log.info("Invoke sap result:" + syncSapResult);
     		    	
     		    	SyncLog sLog = new SyncLog();
     		    	sLog.setSourceId(Integer.valueOf(hotelId));
@@ -164,24 +210,24 @@ public class SyncArAndApToSapService {
     }
     
     class OwnerShare {
-    	private Integer key;
-        private Integer value;
+    	private BigDecimal key;
+        private BigDecimal value;
         public OwnerShare() {
         	
         }
-        public OwnerShare(Integer key,Integer value) {
+        public OwnerShare(BigDecimal key,BigDecimal value) {
         	this.key = key;
         	this.value = value;
         }
     }
     
     //获取ower share
-    private Integer getOwerShare(List<OwnerShare> list, Integer amount) {
-    	Integer result = 0;
+    private BigDecimal getOwerShare(List<OwnerShare> list, BigDecimal amount) {
+    	BigDecimal result = new BigDecimal("0");
     	for (int i = 0; i < list.size(); i++) {
     		OwnerShare ownerShare = list.get(i);
 			if (i != list.size() - 1) {
-				if (amount > ownerShare.key) {
+				if (amount.compareTo(ownerShare.key) > 0) {
 					continue;
 				} else if (amount == ownerShare.key) {
 					result = ownerShare.value;
@@ -189,7 +235,7 @@ public class SyncArAndApToSapService {
 					result = list.get(i-1).value;
 				}
 			} else {
-				if (amount >= ownerShare.key) {
+				if (amount.compareTo(ownerShare.key) >= 0) {
 					result = ownerShare.value;
 				} else {
 					result = list.get(i-1).value;

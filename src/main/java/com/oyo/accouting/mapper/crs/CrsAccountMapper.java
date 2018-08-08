@@ -16,6 +16,6 @@ public interface CrsAccountMapper {
 	public List<HashMap<String, String>> getHotelOwnerShare();
 	
 	//根据hotelId获取hotel名称
-	public String getHotelNameById(@Param("hotelId") String hotelId);
+	public String getHotelNameById(@Param("hotelId") Integer hotelId);
 	
 }
