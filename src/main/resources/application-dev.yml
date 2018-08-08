@@ -15,7 +15,7 @@ spring:
 
   thymeleaf:
     # 这个是配置模板路径的，默认是templates
-    prefix: classpath:/templates/
+    prefix: classpath:/static/
     suffix: .html
     # 模板的模式
     #spring.thymeleaf.mode的默认值是HTML5，其实是一个很严格的检查，改为LEGACYHTML5可以得到一个可能更友好亲切的格式要求。
