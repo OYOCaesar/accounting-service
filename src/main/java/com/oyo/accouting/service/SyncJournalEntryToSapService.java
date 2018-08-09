@@ -252,21 +252,28 @@ public class SyncJournalEntryToSapService {
     //获取ower share
     private BigDecimal getOwerShare(List<OwnerShare> list, BigDecimal amount) {
     	BigDecimal result = new BigDecimal("0");
+    	if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+    		return result;
+    	}
     	for (int i = 0; i < list.size(); i++) {
     		OwnerShare ownerShare = list.get(i);
 			if (i != list.size() - 1) {
 				if (amount.compareTo(ownerShare.key) > 0) {
 					continue;
-				} else if (amount == ownerShare.key) {
+				} else if (amount.compareTo(ownerShare.key) == 0) {
 					result = ownerShare.value;
+					break;
 				} else {
 					result = list.get(i-1).value;
+					break;
 				}
 			} else {
 				if (amount.compareTo(ownerShare.key) >= 0) {
 					result = ownerShare.value;
+					break;
 				} else {
 					result = list.get(i-1).value;
+					break;
 				}
 			}
 		}

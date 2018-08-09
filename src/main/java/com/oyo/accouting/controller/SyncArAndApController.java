@@ -24,8 +24,8 @@ public class SyncArAndApController {
     @RequestMapping(value = "syncArAndAp", method = RequestMethod.GET)
     public void syncArAndAp(HttpServletRequest request) {
     	try {
-			String result = syncArAndApToSapService.syncArAndApToSap();
-			//String result = syncArAndApToSapService.test();
+			//String result = syncArAndApToSapService.syncArAndApToSap();
+			String result = syncArAndApToSapService.test();
 			if (StringUtils.isEmpty(result)) {
 				log.info("Synchronization AR and AP to sap success.");
 			} else {

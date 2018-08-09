@@ -89,11 +89,11 @@ public class SyncArAndApToSapService {
         log.info(json.getString("Message"));
         log.info("Invoke sap result:" + syncSapResult);
         
-        String syncSapResult2 = serviceSap.invoices(JSONObject.fromObject(jsonData).toString());
+        /*String syncSapResult2 = serviceSap.invoices(JSONObject.fromObject(jsonData).toString());
         JSONObject json2 = JSONObject.fromObject(syncSapResult2);
         log.info(json2.getString("Code"));
         log.info(json2.getString("Message"));
-        log.info("Invoke sap result:" + syncSapResult2);
+        log.info("Invoke sap result:" + syncSapResult2);*/
     	return null;
     }
 
@@ -260,25 +260,42 @@ public class SyncArAndApToSapService {
     //获取ower share
     private BigDecimal getOwerShare(List<OwnerShare> list, BigDecimal amount) {
     	BigDecimal result = new BigDecimal("0");
+    	if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+    		return result;
+    	}
     	for (int i = 0; i < list.size(); i++) {
     		OwnerShare ownerShare = list.get(i);
 			if (i != list.size() - 1) {
 				if (amount.compareTo(ownerShare.key) > 0) {
 					continue;
-				} else if (amount == ownerShare.key) {
+				} else if (amount.compareTo(ownerShare.key) == 0) {
 					result = ownerShare.value;
+					break;
 				} else {
 					result = list.get(i-1).value;
+					break;
 				}
 			} else {
 				if (amount.compareTo(ownerShare.key) >= 0) {
 					result = ownerShare.value;
+					break;
 				} else {
 					result = list.get(i-1).value;
+					break;
 				}
 			}
 		}
     	return result;
     }
+    
+    public static void main(String[] args) {
+    	SyncArAndApToSapService aa = new SyncArAndApToSapService();
+		List<OwnerShare> list = new ArrayList<OwnerShare>();
+		list.add(aa.new OwnerShare(new BigDecimal("0"),new BigDecimal("70")));
+		list.add(aa.new OwnerShare(new BigDecimal("2000"),new BigDecimal("80")));
+		list.add(aa.new OwnerShare(new BigDecimal("3000"),new BigDecimal("85")));
+		BigDecimal zz = aa.getOwerShare(list, new BigDecimal("-1"));
+		System.out.println(zz);
+	}
     
 }
