@@ -13,10 +13,11 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 @Configuration
 public class SchedulerConfig {
-
+	
     @Bean(name="SchedulerFactory")
     public SchedulerFactoryBean schedulerFactoryBean() throws IOException {
         SchedulerFactoryBean factory = new SchedulerFactoryBean();
+        factory.setApplicationContextSchedulerContextKey("applicationContext");//为了job中获取service
         factory.setQuartzProperties(quartzProperties());
         return factory;
     }
