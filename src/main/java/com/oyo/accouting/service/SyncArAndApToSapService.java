@@ -63,13 +63,6 @@ public class SyncArAndApToSapService {
   		}
         return service;
   	}
-  	
-  	public String test1() {
-  		log.info("----调用定时任务开始-------------");
-  		
-  		log.info("----调用定时任务结束------------)");
-  		return "success.";
-  	}
     
     public String test() throws Exception {
     	JSONObject jsonData = new JSONObject();
