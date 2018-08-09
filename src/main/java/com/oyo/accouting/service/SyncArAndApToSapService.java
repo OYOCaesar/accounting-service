@@ -52,14 +52,14 @@ public class SyncArAndApToSapService {
     
     public String test() throws Exception {
     	JSONObject jsonData = new JSONObject();
-    	jsonData.put("CardCode", "80280");//业务伙伴代码
+    	jsonData.put("CardCode", "VH-15385");//业务伙伴代码
     	jsonData.put("CardName", "test");//业务伙伴名称
         jsonData.put("DocDate", "2018-07-31");//过账日期,固定为每月最后一天
     	jsonData.put("DocDueDate", "2018-08-15");//到期日,固定为下月15号
     	jsonData.put("TaxDate", "2018-07-31");//单据日期,固定为每月最后一天
     	jsonData.put("CurSource", "3");//币种,固定RMB
-    	jsonData.put("APTotal", 100);//AP含税总价
-    	jsonData.put("ARTotal", new BigDecimal(100));//AR含税总价
+    	jsonData.put("APTotal", 0.1);//AP含税总价
+    	jsonData.put("ARTotal", 0.1);//AR含税总价
     	
     	log.info("----to sap data as follows:-------------");
     	log.info("to sap data:" + jsonData.toString());
@@ -158,7 +158,7 @@ public class SyncArAndApToSapService {
     		        Date lastDayOfPreviousMonthDate = Date.from(zdt2.toInstant());
     		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
     		        
-    		    	jsonData.put("CardCode", hotelId);//业务伙伴代码
+    		    	jsonData.put("CardCode", "VH-" + hotelId);//业务伙伴代码
     		    	jsonData.put("CardName", this.crsAccountMapper.getHotelNameById(hotelId));//业务伙伴名称
     		    	jsonData.put("DocDate", sdf.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
     		    	jsonData.put("DocDueDate", sdf.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号

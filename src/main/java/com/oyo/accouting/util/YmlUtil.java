@@ -14,7 +14,7 @@ public class YmlUtil {
 	// 获取sapWebServiceUrl属性
 	public static String sapWebServiceUrl;
 
-	public static String getSapWebServiceUrl() {
+	public String getSapWebServiceUrl() {
 		return sapWebServiceUrl;
 	}
 
