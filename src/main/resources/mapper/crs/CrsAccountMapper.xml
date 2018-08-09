@@ -35,7 +35,7 @@
 	</select>	
 	
 	<!-- 根据hotelId获取hotel名称 -->
-	<select id="getHotelNameById" resultType="java.lang.String" parameterType="java.lang.String">
+	<select id="getHotelNameById" resultType="java.lang.String" parameterType="java.lang.Integer">
         SELECT name FROM hotels where id = #{hotelId}
     </select>
 	

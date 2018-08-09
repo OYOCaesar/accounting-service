@@ -107,6 +107,7 @@ public class SyncArAndApToSapService {
     public String syncArAndApToSap() throws Exception {
     	log.info("----syncArAndApToSap start-------------");
     	String result = "";
+    	
     	//AR列表数据
     	List<HashMap<String,String>> arMapList = null;//获取应收金额
     	//AP列表数据
