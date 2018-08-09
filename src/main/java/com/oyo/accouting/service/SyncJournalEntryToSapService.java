@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import com.oyo.accouting.constants.AccountingCode;
 import com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountMapper;
 import com.oyo.accouting.pojo.SyncLog;
-import com.oyo.accouting.util.WebserviceUtil;
+import com.oyo.accouting.util.YmlUtil;
 import com.oyo.accouting.webservice.SAPWebServiceSoap;
 
 import net.sf.json.JSONObject;
@@ -47,8 +48,22 @@ public class SyncJournalEntryToSapService {
     @Autowired
     private AccountingSyncLogMapper accountingSyncLogMapper;
     
-    @Autowired 
-    private WebserviceUtil webserviceUtil;
+    @Autowired
+    private YmlUtil ymlUtil;
+    
+    //获取sap接口对象
+  	public SAPWebServiceSoap getSapSapService() {
+  		SAPWebServiceSoap service = null;
+  		try {
+  			JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
+  	        jwpfb.setServiceClass(SAPWebServiceSoap.class);
+  	        jwpfb.setAddress(ymlUtil.getSapWebServiceUrl());
+  	        service = (SAPWebServiceSoap) jwpfb.create();
+  		} catch (Exception e) {
+  			log.error("Get sap interface throw Exception: {}", e);
+  		}
+        return service;
+  	}
 
     public String syncJournalEntryToSap() throws Exception {
     	log.info("----SyncJournalEntryToSap start-------------");
@@ -65,13 +80,13 @@ public class SyncJournalEntryToSapService {
         	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare();//获取ower share数据
         	if (null != arMapList && !arMapList.isEmpty()) {
         		//获取sap接口
-        		SAPWebServiceSoap sapService = webserviceUtil.getSapSapService();
+        		SAPWebServiceSoap sapService = this.getSapSapService();
         		if (null == sapService) {
 		    		result += "Connection SAP Failed." + "\n";
 		    		return result;
 		    	}
         		
-        		JSONObject jsonData = new JSONObject();
+        		JSONObject jsonData = null;
         		for (Iterator<HashMap<String, String>> iterator = arMapList.iterator(); iterator.hasNext();) {
     				HashMap<String, String> hashMap = (HashMap<String, String>) iterator.next();
     				Integer hotelId = Integer.valueOf(String.valueOf(hashMap.get("hotel_id")));
@@ -140,6 +155,7 @@ public class SyncJournalEntryToSapService {
     		        Date lastDayOfPreviousMonthDate = Date.from(zdt2.toInstant());
     		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
     		        
+    		        jsonData = new JSONObject();
     		        jsonData.put("RefDate", sdf.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
     		        jsonData.put("DueDate", sdf.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号
     		        jsonData.put("TaxDate", sdf.format(lastDayOfPreviousMonthDate));//单据日期,固定为每月最后一天
@@ -157,9 +173,13 @@ public class SyncJournalEntryToSapService {
     		    	
     		    	//调用SAP接口同步日记账分表应收信息
                     String syncSapArResult = sapService.invoices(JSONObject.fromObject(jsonData).toString());
-                    
                     log.info("Invoke sap interface for <Journal Entry Ar> result:" + syncSapArResult);
-    		    	
+                    JSONObject jsonAr = JSONObject.fromObject(syncSapArResult);
+                    String codeAr = jsonAr.getString("Code");
+                    String messageAr = jsonAr.getString("Message");
+                    jsonData.put("Code", codeAr);
+                    jsonData.put("Message", messageAr);
+                    
                     //插入日记账应收同步日志
     		    	insertSyncLog(jsonData, hotelId, "Sync Journal Entry Ar To SAP");
     		        
@@ -174,9 +194,13 @@ public class SyncJournalEntryToSapService {
     		    	
     		    	//调用SAP接口同步日记账分表应付信息
                     String syncSapApResult = sapService.invoices(JSONObject.fromObject(jsonData).toString());
-                    
                     log.info("Invoke sap interface for <Journal Entry Ap> result::" + syncSapApResult);
-    		    	
+                    JSONObject jsonAp = JSONObject.fromObject(syncSapApResult);
+                    String codeAp = jsonAp.getString("Code");
+                    String messageAp = jsonAp.getString("Message");
+                    jsonData.put("Code", codeAp);
+                    jsonData.put("Message", messageAp);
+                    
                     //插入日记账应收同步日志
     		    	insertSyncLog(jsonData, hotelId, "Sync Journal Entry Ap To SAP");
     		    	

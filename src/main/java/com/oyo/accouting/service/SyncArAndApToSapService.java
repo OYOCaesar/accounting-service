@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ import com.oyo.accouting.bean.SyncLogDto;
 import com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountMapper;
 import com.oyo.accouting.pojo.SyncLog;
-import com.oyo.accouting.util.WebserviceUtil;
+import com.oyo.accouting.util.YmlUtil;
 import com.oyo.accouting.webservice.SAPWebServiceSoap;
 
 import net.sf.json.JSONObject;
@@ -43,11 +44,25 @@ public class SyncArAndApToSapService {
     @Autowired
     private CrsAccountMapper crsAccountMapper;
     
-    @Autowired 
-    private WebserviceUtil webserviceUtil;
+    @Autowired
+    private YmlUtil ymlUtil;
 
     @Autowired
     private AccountingSyncLogMapper accountingSyncLogMapper;
+    
+    //获取sap接口对象
+  	public SAPWebServiceSoap getSapSapService() {
+  		SAPWebServiceSoap service = null;
+  		try {
+  			JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
+  	        jwpfb.setServiceClass(SAPWebServiceSoap.class);
+  	        jwpfb.setAddress(ymlUtil.getSapWebServiceUrl());
+  	        service = (SAPWebServiceSoap) jwpfb.create();
+  		} catch (Exception e) {
+  			log.error("Get sap interface throw Exception: {}", e);
+  		}
+        return service;
+  	}
     
     public String test() throws Exception {
     	JSONObject jsonData = new JSONObject();
@@ -63,13 +78,22 @@ public class SyncArAndApToSapService {
     	
     	log.info("----to sap data as follows:-------------");
     	log.info("to sap data:" + jsonData.toString());
-    	
+        
     	//调用SAP接口同步AR和AP信息
-    	SAPWebServiceSoap serviceSap = webserviceUtil.getSapSapService();
+    	SAPWebServiceSoap serviceSap = this.getSapSapService();
 
         String syncSapResult = serviceSap.invoices(JSONObject.fromObject(jsonData).toString());
         
+        JSONObject json = JSONObject.fromObject(syncSapResult);
+        log.info(json.getString("Code"));
+        log.info(json.getString("Message"));
         log.info("Invoke sap result:" + syncSapResult);
+        
+        String syncSapResult2 = serviceSap.invoices(JSONObject.fromObject(jsonData).toString());
+        JSONObject json2 = JSONObject.fromObject(syncSapResult2);
+        log.info(json2.getString("Code"));
+        log.info(json2.getString("Message"));
+        log.info("Invoke sap result:" + syncSapResult2);
     	return null;
     }
 
@@ -88,12 +112,12 @@ public class SyncArAndApToSapService {
         	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare();//获取ower share数据
         	if (null != arMapList && !arMapList.isEmpty()) {
         		//获取sap接口
-        		SAPWebServiceSoap service = webserviceUtil.getSapSapService();
-        		if (null == service) {
+        		SAPWebServiceSoap sapService = this.getSapSapService();
+        		if (null == sapService) {
 		    		result += "Connection SAP Failed." + "\n";
 		    		return result;
 		    	}
-        		JSONObject jsonData = new JSONObject();
+        		JSONObject jsonData = null;
         		for (Iterator<HashMap<String, String>> iterator = arMapList.iterator(); iterator.hasNext();) {
     				HashMap<String, String> hashMap = (HashMap<String, String>) iterator.next();
     				Integer hotelId = Integer.valueOf(String.valueOf(hashMap.get("hotel_id")));
@@ -162,6 +186,7 @@ public class SyncArAndApToSapService {
     		        Date lastDayOfPreviousMonthDate = Date.from(zdt2.toInstant());
     		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
     		        
+    		        jsonData = new JSONObject();
     		    	jsonData.put("CardCode", "VH-" + hotelId);//业务伙伴代码
     		    	jsonData.put("CardName", this.crsAccountMapper.getHotelNameById(hotelId));//业务伙伴名称
     		    	jsonData.put("DocDate", sdf.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
@@ -175,9 +200,14 @@ public class SyncArAndApToSapService {
     		    	log.info("to sap data:" + jsonData.toString());
     		    	
     		    	//调用SAP接口同步AR和AP信息
-                    String syncSapResult = service.invoices(JSONObject.fromObject(jsonData).toString());
-                    
+                    String syncSapResult = sapService.invoices(JSONObject.fromObject(jsonData).toString());
                     log.info("Invoke sap result:" + syncSapResult);
+                    JSONObject json = JSONObject.fromObject(syncSapResult);
+                    String code = json.getString("Code");
+                    String message = json.getString("Message");
+                    jsonData.put("Code", code);
+                    jsonData.put("Message", message);
+                    
     		    	//插入同步日志
     		    	insertSyncLog(jsonData, hotelId, "Sync Ar And Ap To SAP");
     		    	
