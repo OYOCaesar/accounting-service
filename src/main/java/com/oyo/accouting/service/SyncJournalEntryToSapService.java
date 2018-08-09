@@ -181,7 +181,7 @@ public class SyncJournalEntryToSapService {
                     jsonData.put("Message", messageAr);
                     
                     //插入日记账应收同步日志
-    		    	insertSyncLog(jsonData, hotelId, "Sync Journal Entry Ar To SAP");
+    		    	insertSyncLog(Integer.valueOf(codeAr), jsonData, hotelId, "Sync Journal Entry Ar To SAP");
     		        
     		        //-----------------------------------------------------
     		        //应付
@@ -202,7 +202,7 @@ public class SyncJournalEntryToSapService {
                     jsonData.put("Message", messageAp);
                     
                     //插入日记账应收同步日志
-    		    	insertSyncLog(jsonData, hotelId, "Sync Journal Entry Ap To SAP");
+    		    	insertSyncLog(Integer.valueOf(codeAp), jsonData, hotelId, "Sync Journal Entry Ap To SAP");
     		    	
     			}
         	}
@@ -215,7 +215,7 @@ public class SyncJournalEntryToSapService {
     }
     
     //插入同步日志
-  	private void insertSyncLog(JSONObject jsonData, Integer hotelId, String type) {
+    private void insertSyncLog(Integer status, JSONObject jsonData, Integer hotelId, String type) {
   		log.info("----insertSyncLog start-------------");
   		SyncLog sLog = new SyncLog();
   		sLog.setSourceId(Integer.valueOf(hotelId));

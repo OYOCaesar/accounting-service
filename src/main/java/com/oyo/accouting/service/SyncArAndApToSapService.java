@@ -210,7 +210,7 @@ public class SyncArAndApToSapService {
                     jsonData.put("Message", message);
                     
     		    	//插入同步日志
-    		    	insertSyncLog(jsonData, hotelId, "Sync Ar And Ap To SAP");
+    		    	insertSyncLog(Integer.valueOf(code), jsonData, hotelId, "Sync Ar And Ap To SAP");
     		    	
     			}
         	}
@@ -223,12 +223,13 @@ public class SyncArAndApToSapService {
     }
 
     //插入同步日志
-	private void insertSyncLog(JSONObject jsonData, Integer hotelId, String type) {
+	private void insertSyncLog(Integer status, JSONObject jsonData, Integer hotelId, String type) {
 		log.info("----insertSyncLog start-------------");
 		SyncLog sLog = new SyncLog();
 		sLog.setSourceId(Integer.valueOf(hotelId));
 		sLog.setCreateTime(new Timestamp(new Date().getTime()));
 		sLog.setType(type);
+		sLog.setStatus(status);//状态码
 		
 		//查询同步日志，判断是否需要同步
 		SyncLog syncLogSearch = new SyncLog();
