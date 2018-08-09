@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ import com.oyo.accouting.bean.SyncLogDto;
 import com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountMapper;
 import com.oyo.accouting.pojo.SyncLog;
-import com.oyo.accouting.util.YmlUtil;
+import com.oyo.accouting.util.WebserviceUtil;
 import com.oyo.accouting.webservice.SAPWebServiceSoap;
 
 import net.sf.json.JSONObject;
@@ -44,15 +43,16 @@ public class SyncArAndApToSapService {
     @Autowired
     private CrsAccountMapper crsAccountMapper;
     
-    @Autowired  
-    private YmlUtil ymlUtil; 
+    @Autowired 
+    private WebserviceUtil webserviceUtil;
 
     @Autowired
     private AccountingSyncLogMapper accountingSyncLogMapper;
     
     public String test() throws Exception {
     	JSONObject jsonData = new JSONObject();
-    	jsonData.put("CardCode", "VH-15385");//业务伙伴代码
+    	jsonData.put("V_Code", "H-35279");//供应商代码
+    	jsonData.put("C_Code", "CH-35279");//客户代码，传递时前面加C
     	jsonData.put("CardName", "test");//业务伙伴名称
         jsonData.put("DocDate", "2018-07-31");//过账日期,固定为每月最后一天
     	jsonData.put("DocDueDate", "2018-08-15");//到期日,固定为下月15号
@@ -65,13 +65,9 @@ public class SyncArAndApToSapService {
     	log.info("to sap data:" + jsonData.toString());
     	
     	//调用SAP接口同步AR和AP信息
-        JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
-        jwpfb.setServiceClass(SAPWebServiceSoap.class);
-        String sapWebServiceUrl = ymlUtil.getSapWebServiceUrl();
-        jwpfb.setAddress(sapWebServiceUrl);
-        SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
+    	SAPWebServiceSoap serviceSap = webserviceUtil.getSapSapService();
 
-        String syncSapResult = s.invoices(JSONObject.fromObject(jsonData).toString());
+        String syncSapResult = serviceSap.invoices(JSONObject.fromObject(jsonData).toString());
         
         log.info("Invoke sap result:" + syncSapResult);
     	return null;
@@ -85,15 +81,23 @@ public class SyncArAndApToSapService {
     	//AP列表数据
     	List<HashMap<String,String>> apMapList = new ArrayList<HashMap<String,String>>();
     	List<HashMap<String,String>> ownerShareMapList = null;//获取ower share数据
+    	Integer hotelIdMark = 0;//抛异常时，打印到log 控制台中。
     	try {
     		//AR列表数据
         	arMapList = this.crsAccountMapper.calHotelAmount();//获取应收金额
         	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare();//获取ower share数据
         	if (null != arMapList && !arMapList.isEmpty()) {
+        		//获取sap接口
+        		SAPWebServiceSoap service = webserviceUtil.getSapSapService();
+        		if (null == service) {
+		    		result += "Connection SAP Failed." + "\n";
+		    		return result;
+		    	}
         		JSONObject jsonData = new JSONObject();
         		for (Iterator<HashMap<String, String>> iterator = arMapList.iterator(); iterator.hasNext();) {
     				HashMap<String, String> hashMap = (HashMap<String, String>) iterator.next();
     				Integer hotelId = Integer.valueOf(String.valueOf(hashMap.get("hotel_id")));
+    				hotelIdMark = hotelId;
     		    	BigDecimal arAmount = StringUtils.isNotEmpty(hashMap.get("OWNER_AMOUNT")) ? new BigDecimal(hashMap.get("OWNER_AMOUNT")) : new BigDecimal("0");
     		    	BigDecimal apAmount = new BigDecimal("0");
     		    	
@@ -171,43 +175,44 @@ public class SyncArAndApToSapService {
     		    	log.info("to sap data:" + jsonData.toString());
     		    	
     		    	//调用SAP接口同步AR和AP信息
-                    JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
-                    jwpfb.setServiceClass(SAPWebServiceSoap.class);
-                    String sapWebServiceUrl = ymlUtil.getSapWebServiceUrl();
-                    jwpfb.setAddress(sapWebServiceUrl);
-                    SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
-
-                    String syncSapResult = s.invoices(JSONObject.fromObject(jsonData).toString());
+                    String syncSapResult = service.invoices(JSONObject.fromObject(jsonData).toString());
                     
                     log.info("Invoke sap result:" + syncSapResult);
-    		    	
-    		    	SyncLog sLog = new SyncLog();
-    		    	sLog.setSourceId(Integer.valueOf(hotelId));
-    		    	sLog.setCreateTime(new Timestamp(new Date().getTime()));
-    		    	sLog.setType("ArAndAp");
-    		    	
-    		    	//查询同步日志，判断是否需要同步
-    	            SyncLog syncLogSearch = new SyncLog();
-    	            syncLogSearch.setSourceId(Integer.valueOf(hotelId));
-    	            syncLogSearch.setType("ArAndAp");
-    	            List<SyncLogDto> syncLogDtoList = this.accountingSyncLogMapper.querySyncList(syncLogSearch);
-    	            Integer versionNo = 1;
-    	            if (null != syncLogDtoList && !syncLogDtoList.isEmpty()) {
-    	            	versionNo = syncLogDtoList.stream().max(Comparator.comparing(SyncLogDto::getVersion)).get().getVersion() + 1;
-    	            }
-    		    	sLog.setVersion(versionNo);
-    		        sLog.setJsonData(jsonData.toString());
-    		        this.accountingSyncLogMapper.insert(sLog);
+    		    	//插入同步日志
+    		    	insertSyncLog(jsonData, hotelId, "Sync Ar And Ap To SAP");
     		    	
     			}
         	}
     	} catch (Exception e) {
-    		result = "sync throw exception.";
+    		result = "sync Ar anb Ap to SAP throw exception, hotelId is " + hotelIdMark + "\n";
     		throw e;
     	} 
     	log.info("----syncArAndApToSap end-------------");
         return result;
     }
+
+    //插入同步日志
+	private void insertSyncLog(JSONObject jsonData, Integer hotelId, String type) {
+		log.info("----insertSyncLog start-------------");
+		SyncLog sLog = new SyncLog();
+		sLog.setSourceId(Integer.valueOf(hotelId));
+		sLog.setCreateTime(new Timestamp(new Date().getTime()));
+		sLog.setType(type);
+		
+		//查询同步日志，判断是否需要同步
+		SyncLog syncLogSearch = new SyncLog();
+		syncLogSearch.setSourceId(Integer.valueOf(hotelId));
+		syncLogSearch.setType(type);
+		List<SyncLogDto> syncLogDtoList = this.accountingSyncLogMapper.querySyncList(syncLogSearch);
+		Integer versionNo = 1;
+		if (null != syncLogDtoList && !syncLogDtoList.isEmpty()) {
+			versionNo = syncLogDtoList.stream().max(Comparator.comparing(SyncLogDto::getVersion)).get().getVersion() + 1;
+		}
+		sLog.setVersion(versionNo);
+		sLog.setJsonData(jsonData.toString());
+		this.accountingSyncLogMapper.insert(sLog);
+		log.info("----insertSyncLog end-------------");
+	}
     
     class OwnerShare {
     	private BigDecimal key;

@@ -25,12 +25,12 @@ public class SyncArAndApJob implements BaseJob {
 		try {
 			String result = syncArAndApToSapService.syncArAndApToSap();
 			if (StringUtils.isEmpty(result)) {
-				log.info("Synchronization AR and AP to sap success.");
+				log.info("Sync AR and AP to sap success.");
 			} else {
-				log.info("Synchronization AR and AP to sap failure!");
+				log.info("Sync AR and AP to sap failure!");
 			}
 		} catch (Exception e) {
-			log.error("Synchronizing AR and AP to sap throwing exception!");
+			log.error("Sync AR and AP to sap throwing exception!");
 			e.printStackTrace();
 		}
         log.info("Sync Ar and Ap data to SAP end.");
