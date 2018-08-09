@@ -76,7 +76,7 @@ public class FileUploadController {
                 oyoShare.setUniqueCode(oyoShare.getUniqueCode().substring(0,j<0?oyoShare.getUniqueCode().length():j));
                 oyoShareList.add(oyoShare);
             }
-            //this.oyoShareService.insertOyoShareList(oyoShareList);
+            this.oyoShareService.insertOyoShareList(oyoShareList);
             view.addObject("data","success!");
             mode.addAttribute("data","success!");
         } else {

@@ -45,9 +45,14 @@ public class SyncHotelToSapService {
     @Autowired
     private AccountingOyoShareMapper accountingOyoShareMapper;
 
-    public SyncHotel syncHotelToSap(){
+    public String syncHotelToSap(){
 
         List<HotelDto> hotelList = this.crsHotelMapper.queryHotelList();
+
+        JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
+        jwpfb.setServiceClass(SAPWebServiceSoap.class);
+        jwpfb.setAddress("http://52.80.99.224:8080/SAPWebService.asmx");
+        SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
 
         for(HotelDto h:hotelList){
             //查询AccountDetails
@@ -69,6 +74,7 @@ public class SyncHotelToSapService {
             //查询同步日志，判断是否需要同步
             SyncLog syncLogSearch = new SyncLog();
             syncLogSearch.setSourceId(h.getId());
+            syncLogSearch.setType("Hotel");
             List<SyncLogDto> syncLogDtoList = this.accountingSyncLogMapper.querySyncList(syncLogSearch);
 
             boolean syncLogDtoListIsNull = syncLogDtoList==null || syncLogDtoList.size()== 0;  //同步日志是否为null
@@ -79,16 +85,10 @@ public class SyncHotelToSapService {
             //同步sap
             if(isSync){
                 //同步到sap
-                JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
-                jwpfb.setServiceClass(SAPWebServiceSoap.class);
-                jwpfb.setAddress("http://52.80.99.224:8080/SAPWebService.asmx");
-                SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
-
                 JSONObject hotelMapJson = JSONObject.fromObject(syncHotel.getSyncHotelMap());
                 String hotelMapStr = hotelMapJson.toString();
-
                 String result = s.businessPartners(hotelMapStr);
-
+                
                 JSONObject resultJsonObj = JSONObject.fromObject(result);
 
                 //插入日志
@@ -101,9 +101,8 @@ public class SyncHotelToSapService {
                 sl.setJsonData(hotelMapStr);
                 sl.setStatus(Integer.valueOf(resultJsonObj.get("Code").toString()));
                 this.accountingSyncLogMapper.insert(sl);
-
+                return result;
             }
-            return null;
         }
         return null;
     }

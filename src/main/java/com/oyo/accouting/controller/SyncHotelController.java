@@ -23,10 +23,10 @@ public class SyncHotelController {
      * @return
      */
     @RequestMapping(value = "getSyncHotel", method = RequestMethod.GET)
-    public ResponseEntity<SyncHotel> queryCartList(HttpServletRequest request) {
+    public ResponseEntity<String> queryCartList(HttpServletRequest request) {
 
 
-        SyncHotel res = this.syncHotelToSapService.syncHotelToSap();
+        String res = this.syncHotelToSapService.syncHotelToSap();
         return ResponseEntity.ok(res);
     }
 

@@ -15,7 +15,7 @@
 
     <select id="querySyncList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.SyncLogDto">
 
-        SELECT * FROM sync_log sl where sl.source_id =#{syncLog.sourceId} order by sl.id desc limit 1
+        SELECT * FROM sync_log sl where sl.source_id =#{syncLog.sourceId} and sl.type =#{syncLog.type} order by sl.id desc limit 1
     </select>
 	
 </mapper>
