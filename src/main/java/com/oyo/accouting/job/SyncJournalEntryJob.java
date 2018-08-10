@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.druid.util.StringUtils;
 import com.oyo.accouting.service.SyncJournalEntryToSapService;
 
 /***
@@ -28,11 +27,7 @@ public class SyncJournalEntryJob implements BaseJob {
 			ApplicationContext applicationContext = (ApplicationContext) context.getScheduler().getContext().get("applicationContext");
 			SyncJournalEntryToSapService service = applicationContext.getBean(SyncJournalEntryToSapService.class);
 			String result = service.syncJournalEntryToSap();
-			if (StringUtils.isEmpty(result)) {
-				log.info("Sync Journal Entry to SAP success.");
-			} else {
-				log.info("Sync Journal Entry to SAP failure!");
-			}
+			log.info(result);
 		} catch (Exception e) {
 			log.error("Sync Journal Entry to SAP throwing exception!");
 			e.printStackTrace();

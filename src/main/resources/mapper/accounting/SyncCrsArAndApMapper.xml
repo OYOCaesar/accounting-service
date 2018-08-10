@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper">
+
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.SyncCrsArAndApDto" >
+        <id column="id" property="id" />
+        <result column="sync_year_month" property="syncYearMonth" />
+        <result column="hotel_id" property="hotelId" />
+        <result column="hotel_name" property="hotelName" />
+        <result column="ar_amount" property="arAmount" />
+        <result column="ap_amount" property="apAmount" />
+        <result column="rate" property="rate" />
+        <result column="create_time" property="createTime"/>
+        <result column="is_sync" property="isSync"/>
+        <result column="is_del" property="isDel"/>
+    </resultMap>
+    
+    <!-- 条件查询 -->
+    <select id="selectByMap" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT id, sync_year_month, hotel_id, hotel_name, ar_amount, ap_amount, rate, create_time, is_sync, is_del
+        FROM sync_crs_ar_ap 
+        where is_del = 0 and is_sync = 0
+        <if test="syncYearMonth != null and syncYearMonth != ''">
+            and sync_year_month = #{syncYearMonth}
+        </if>
+    </select>
+
+    <!-- 批量插入 -->
+    <insert id ="insertCrsArAndApList" parameterType="java.util.List">
+        insert into sync_crs_ar_ap
+        (sync_year_month, hotel_id, hotel_name, ar_amount, ap_amount, rate, create_time, is_sync, is_del)
+        values
+        <foreach collection ="crsArAndApList" item="item" index= "index" separator =",">
+            (
+            #{item.syncYearMonth}, #{item.hotelId}, #{item.hotelName}, #{item.arAmount},
+            #{item.apAmount}, #{item.rate}, #{item.createTime}, #{item.isSync}, #{item.isDel}
+            )
+        </foreach>
+    </insert>
+    
+    <!-- 当条插入 -->
+    <insert id ="insertCrsArAndAp" parameterType="com.oyo.accouting.pojo.SyncCrsArAndAp" >
+        insert into sync_crs_ar_ap
+        (sync_year_month, hotel_id, hotel_name, ar_amount, ap_amount, rate, create_time, is_sync, is_del)
+        values(
+            #{syncYearMonth}, #{hotelId}, #{hotelName}, #{arAmount},
+            #{apAmount}, #{rate}, #{createTime}, #{isSync}, #{isDel}
+        )        
+    </insert>
+    
+    <!-- 批量更新为已同步 -->
+    <update id ="updateCrsArAndApIsSyncList" parameterType="java.util.List">
+        <foreach collection ="crsArAndApList" separator=";" item="item">
+            update sync_crs_ar_ap set is_sync = #{item.isSync}
+            where id = #{item.id}
+        </foreach>
+    </update>
+    
+    <!-- 批量更新为已删除 -->
+    <update id ="updateCrsArAndApIsDelcList" parameterType="java.util.List">
+        <foreach collection ="crsArAndApList" separator=";" item="item">
+            update sync_crs_ar_ap set is_del = #{item.isDel}
+            where id = #{item.id}
+        </foreach>
+    </update>
+    
+    <!-- 逻辑删除指定年月同步的ar ap数据 -->
+    <update id ="updateYearMonthCrsArAndApIsDelBatch" parameterType="java.lang.String">
+        update sync_crs_ar_ap set is_del = 1
+        where sync_year_month = #{syncYearMonth}
+    </update>
+	
+</mapper>

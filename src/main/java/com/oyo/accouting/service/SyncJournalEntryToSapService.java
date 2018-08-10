@@ -31,6 +31,7 @@ import com.oyo.accouting.pojo.SyncLog;
 import com.oyo.accouting.util.YmlUtil;
 import com.oyo.accouting.webservice.SAPWebServiceSoap;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 /**
@@ -64,19 +65,81 @@ public class SyncJournalEntryToSapService {
   		}
         return service;
   	}
+  	
+  	public String test() throws Exception {
+  		ZoneId zoneId = ZoneId.systemDefault();
+    	LocalDate now = LocalDate.now();
+    	LocalDate fifteenDayOfThisMonth = now.withDayOfMonth(15);
+        ZonedDateTime zdt = fifteenDayOfThisMonth.atStartOfDay(zoneId);
+        Date fifteenDayOfThisMonthDate = Date.from(zdt.toInstant());
+        
+        LocalDate lastDayOfPreviousMonth = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()); 
+        ZonedDateTime zdt2 = lastDayOfPreviousMonth.atStartOfDay(zoneId);
+        Date lastDayOfPreviousMonthDate = Date.from(zdt2.toInstant());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        
+    	JSONObject jsonData = new JSONObject();
+    	jsonData.put("RefDate", sdf.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
+        jsonData.put("DueDate", sdf.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号
+        jsonData.put("TaxDate", sdf.format(lastDayOfPreviousMonthDate));//单据日期,固定为每月最后一天
+        jsonData.put("Memo", "CH-35279");//备注
+        
+        JSONArray jsonArray = new JSONArray();
+        JSONObject obj = new JSONObject();
+        //obj.put("CardCode", "CH-35279");//业务伙伴代码
+//    	jsonData.put("V_Code", "H-35279");//供应商代码
+//    	jsonData.put("C_Code", "CH-35279");//客户代码，传递时前面加C
+    	//-----------------------------------------------------
+        //应收
+        obj.put("Account", AccountingCode.CODE_60010201.getCode());//科目代码
+        obj.put("Debit", 100);//借方金额
+        obj.put("Credit", 0);//贷方金额
+        jsonArray.add(obj);
+    	
+        //应付
+        obj.put("Account", AccountingCode.CODE_60010401.getCode());//科目代码
+        obj.put("Debit", 0);//借方金额
+        obj.put("Credit", 90);//贷方金额
+        jsonArray.add(obj);
+        
+        obj.put("Account", AccountingCode.CODE_60010601.getCode());//科目代码
+        obj.put("Debit", 0);//借方金额
+        obj.put("Credit", 10);//贷方金额
+        jsonArray.add(obj);
+        
+        jsonData.put("Lines", jsonArray);
+    	log.info("----Journal Entry Ap to SAP data as follows:-------------");
+    	log.info("to sap data:" + jsonData.toString());
+    	
+    	//调用SAP接口同步AR和AP信息
+    	SAPWebServiceSoap sapService = this.getSapSapService();
+    	//调用SAP接口同步日记账分表应付信息
+        String syncSapApResult = sapService.journalEntries(JSONObject.fromObject(jsonData).toString());
+        log.info("Invoke Ap to SAP result:" + syncSapApResult);
+        
+    	return null;
+    }
 
     public String syncJournalEntryToSap() throws Exception {
     	log.info("----SyncJournalEntryToSap start-------------");
     	String result = "";
+    	Integer totalCountAr = 0;//ar同步总记录数
+    	Integer successCountAr = 0;//ar同步成功记录数
+    	Integer failedCountAr = 0;//ar同步失败记录数
+    	
+    	Integer totalCountAp = 0;//ap同步总记录数
+    	Integer successCountAp = 0;//ap同步成功记录数
+    	Integer failedCountAp = 0;//ap同步失败记录数
+    	
     	//AR列表数据
     	List<HashMap<String,String>> arMapList = null;//获取应收金额
-    	//AP列表数据
-    	List<HashMap<String,String>> apMapList = new ArrayList<HashMap<String,String>>();
     	List<HashMap<String,String>> ownerShareMapList = null;//获取ower share数据
     	Integer hotelIdMark = 0;//抛异常时，打印到log 控制台中。
     	try {
     		//AR列表数据
         	arMapList = this.crsAccountMapper.calHotelAmount();//获取应收金额
+        	totalCountAr = arMapList.size();
+        	totalCountAp = arMapList.size();
         	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare();//获取ower share数据
         	if (null != arMapList && !arMapList.isEmpty()) {
         		//获取sap接口
@@ -91,7 +154,7 @@ public class SyncJournalEntryToSapService {
     				HashMap<String, String> hashMap = (HashMap<String, String>) iterator.next();
     				Integer hotelId = Integer.valueOf(String.valueOf(hashMap.get("hotel_id")));
     				hotelIdMark = hotelId;
-    		    	BigDecimal arAmount = StringUtils.isNotEmpty(hashMap.get("OWNER_AMOUNT")) ? new BigDecimal(hashMap.get("OWNER_AMOUNT")) : new BigDecimal("0");
+    				BigDecimal arAmount = new BigDecimal(String.valueOf(hashMap.get("sum")));
     		    	BigDecimal apAmount = new BigDecimal("0");
     		    	
     		    	if (null != ownerShareMapList && !ownerShareMapList.isEmpty()) {
@@ -117,7 +180,7 @@ public class SyncJournalEntryToSapService {
     				    			Collections.sort(list,new Comparator<OwnerShare>() {
     				    	            @Override
     				    	            public int compare(OwnerShare o1, OwnerShare o2) {
-    				    	                return (int) (o2.key.compareTo(o1.key));
+    				    	                return (int) (o1.key.compareTo(o2.key));
     				    	            }
     				    	        });
     				    			
@@ -126,19 +189,12 @@ public class SyncJournalEntryToSapService {
     				    			
     				    			BigDecimal owerShare = getOwerShare(list,arAmount);
     				    			apAmount = owerShare.multiply(arAmount);
-    				    			map.put("cpAmount", apAmount.toString());
-    				    			apMapList.add(map);
-    				    			
     				    		}
     			    			
     			    		} else {
     			    			JSONObject jsonObj = JSONObject.fromObject(ownerShareJson);
     			    			Integer owerShare = Integer.valueOf(jsonObj.get("0").toString());
     			    			apAmount = new BigDecimal(owerShare).multiply(arAmount);
-    			    			HashMap<String,String> map = new HashMap<String,String>();
-    			    			map.put("HOTEL_ID", hotelId.toString());
-    			    			map.put("cpAmount", String.valueOf(apAmount));
-    			    			apMapList.add(map);
     			    		}
     		    		}
     		    		
@@ -153,64 +209,65 @@ public class SyncJournalEntryToSapService {
     		        LocalDate lastDayOfPreviousMonth = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()); 
     		        ZonedDateTime zdt2 = lastDayOfPreviousMonth.atStartOfDay(zoneId);
     		        Date lastDayOfPreviousMonthDate = Date.from(zdt2.toInstant());
-    		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+    		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     		        
     		        jsonData = new JSONObject();
     		        jsonData.put("RefDate", sdf.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
     		        jsonData.put("DueDate", sdf.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号
     		        jsonData.put("TaxDate", sdf.format(lastDayOfPreviousMonthDate));//单据日期,固定为每月最后一天
-    		        jsonData.put("Memo", "");//备注
+    		        jsonData.put("Memo", "CH-" + hotelId);//备注
     		        
-    		    	jsonData.put("CardCode", "H-" + hotelId);//业务伙伴代码
-    		    	//-----------------------------------------------------
-    		        //应收
-    		    	jsonData.put("Account", AccountingCode.CODE_11220201);//科目代码
-    		    	jsonData.put("Debit", arAmount);//借方金额
-    		    	jsonData.put("Credit", 0);//贷方金额
+    		        JSONArray jsonArray = new JSONArray();
+    		        JSONObject obj = new JSONObject();
+    		        //应收Sales Memo
+    		        obj.put("Account", AccountingCode.CODE_60010201.getCode());//科目代码
+    		        obj.put("Debit", arAmount);//借方金额
+    		        obj.put("Credit", 0);//贷方金额
+    		        jsonArray.add(obj);
     		    	
-    		    	log.info("----Journal Entry Ar to SAP data as follows:-------------");
-    		    	log.info("to sap data:" + jsonData.toString());
-    		    	
-    		    	//调用SAP接口同步日记账分表应收信息
-                    String syncSapArResult = sapService.invoices(JSONObject.fromObject(jsonData).toString());
-                    log.info("Invoke sap interface for <Journal Entry Ar> result:" + syncSapArResult);
-                    JSONObject jsonAr = JSONObject.fromObject(syncSapArResult);
-                    String codeAr = jsonAr.getString("Code");
-                    String messageAr = jsonAr.getString("Message");
-                    jsonData.put("Code", codeAr);
-                    jsonData.put("Message", messageAr);
-                    
-                    //插入日记账应收同步日志
-    		    	insertSyncLog(Integer.valueOf(codeAr), jsonData, hotelId, "Sync Journal Entry Ar To SAP");
+    		        //应付 Cost Memo
+    		        obj.put("Account", AccountingCode.CODE_60010401.getCode());//科目代码
+    		        obj.put("Debit", 0);//借方金额
+    		        obj.put("Credit", apAmount);//贷方金额
+    		        jsonArray.add(obj);
     		        
-    		        //-----------------------------------------------------
-    		        //应付
-    		        jsonData.put("Account", AccountingCode.CODE_22020202);//科目代码
-    		    	jsonData.put("Debit", 0);//借方金额
-    		    	jsonData.put("Credit", apAmount);//贷方金额
-    		    	
-    		    	log.info("----Journal Entry Ap to SAP data as follows:-------------");
-    		    	log.info("to sap data:" + jsonData.toString());
+    		        //应付 OYO Share
+    		        obj.put("Account", AccountingCode.CODE_60010601.getCode());//科目代码
+    		        obj.put("Debit", 0);//借方金额
+    		        BigDecimal oyoAmount = new BigDecimal("0");
+    		        oyoAmount = arAmount.subtract(apAmount);
+    		        obj.put("Credit", oyoAmount);//贷方金额
+    		        jsonArray.add(obj);
+    		        
+    		        jsonData.put("Lines", jsonArray);
     		    	
     		    	//调用SAP接口同步日记账分表应付信息
-                    String syncSapApResult = sapService.invoices(JSONObject.fromObject(jsonData).toString());
+                    String syncSapApResult = sapService.journalEntries(JSONObject.fromObject(jsonData).toString());
                     log.info("Invoke sap interface for <Journal Entry Ap> result::" + syncSapApResult);
-                    JSONObject jsonAp = JSONObject.fromObject(syncSapApResult);
-                    String codeAp = jsonAp.getString("Code");
-                    String messageAp = jsonAp.getString("Message");
-                    jsonData.put("Code", codeAp);
-                    jsonData.put("Message", messageAp);
+                    JSONObject jsonResult = JSONObject.fromObject(syncSapApResult);
+                    String code = jsonResult.getString("Code");
+                    String message = jsonResult.getString("Message");
+                    jsonData.put("Code", code);
+                    jsonData.put("Message", message);
+                    
+                    if ("0".equals(code)) {
+                    	successCountAp ++;
+                    } else {
+                    	failedCountAp ++;
+                    }
                     
                     //插入日记账应收同步日志
-    		    	insertSyncLog(Integer.valueOf(codeAp), jsonData, hotelId, "Sync Journal Entry Ap To SAP");
+    		    	insertSyncLog(Integer.valueOf(code), jsonData, hotelId, "Sync Journal Entry Ap To SAP");
     		    	
     			}
         	}
     	} catch (Exception e) {
-    		result = "sync Journal Entry to SAP throw exception, hotelId is " + hotelIdMark + "\n";
+    		result = "sync Journal Entry to SAP throw exception, hotelId is:" + hotelIdMark + "\n";
     		throw e;
     	}
     	log.info("----SyncJournalEntryToSap end---------------");
+    	result += "Sync result:totalCountAr=" + totalCountAr + ",successCountAr=" + successCountAr + ",failedCountAr" + failedCountAr + "\n" +
+    			  "totalCountAp=" + totalCountAp + ",successCountAp=" + successCountAp + ",failedCountAp" + failedCountAp + "\n";
         return result;
     }
     

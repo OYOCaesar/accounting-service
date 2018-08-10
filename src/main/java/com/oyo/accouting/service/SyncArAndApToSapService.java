@@ -97,19 +97,26 @@ public class SyncArAndApToSapService {
     	return null;
     }
 
+    /***
+     * Sync Ar and Ap to SAP
+     * @return
+     * @throws Exception
+     */
     public String syncArAndApToSap() throws Exception {
     	log.info("----syncArAndApToSap start-------------");
     	String result = "";
+    	Integer totalCount = 0;//同步总记录数
+    	Integer successCount = 0;//同步成功记录数
+    	Integer failedCount = 0;//同步失败记录数
     	
     	//AR列表数据
     	List<HashMap<String,String>> arMapList = null;//获取应收金额
-    	//AP列表数据
-    	List<HashMap<String,String>> apMapList = new ArrayList<HashMap<String,String>>();
     	List<HashMap<String,String>> ownerShareMapList = null;//获取ower share数据
     	Integer hotelIdMark = 0;//抛异常时，打印到log 控制台中。
     	try {
     		//AR列表数据
         	arMapList = this.crsAccountMapper.calHotelAmount();//获取应收金额
+        	totalCount = arMapList.size();
         	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare();//获取ower share数据
         	if (null != arMapList && !arMapList.isEmpty()) {
         		//获取sap接口
@@ -123,7 +130,7 @@ public class SyncArAndApToSapService {
     				HashMap<String, String> hashMap = (HashMap<String, String>) iterator.next();
     				Integer hotelId = Integer.valueOf(String.valueOf(hashMap.get("hotel_id")));
     				hotelIdMark = hotelId;
-    		    	BigDecimal arAmount = StringUtils.isNotEmpty(hashMap.get("OWNER_AMOUNT")) ? new BigDecimal(hashMap.get("OWNER_AMOUNT")) : new BigDecimal("0");
+    				BigDecimal arAmount = new BigDecimal(String.valueOf(hashMap.get("sum")));
     		    	BigDecimal apAmount = new BigDecimal("0");
     		    	
     		    	if (null != ownerShareMapList && !ownerShareMapList.isEmpty()) {
@@ -149,7 +156,7 @@ public class SyncArAndApToSapService {
     				    			Collections.sort(list,new Comparator<OwnerShare>() {
     				    	            @Override
     				    	            public int compare(OwnerShare o1, OwnerShare o2) {
-    				    	                return (int) (o2.key.compareTo(o1.key));
+    				    	                return (int) (o1.key.compareTo(o2.key));
     				    	            }
     				    	        });
     				    			
@@ -158,19 +165,12 @@ public class SyncArAndApToSapService {
     				    			
     				    			BigDecimal owerShare = getOwerShare(list,arAmount);
     				    			apAmount = owerShare.multiply(arAmount);
-    				    			map.put("cpAmount", apAmount.toString());
-    				    			apMapList.add(map);
-    				    			
     				    		}
     			    			
     			    		} else {
     			    			JSONObject jsonObj = JSONObject.fromObject(ownerShareJson);
     			    			Integer owerShare = Integer.valueOf(jsonObj.get("0").toString());
     			    			apAmount = new BigDecimal(owerShare).multiply(arAmount);
-    			    			HashMap<String,String> map = new HashMap<String,String>();
-    			    			map.put("HOTEL_ID", hotelId.toString());
-    			    			map.put("cpAmount", String.valueOf(apAmount));
-    			    			apMapList.add(map);
     			    		}
     		    		}
     		    		
@@ -185,15 +185,16 @@ public class SyncArAndApToSapService {
     		        LocalDate lastDayOfPreviousMonth = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()); 
     		        ZonedDateTime zdt2 = lastDayOfPreviousMonth.atStartOfDay(zoneId);
     		        Date lastDayOfPreviousMonthDate = Date.from(zdt2.toInstant());
-    		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd");
+    		        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     		        
     		        jsonData = new JSONObject();
-    		    	jsonData.put("CardCode", "VH-" + hotelId);//业务伙伴代码
+    		        jsonData.put("V_Code", "H-" + hotelId);//供应商代码
+    		    	jsonData.put("C_Code", "CH-" + hotelId);//客户代码，传递时前面加C
     		    	jsonData.put("CardName", this.crsAccountMapper.getHotelNameById(hotelId));//业务伙伴名称
     		    	jsonData.put("DocDate", sdf.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
     		    	jsonData.put("DocDueDate", sdf.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号
     		    	jsonData.put("TaxDate", sdf.format(lastDayOfPreviousMonthDate));//单据日期,固定为每月最后一天
-    		    	jsonData.put("CurSource", "3");//币种,固定RMB
+    		    	jsonData.put("CurSource", "3");//币种,固定为RMB
     		    	jsonData.put("APTotal", apAmount);//AP含税总价
     		    	jsonData.put("ARTotal", arAmount);//AR含税总价
     		    	
@@ -209,16 +210,23 @@ public class SyncArAndApToSapService {
                     jsonData.put("Code", code);
                     jsonData.put("Message", message);
                     
+                    if ("0".equals(code)) {
+                    	successCount ++;
+                    } else {
+                    	failedCount ++;
+                    }
+                    
     		    	//插入同步日志
     		    	insertSyncLog(Integer.valueOf(code), jsonData, hotelId, "Sync Ar And Ap To SAP");
     		    	
     			}
         	}
     	} catch (Exception e) {
-    		result = "sync Ar anb Ap to SAP throw exception, hotelId is " + hotelIdMark + "\n";
+    		result = "sync Ar anb Ap to SAP throw exception, hotelId is:" + hotelIdMark + "\n";
     		throw e;
     	} 
     	log.info("----syncArAndApToSap end-------------");
+    	result += "Sync result:totalCount=" + totalCount + ",successCount=" + successCount + ",failedCount" + failedCount + "\n";
         return result;
     }
 
