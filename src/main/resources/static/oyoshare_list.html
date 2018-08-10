@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>oyoShare list</title>
+    <link rel="stylesheet" type="text/css"
+          href="easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="./easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="./easyui/demo/demo.css">
+    <script src="./js/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="./easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+<dif>
+    <span>hotelId: </span><input class="easyui-textbox" value="" id="hotelId_inp" data-options="iconCls:'icon-search'" style="width:60px">
+    <span>oyoId: </span><input class="easyui-textbox" value="" id="oyoId_inp" data-options="iconCls:'icon-search'" style="width:60px">
+    <span>hotelName: </span><input class="easyui-textbox" value="" id="hotelName_inp" data-options="iconCls:'icon-search'" style="width:300px">
+    <span>status: </span><input class="easyui-textbox" value="" id="status_inp" data-options="iconCls:'icon-search'" style="width:60px">
+    <a id="search_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+    &nbsp;&nbsp;
+    <a id="reset_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">重置</a>
+</dif>
+<div id="oyo_share_list">  </div>
+<script>
+
+    $(function () {
+
+        queryOyoShareList();
+
+        $('#search_btn').bind('click', function(){
+            var queryParams = getOyoShareListQueryParams();
+            $('#oyo_share_list').datagrid('load',queryParams);
+        });
+
+        $('#reset_btn').bind('click', function(){
+            $('#hotelId_inp').attr('value','');
+            $('#oyoId_inp').attr('value','');
+            $('#hotelName_inp').attr("value",'');
+            $('#status_inp').attr("value",'');
+        });
+    });
+
+    function queryOyoShareList() {
+
+        var queryParams = getOyoShareListQueryParams();
+
+        $('#oyo_share_list').datagrid({
+            url:'oyoShare/oyoShareList',
+            columns:[[
+                {field:'id',title:'id',width:60},
+                {field:'hotelId',title:'hotelId',width:60},
+                {field:'uniqueCode',title:'uniqueCode',width:60},
+                {field:'oyoId',title:'oyoId',width:100},
+                {field:'hotelName',title:'hotelName',width:252},
+                {field:'city',title:'city',width:100},
+                {field:'zoneName',title:'zoneName',width:160},
+                {field:'fixedRate',title:'fixedRate',width:80},
+                {field:'status',title:'status',width:60},
+                {field:'oyoShare',title:'oyoShare',width:60}
+            ]],
+            rownumbers:true,
+            queryParams: queryParams
+        });
+    }
+
+    function getOyoShareListQueryParams() {
+        var hotelId = $('#hotelId_inp').attr('value').trim();
+        var oyoId = $('#oyoId_inp').attr('value').trim();
+        var hotelName = $('#hotelName_inp').attr("value").trim();
+        var status = $('#status_inp').attr("value").trim();
+
+        var queryParams = {
+            hotelId: hotelId,
+            oyoId: oyoId,
+            hotelName: hotelName,
+            status: status
+        };
+        return queryParams;
+    }
+
+</script>
+</body>
+</html>

@@ -5,12 +5,31 @@
     <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.OyoShareDto" >
         <id column="id" property="id" />
         <result column="hotel_id" property="hotelId" />
+        <result column="status" property="status"/>
+        <result column="unique_code" property="uniqueCode"/>
+        <result column="oyo_id" property="oyoId"/>
+        <result column="hotel_name" property="hotelName"/>
+        <result column="city" property="city"/>
+        <result column="zone_name" property="zoneName"/>
+        <result column="fixed_rate" property="fixedRate"/>
         <result column="oyo_share" property="oyoShare" />
     </resultMap>
 
     <select id="queryOyoShareList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.OyoShareDto">
 
-        SELECT * FROM oyo_share where hotel_id = #{oyoShare.hotelId}
+        SELECT * FROM oyo_share where 1 = 1
+        <if test="oyoShare.hotelId != null and oyoShare.hotelId != ''">
+            and hotel_id = #{oyoShare.hotelId}
+        </if>
+        <if test="oyoShare.oyoId != null and oyoShare.oyoId != ''">
+        and oyo_id = #{oyoShare.oyoId}
+        </if>
+        <if test="oyoShare.hotelName != null and oyoShare.hotelName != ''">
+            and hotel_name = #{oyoShare.hotelName}
+        </if>
+        <if test="oyoShare.status != null and oyoShare.status != ''">
+            and status = #{oyoShare.status}
+        </if>
     </select>
 
     <!-- 批量插入 -->
