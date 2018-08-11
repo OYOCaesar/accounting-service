@@ -234,12 +234,12 @@ public class SyncArAndApAndJournalEntryToSapService {
         	}
         	
     	} catch (Exception e) {
-    		result = "sync Ar anb Ap and Journal Entry to SAP throw exception, hotelId is:" + hotelIdMark + "\n";
+    		result = "sync Ar anb Ap and Journal Entry to SAP throw exception, hotelId is:" + hotelIdMark + "\r\n";
     		throw e;
     	} 
     	log.info("----sync Ar anb Ap and Journal Entry to SAP end-------------");
-    	result += "Sync total Ar And Ap to SAP result:totalCount=" + totalCount + ",successCount=" + successCount + ",failedCount=" + failedCount + "\n" + 
-    	          "Sync Journal Entry to SAP result:totalCountJournalEntries=" + totalCountJournalEntries + ",successCountJournalEntries=" + successCountJournalEntries + ",failedCountJournalEntries=" + failedCountJournalEntries + "\n";
+    	result += "Sync total Ar And Ap to SAP result : totalCount = " + totalCount + ",successCount = " + successCount + ",failedCount = " + failedCount + "<br/>" + 
+    	          "Sync Journal Entry to SAP result : totalCountJournalEntries = " + totalCountJournalEntries + ",successCountJournalEntries = " + successCountJournalEntries + ",failedCountJournalEntries = " + failedCountJournalEntries;
         return result;
     }
 
@@ -248,7 +248,7 @@ public class SyncArAndApAndJournalEntryToSapService {
 		log.info("----insertSyncLog start-------------");
 		SyncLog sLog = new SyncLog();
 		sLog.setSourceId(Integer.valueOf(hotelId));
-		sLog.setCreateTime(new Timestamp(new Date().getTime()));
+		sLog.setCreateTime(new Timestamp(System.currentTimeMillis()));
 		sLog.setType(type);
 		sLog.setStatus(status);//状态码
 		

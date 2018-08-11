@@ -125,7 +125,7 @@ public class SyncCrsArAndApService {
     		        syncCrsArAndAp.setApAmount(apAmount);
     		        syncCrsArAndAp.setIsSync(Boolean.FALSE);
     		        syncCrsArAndAp.setIsDel(Boolean.FALSE);
-    		        syncCrsArAndAp.setCreateTime(new Timestamp(new Date().getTime()));
+    		        syncCrsArAndAp.setCreateTime(new Timestamp(System.currentTimeMillis()));
     		        crsArAndApList.add(syncCrsArAndAp);
     		    	
     			}
@@ -154,11 +154,11 @@ public class SyncCrsArAndApService {
         	}
         	
     	} catch (Exception e) {
-    		result = "sync CRS ar and ap throw exception, hotelId is:" + hotelIdMark + "\n";
+    		result = "sync CRS ar and ap throw exception, hotelId is:" + hotelIdMark;
     		throw e;
     	} 
     	log.info("----syncCrsArAndAp end-------------");
-    	result += "Sync result:totalCount=" + totalCount + "\n";
+    	result += "Sync result:totalCount=" + totalCount;
         return result;
     }
     

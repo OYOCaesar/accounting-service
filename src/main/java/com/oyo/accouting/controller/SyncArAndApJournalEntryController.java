@@ -8,11 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.oyo.accouting.job.SyncArAndApJob;
 import com.oyo.accouting.service.SyncArAndApAndJournalEntryToSapService;
 
-//日记账分录controller
+//同步ar and ap and JournalEntry 到sapcontroller
 @RequestMapping("syncArAndApAndJournalEntryToSap")
 @Controller
 public class SyncArAndApJournalEntryController {
@@ -22,14 +23,17 @@ public class SyncArAndApJournalEntryController {
     private SyncArAndApAndJournalEntryToSapService syncArAndApAndJournalEntryToSapService;
 
     @RequestMapping(value = "syncToSap", method = RequestMethod.GET)
-    public void syncArAndAp(HttpServletRequest request) {
+    @ResponseBody
+    public String syncArAndAp(HttpServletRequest request) {
+    	String result = "";
     	try {
-			String result = syncArAndApAndJournalEntryToSapService.syncArAndApAndJournalEntryToSap();
+			result = syncArAndApAndJournalEntryToSapService.syncArAndApAndJournalEntryToSap();
 			log.info(result);
 		} catch (Exception e) {
-			log.error("Synchronizing ar and ap and JournalEntry to SAP throwing exception!");
-			e.printStackTrace();
+			result = "Synchronizing ar and ap and JournalEntry to SAP throwing exception!";
+			log.error("Synchronizing ar and ap and JournalEntry to SAP throwing exception:{}", e);
 		}
+    	return result;
     }
 
 }

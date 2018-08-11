@@ -30,8 +30,8 @@ public class SyncCrsArAndApController {
 			result = syncCrsArAndApService.syncCrsArAndAp();
 			log.info(result);
 		} catch (Exception e) {
-			log.error("Synchronizing crs ar and ap throwing exception!");
-			e.printStackTrace();
+			result = "Synchronizing crs ar and ap throwing exception!";
+			log.error("Synchronizing crs ar and ap throwing exception:{}", e);
 		}
     	return result;
     }
