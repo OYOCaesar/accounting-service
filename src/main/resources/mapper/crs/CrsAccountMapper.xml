@@ -40,7 +40,7 @@
 		    AND A.STATUS = #{status}
 		</if>
 		<if test="hotelName != null and hotelName != ''">
-		    AND H.NAME LIKE CONCAT('%',#{hotelName},'%') 
+		    AND H.NAME ~* #{hotelName}
 		</if>
 		GROUP BY
 			A .HOTEL_ID,H.NAME,A.CHECKIN,A.CHECKOUT,A.STATUS			

@@ -2,6 +2,8 @@ package com.oyo.accouting.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +30,12 @@ public class QueryCrsArAndApController {
 
     @RequestMapping(value = "query")
     @ResponseBody
-    public JSONObject query(QueryCrsAccountingDto queryCrsAccountingDto) {
+    public JSONObject query(HttpServletRequest request, QueryCrsAccountingDto queryCrsAccountingDto) {
     	JSONObject result = new JSONObject();
     	try {
-    		PageHelper.startPage(queryCrsAccountingDto.getPageNum(), queryCrsAccountingDto.getPageSize());
+    		int pageNumber = Integer.parseInt(request.getParameter("page")); //获取当前页码
+    		int pageSize = Integer.parseInt(request.getParameter("rows")); //获取每页显示多少行
+    		PageHelper.startPage(pageNumber, pageSize);
     		List<QueryCrsAccountingDto> list = queryCrsArAndApService.queryCrsArAndAp(queryCrsAccountingDto);
 			PageInfo<QueryCrsAccountingDto> pageInfo = new PageInfo<>(list);
 			JSONObject page = JSONObject.fromObject(pageInfo);
