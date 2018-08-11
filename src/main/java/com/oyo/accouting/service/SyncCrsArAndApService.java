@@ -104,9 +104,6 @@ public class SyncCrsArAndApService {
     				    	            }
     				    	        });
     				    			
-    				    			HashMap<String,String> map = new HashMap<String,String>();
-    				    			map.put("HOTEL_ID", hotelId.toString());
-    				    			
     				    			BigDecimal owerShare = getOwerShare(list,arAmount);
     				    			syncCrsArAndAp.setRate(owerShare.intValue());//汇率
     				    			apAmount = owerShare.multiply(arAmount).divide(new BigDecimal("100"),6,BigDecimal.ROUND_HALF_UP);

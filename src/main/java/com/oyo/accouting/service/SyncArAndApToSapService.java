@@ -160,9 +160,6 @@ public class SyncArAndApToSapService {
     				    	            }
     				    	        });
     				    			
-    				    			HashMap<String,String> map = new HashMap<String,String>();
-    				    			map.put("HOTEL_ID", hotelId.toString());
-    				    			
     				    			BigDecimal owerShare = getOwerShare(list,arAmount);
     				    			apAmount = owerShare.multiply(arAmount);
     				    		}
@@ -190,7 +187,7 @@ public class SyncArAndApToSapService {
     		        jsonData = new JSONObject();
     		        jsonData.put("V_Code", "H-" + hotelId);//供应商代码
     		    	jsonData.put("C_Code", "CH-" + hotelId);//客户代码，传递时前面加C
-    		    	jsonData.put("CardName", this.crsAccountMapper.getHotelNameById(hotelId));//业务伙伴名称
+    		    	jsonData.put("CardName", hashMap.get("hotel_name"));//业务伙伴名称
     		    	jsonData.put("DocDate", sdf.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
     		    	jsonData.put("DocDueDate", sdf.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号
     		    	jsonData.put("TaxDate", sdf.format(lastDayOfPreviousMonthDate));//单据日期,固定为每月最后一天

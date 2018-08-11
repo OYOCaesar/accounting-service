@@ -10,15 +10,16 @@
 		SELECT
 			A.HOTEL_ID,
 			SUM (A.OWNER_AMOUNT),
-			(SELECT h.name FROM hotels h where h.id = A.HOTEL_ID) hotel_name
+			H.NAME HOTEL_NAME
 		FROM
-			BOOKINGS A
-		WHERE
-			A .CHECKIN <![CDATA[>=]]> date_trunc('month', now() :: DATE)
+			BOOKINGS A,HOTELS H
+		WHERE A.HOTEL_ID = H.ID
+		AND H.COUNTRY = 'China'
+		AND A .CHECKIN <![CDATA[>=]]> date_trunc('month', now() :: DATE)
 		AND A .CHECKIN <![CDATA[<=]]> date_trunc('month', now() :: DATE) + INTERVAL '1 month' - INTERVAL '1 day'
 		AND A .STATUS = 1
 		GROUP BY
-			A .HOTEL_ID
+			A .HOTEL_ID,H.NAME			
 		ORDER BY
 			A .HOTEL_ID
 	</select>
