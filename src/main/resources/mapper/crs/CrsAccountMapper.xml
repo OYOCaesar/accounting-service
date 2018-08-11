@@ -9,7 +9,8 @@
 	<select id="calHotelAmount"  resultType="hashmap">
 		SELECT
 			A.HOTEL_ID,
-			SUM (A.OWNER_AMOUNT)
+			SUM (A.OWNER_AMOUNT),
+			(SELECT h.name FROM hotels h where h.id = A.HOTEL_ID) hotel_name
 		FROM
 			BOOKINGS A
 		WHERE

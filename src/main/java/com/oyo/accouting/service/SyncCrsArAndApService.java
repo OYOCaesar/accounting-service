@@ -123,7 +123,7 @@ public class SyncCrsArAndApService {
     		        
     		        syncCrsArAndAp.setSyncYearMonth(yearMonth);
     		        syncCrsArAndAp.setHotelId(hotelId);
-    		        syncCrsArAndAp.setHotelName("");
+    		        syncCrsArAndAp.setHotelName(hashMap.get("hotel_name"));
     		        syncCrsArAndAp.setArAmount(arAmount);
     		        syncCrsArAndAp.setApAmount(apAmount);
     		        syncCrsArAndAp.setIsSync(Boolean.FALSE);
