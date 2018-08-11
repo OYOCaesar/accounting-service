@@ -1,10 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.oyo.accouting.mapper.crs.CrsAccountMapper">
-<!-- 	<resultMap type="" id=""> -->
-
+    
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.QueryCrsAccountingDto" >
+        <result column="hotel_id" property="hotelId" />
+        <result column="hotel_name" property="hotelName" />
+        <result column="ar_amount" property="arAmount" />
+        <result column="checkin" property="checkInDate"/>
+        <result column="checkout" property="checkOutDate"/>
+        <result column="status" property="status"/>
+    </resultMap>
+    
+    <!-- 条件查询CRS中的Ar and AP信息 -->
+    <select id="queryCrsArApInfoByCondition"  resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.QueryCrsAccountingDto">
+		SELECT
+			A.HOTEL_ID,
+			to_char(A.CHECKIN,'YYYY-MM-DD') CHECKIN,
+			to_char(A.CHECKOUT,'YYYY-MM-DD') CHECKOUT,
+            A.STATUS,			
+			H.NAME HOTEL_NAME,
+			SUM (A.OWNER_AMOUNT) AR_AMOUNT
+		FROM
+			BOOKINGS A,HOTELS H
+		WHERE A.HOTEL_ID = H.ID
+		AND H.COUNTRY = 'China'
+		<if test="checkInDateStart != null and checkInDateStart != ''">
+		    AND A.CHECKIN <![CDATA[>=]]> TO_DATE(#{checkInDateStart}, 'YYYY-MM-DD')
+		</if>
+		<if test="checkInDateEnd != null and checkInDateEnd != ''">
+		    AND A.CHECKIN <![CDATA[<=]]> TO_DATE(#{checkInDateEnd}, 'YYYY-MM-DD')
+		</if>
+		<if test="checkOutDateStart != null and checkOutDateStart != ''">
+		    AND A.CHECKOUT <![CDATA[>=]]> TO_DATE(#{checkOutDateStart}, 'YYYY-MM-DD')
+		</if>
+		<if test="checkOutDateEnd != null and checkOutDateEnd != ''">
+		    AND A.CHECKOUT <![CDATA[<=]]> TO_DATE(#{checkOutDateEnd}, 'YYYY-MM-DD')
+		</if>
+		<if test="status != null and status != ''">
+		    AND A.STATUS = #{status}
+		</if>
+		<if test="hotelName != null and hotelName != ''">
+		    AND H.NAME LIKE CONCAT('%',#{hotelName},'%') 
+		</if>
+		GROUP BY
+			A .HOTEL_ID,H.NAME,A.CHECKIN,A.CHECKOUT,A.STATUS			
+		ORDER BY
+			A .HOTEL_ID,A.STATUS,A.CHECKIN,A.CHECKOUT
+	</select>
 	
-<!-- 	</resultMap> -->
+	<!-- 根据hotelId和checkIn时间获取Owner Share -->
+	<select id="getHotelOwnerShareByHotelIdAndChekInDate" resultType="hashmap">
+		select x.hotel_id,y.rs_slabs
+		from hotel_agreement_details x, agreements y,bookings z
+		where x.agreement_id = y.id
+		and x.hotel_id = z.hotel_id
+		and z.hotel_id = #{hotelId}
+		and z.checkin <![CDATA[>=]]> x.valid_from 
+		and z.checkin <![CDATA[<=]]> x.valid_till
+		<if test="checkInDateStart != null and checkInDateStart != ''">
+		    and z.checkin <![CDATA[>=]]> TO_DATE(#{checkInDateStart}, 'YYYY-MM-DD')
+		</if>
+		<if test="checkInDateStart == null or checkInDateStart == ''">
+		    and z.checkin <![CDATA[>=]]> date_trunc('month', now() :: DATE)
+		</if>
+		<if test="checkInDateEnd != null and checkInDateEnd != ''">
+		    and z.checkin <![CDATA[<=]]> TO_DATE(#{checkInDateEnd}, 'YYYY-MM-DD')
+		</if>
+		<if test="checkInDateEnd == null or checkInDateEnd == ''">
+		    and z.checkin <![CDATA[<=]]> date_trunc('month', now() :: DATE) + INTERVAL '1 month' - INTERVAL '1 day'
+		</if>				
+	</select>    
 	
 	<select id="calHotelAmount"  resultType="hashmap">
 		SELECT

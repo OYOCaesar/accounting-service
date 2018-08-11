@@ -112,6 +112,7 @@ public class SyncCrsArAndApService {
     			    		} else {
     			    			JSONObject jsonObj = JSONObject.fromObject(ownerShareJson);
     			    			Integer owerShare = Integer.valueOf(jsonObj.get("0").toString());
+    			    			syncCrsArAndAp.setRate(owerShare.intValue());//汇率
     			    			apAmount = new BigDecimal(owerShare).multiply(arAmount).divide(new BigDecimal("100"),6,BigDecimal.ROUND_HALF_UP);
     			    		}
     		    		}
