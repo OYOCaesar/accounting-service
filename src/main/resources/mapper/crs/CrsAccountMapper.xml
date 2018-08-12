@@ -14,10 +14,7 @@
     <!-- 条件查询CRS中的Ar and AP信息 -->
     <select id="queryCrsArApInfoByCondition"  resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.QueryCrsAccountingDto">
 		SELECT
-			A.HOTEL_ID,
-			to_char(A.CHECKIN,'YYYY-MM-DD') CHECKIN,
-			to_char(A.CHECKOUT,'YYYY-MM-DD') CHECKOUT,
-            A.STATUS,			
+			A.HOTEL_ID,						
 			H.NAME HOTEL_NAME,
 			SUM (A.OWNER_AMOUNT) AR_AMOUNT
 		FROM
@@ -43,9 +40,9 @@
 		    AND H.NAME ~* #{hotelName}
 		</if>
 		GROUP BY
-			A .HOTEL_ID,H.NAME,A.CHECKIN,A.CHECKOUT,A.STATUS			
+			A .HOTEL_ID,H.NAME			
 		ORDER BY
-			A .HOTEL_ID,A.STATUS,A.CHECKIN,A.CHECKOUT
+			A .HOTEL_ID
 	</select>
 	
 	<!-- 根据hotelId和checkIn时间获取Owner Share -->
@@ -61,13 +58,13 @@
 		    and z.checkin <![CDATA[>=]]> TO_DATE(#{checkInDateStart}, 'YYYY-MM-DD')
 		</if>
 		<if test="checkInDateStart == null or checkInDateStart == ''">
-		    and z.checkin <![CDATA[>=]]> date_trunc('month', now() :: DATE)
+		    and z.checkin <![CDATA[>=]]> date_trunc('month', now() :: DATE) - INTERVAL '1 month'
 		</if>
 		<if test="checkInDateEnd != null and checkInDateEnd != ''">
 		    and z.checkin <![CDATA[<=]]> TO_DATE(#{checkInDateEnd}, 'YYYY-MM-DD')
 		</if>
 		<if test="checkInDateEnd == null or checkInDateEnd == ''">
-		    and z.checkin <![CDATA[<=]]> date_trunc('month', now() :: DATE) + INTERVAL '1 month' - INTERVAL '1 day'
+		    and z.checkin <![CDATA[<]]> date_trunc('month', now() :: DATE)
 		</if>				
 	</select>    
 	
@@ -80,8 +77,8 @@
 			BOOKINGS A,HOTELS H
 		WHERE A.HOTEL_ID = H.ID
 		AND H.COUNTRY = 'China'
-		AND A .CHECKIN <![CDATA[>=]]> date_trunc('month', now() :: DATE)
-		AND A .CHECKIN <![CDATA[<=]]> date_trunc('month', now() :: DATE) + INTERVAL '1 month' - INTERVAL '1 day'
+		AND A .CHECKIN <![CDATA[>=]]> date_trunc('month', now() :: DATE) - INTERVAL '1 month'
+		AND A .CHECKIN <![CDATA[<]]> date_trunc('month', now() :: DATE)
 		AND A .STATUS = 1
 		GROUP BY
 			A .HOTEL_ID,H.NAME			
@@ -97,8 +94,8 @@
 		and x.hotel_id = z.hotel_id
 		and z.checkin <![CDATA[>=]]> x.valid_from 
 		and z.checkin <![CDATA[<=]]> x.valid_till
-		and z.checkin <![CDATA[>=]]> date_trunc('month', now() :: DATE)
-		and z.checkin <![CDATA[<]]> date_trunc('month', now() :: DATE) + INTERVAL '1 month'					
+		and z.checkin <![CDATA[>=]]> date_trunc('month', now() :: DATE) - INTERVAL '1 month'
+		and z.checkin <![CDATA[<]]> date_trunc('month', now() :: DATE)				
 	</select>	
 	
 	<!-- 根据hotelId获取hotel名称 -->
