@@ -26,7 +26,7 @@ public class SyncArAndApAndJournalEntryJob implements BaseJob {
 		try {
 			ApplicationContext applicationContext = (ApplicationContext) context.getScheduler().getContext().get("applicationContext");
 			SyncArAndApAndJournalEntryToSapService service = applicationContext.getBean(SyncArAndApAndJournalEntryToSapService.class);
-			String result = service.syncArAndApAndJournalEntryToSap();
+			String result = service.syncArAndApAndJournalEntryToSap(null);
 			log.info(result);
 		} catch (Exception e) {
 			log.error("Sync Ar and Ap and Journal Entry data to sap throwing exception!");

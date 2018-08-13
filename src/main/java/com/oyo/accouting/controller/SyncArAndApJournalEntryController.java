@@ -27,7 +27,8 @@ public class SyncArAndApJournalEntryController {
     public String syncArAndAp(HttpServletRequest request) {
     	String result = "";
     	try {
-			result = syncArAndApAndJournalEntryToSapService.syncArAndApAndJournalEntryToSap();
+    		String yearMonth = request.getParameter("yearMonth");
+			result = syncArAndApAndJournalEntryToSapService.syncArAndApAndJournalEntryToSap(yearMonth);
 			log.info(result);
 		} catch (Exception e) {
 			result = "Synchronizing ar and ap and JournalEntry to SAP throwing exception!";
