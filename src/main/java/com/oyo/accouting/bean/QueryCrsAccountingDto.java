@@ -27,4 +27,7 @@ public class QueryCrsAccountingDto {
 	private Integer pageNum = 1;
 	private Integer pageSize = 10;
 	
+	private String sortName;
+	private String sortOrder;
+	
 }

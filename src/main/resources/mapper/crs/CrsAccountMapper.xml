@@ -40,9 +40,30 @@
 		    AND H.NAME ~* #{hotelName}
 		</if>
 		GROUP BY
-			A .HOTEL_ID,H.NAME			
-		ORDER BY
-			A .HOTEL_ID
+			A.HOTEL_ID,H.NAME			
+		<choose>
+	        <when test="sortName != null and sortName != '' and sortOrder != null and sortOrder != ''">
+	            ORDER BY
+	            <choose>
+	                <when test="sortName == 'hotelId'">
+	                    A.HOTEL_ID
+	                </when>
+	                <when test="sortName == 'hotelName'">
+	                    H.NAME
+	                </when>
+	                <when test="sortName == 'arAmount'">
+	                    AR_AMOUNT
+	                </when>
+	                <otherwise>
+	                    A.HOTEL_ID
+	                </otherwise>
+	            </choose>
+	            ${sortOrder}
+	        </when>
+	        <otherwise>
+	            ORDER BY A.HOTEL_ID ASC
+	        </otherwise>
+	    </choose>
 	</select>
 	
 	<!-- 根据hotelId和checkIn时间获取Owner Share -->

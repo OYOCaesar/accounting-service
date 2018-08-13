@@ -96,9 +96,9 @@
         var grid = $('#crs_ar_ap_list').datagrid({
             url:'queryCrsArAp/query',
             columns:[[
-                {field:'hotelId',title:'hotel id',width:60},
-                {field:'hotelName',title:'hotel name'},
-                {field:'arAmount',title:'ar Amount',width:80},
+                {field:'hotelId',title:'hotel id',width:60,sortable:true},
+                {field:'hotelName',title:'hotel name',sortable:true},
+                {field:'arAmount',title:'ar Amount',width:80,sortable:true},
                 {field:'apAmount',title:'ap Amount',width:80},
                 {field:'rate',title:'rate',width:60}
             ]],
@@ -107,6 +107,8 @@
             rownumbers:true,
             pagination: true,
             striped:true,
+            sortName:'hotelId',
+            sortOrder:'asc',
             pageNumber:1, //第几页显示（默认第一页，可以省略）
             pageSize: 10, //分页大小  
             pageList: [10,20,50,100,200,500,1000],

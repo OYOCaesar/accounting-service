@@ -35,7 +35,11 @@ public class QueryCrsArAndApController {
     	try {
     		int pageNumber = Integer.parseInt(request.getParameter("page")); //获取当前页码
     		int pageSize = Integer.parseInt(request.getParameter("rows")); //获取每页显示多少行
+    		String sortName = request.getParameter("sort"); //排序字段
+    		String sortOrder = request.getParameter("order"); //排序类型，asc(升序),desc(降序)
     		PageHelper.startPage(pageNumber, pageSize);
+    		queryCrsAccountingDto.setSortName(sortName);
+    		queryCrsAccountingDto.setSortOrder(sortOrder);
     		List<QueryCrsAccountingDto> list = queryCrsArAndApService.queryCrsArAndAp(queryCrsAccountingDto);
 			PageInfo<QueryCrsAccountingDto> pageInfo = new PageInfo<>(list);
 			JSONObject page = JSONObject.fromObject(pageInfo);
