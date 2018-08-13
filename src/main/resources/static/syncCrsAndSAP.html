@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>同步CRS和SAP接口</title>
+    <link rel="stylesheet" type="text/css" href="./laydate/theme/default/laydate.css">
+    <script type="text/javascript" src="./js/jquery-1.7.2.js"></script>
+    <script src="./laydate/laydate.js"></script>
+    <style>
+    body {
+        font-size:12px;
+    }
+    .table table {
+		width:100%;
+		margin:15px 0;
+		border:0;
+	}
+	.table th {
+		background-color:#00A5FF;
+		color:#FFFFFF
+	}
+	.table,.table th,.table td {
+		font-size:0.95em;
+		text-align:center;
+		padding:4px;
+		border-collapse:collapse;
+	}
+	.table th,.table td {
+		border: 1px solid #6dcbfe;
+		border-width:1px 0 1px 0
+	}
+	.table tr {
+		border: 1px solid #6dcbfe;
+	}
+	.table tr:nth-child(odd){
+		background-color:#aae1fe;
+	}
+	.table tr:nth-child(even){
+		background-color:#fdfdfd;
+	}
+	.button {
+	    border-radius: 2px;
+	    background-color: #4CAF50;
+		color: black;
+		border: 2px solid #4CAF50;
+    }
+    </style>
+</head>
+<body>
+<h2>同步CRS AR And AP到Accounting:</h2>
+<table style="width:600px;" class="table">
+    <tr>
+        <td align="left">同步年月(<b>格式：yyyy-MM,如：2018-08</b>): </td>
+        <td><input id="syncCrs"/></td>
+        <td width="105px;">
+            <button class="button" id="syncCrsBtn">同步CRS</button>
+        </td>
+    </tr>
+</table>
+<br/>
+<div id="syncCrsResult" style="color:blue;"></div><br/>
+
+<h2>同步AR And AP到SAP:</h2>
+<table style="width:600px;" class="table">
+    <tr>
+        <td align="left">同步年月(格式：<b>yyyy-MM,如：2018-08</b>): </td>
+        <td><input id="syncSAP"/></td>
+        <td width="105px;">
+            <button class="button" id="syncSapBtn">同步SAP</button>
+        </td>
+    </tr>
+</table>
+<br/>
+<div id="syncSapResult" style="color:blue;"></div>
+
+<script>
+
+	//执行一个laydate实例
+	laydate.render({
+	    elem: '#syncCrs' //指定元素
+	    ,type: 'month'
+	});
+	
+	//执行一个laydate实例
+	laydate.render({
+	    elem: '#syncSAP' //指定元素
+	    ,type: 'month'
+	});
+
+    $(function () {
+    	//补零函数
+    	function prefixInteger(num, n) {
+           return (Array(n).join(0) + num).slice(-n);
+        }
+    	
+    	var myDate = new Date();
+    	//获取当前年
+    	var year=myDate.getFullYear();
+    	//获取当前月
+    	var month=myDate.getMonth()+1;
+    	month = prefixInteger(month,2);
+    	
+    	$("#syncCrs").val(year + "-" + month);
+    	$("#syncSAP").val(year + "-" + month);
+    	
+    	$('#syncCrsBtn').click(function(){
+    		$.ajax({
+    		    url:'syncCrsArAp/syncArApFromCrs',
+    		    type:'POST', //GET
+    		    async:true,    //或false,是否异步
+    		    data:{
+    		    	yearMonth:$("#syncCrs").val()
+    		    },
+    		    timeout:3600000,    //超时时间
+    		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+    		    beforeSend:function(xhr){
+    		    	$("#syncCrsResult").html("");
+    		        console.log(xhr);
+    		        $("#syncCrsBtn").html("正在同步中......");
+    		        $("#syncCrsBtn").attr("disabled",true);
+    		    },
+    		    success:function(data,textStatus,jqXHR){
+    		    	$("#syncCrsResult").html(data);
+    		    },
+    		    error:function(xhr,textStatus){
+    		        console.log(xhr)
+    		        console.log(textStatus);
+    		    },
+    		    complete:function(data){
+    		    	$("#syncCrsResult").html(data.responseText);
+    		    	$("#syncCrsBtn").attr("disabled",false);
+    		    	$("#syncCrsBtn").html("同步CRS");
+    		    }
+    		});
+    		
+        });
+    	
+        $('#syncSapBtn').click(function(){
+        	$.ajax({
+    		    url:'syncArAndApAndJournalEntryToSap/syncToSap',
+    		    type:'POST', //GET
+    		    async:true,    //或false,是否异步
+    		    data:{
+    		    	yearMonth:$("#syncSAP").val()
+    		    },
+    		    timeout:3600000,    //超时时间
+    		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+    		    beforeSend:function(xhr){
+    		    	$("#syncSapResult").html("");
+    		        console.log(xhr);
+    		        $("#syncSapBtn").html("正在同步中......");
+    		        $("#syncSapBtn").attr("disabled",true);
+    		    },
+    		    success:function(data,textStatus,jqXHR){
+    		    	$("#syncSapResult").html(data);
+    		    },
+    		    error:function(xhr,textStatus){
+    		        console.log(xhr)
+    		        console.log(textStatus);
+    		    },
+    		    complete:function(data){
+    		    	$("#syncSapResult").html(data.responseText);
+    		    	$("#syncSapBtn").attr("disabled",false);
+    		    	$("#syncSapBtn").html("同步CRS");
+    		    }
+    		});
+        });
+    });
+</script>
+</body>
+</html>

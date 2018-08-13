@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.oyo.accouting.job.SyncArAndApJob;
@@ -22,7 +21,7 @@ public class SyncArAndApJournalEntryController {
     @Autowired
     private SyncArAndApAndJournalEntryToSapService syncArAndApAndJournalEntryToSapService;
 
-    @RequestMapping(value = "syncToSap", method = RequestMethod.GET)
+    @RequestMapping(value = "syncToSap")
     @ResponseBody
     public String syncArAndAp(HttpServletRequest request) {
     	String result = "";
