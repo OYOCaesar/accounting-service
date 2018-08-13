@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -65,10 +67,19 @@ public class SyncCrsArAndApService {
 	        //先删除掉指定年月的Ar And Ap数据
     		syncCrsArAndApMapper.updateYearMonthCrsArAndApIsDelBatch(yearMonth);
     		
+    		LocalDate specifiedDate = LocalDate.parse(yearMonth + "-01");
+            LocalDate firstDayOfThisMonth = specifiedDate.with(TemporalAdjusters.firstDayOfMonth()); // 指定月份第一天
+            LocalDate lastDayOfThisMonth = specifiedDate.with(TemporalAdjusters.lastDayOfMonth()); // 指定月份最后一天
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    		
+    		HashMap<String,String> map = new HashMap<String,String>();
+    		map.put("checkInDateStart", firstDayOfThisMonth.format(df));
+    		map.put("checkInDateEnd", lastDayOfThisMonth.format(df));
+    		
     		//AR列表数据
-        	arMapList = this.crsAccountMapper.calHotelAmount();//获取应收金额
+        	arMapList = this.crsAccountMapper.calHotelAmount(map);//获取应收金额
         	totalCount = arMapList.size();
-        	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare();//获取ower share数据
+        	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare(map);//获取ower share数据
         	if (null != arMapList && !arMapList.isEmpty()) {
         		SyncCrsArAndAp syncCrsArAndAp = null;
         		for (Iterator<HashMap<String, String>> iterator = arMapList.iterator(); iterator.hasNext();) {
@@ -207,5 +218,15 @@ public class SyncCrsArAndApService {
 		}
     	return result;
     }
+    
+    public static void main(String[] args) {
+        LocalDate specifiedDate = LocalDate.parse("2018-12-01");
+        LocalDate firstDayOfThisMonth = specifiedDate.with(TemporalAdjusters.firstDayOfMonth()); // 2017-03-01
+        LocalDate lastDayOfThisMonth = specifiedDate.with(TemporalAdjusters.lastDayOfMonth());
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        System.out.println(firstDayOfThisMonth.format(df));
+        System.out.println(lastDayOfThisMonth.format(df));
+        
+	}
     
 }

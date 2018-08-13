@@ -115,9 +115,9 @@ public class SyncArAndApToSapService {
     	Integer hotelIdMark = 0;//抛异常时，打印到log 控制台中。
     	try {
     		//AR列表数据
-        	arMapList = this.crsAccountMapper.calHotelAmount();//获取应收金额
+        	arMapList = this.crsAccountMapper.calHotelAmount(null);//获取应收金额
         	totalCount = arMapList.size();
-        	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare();//获取ower share数据
+        	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare(null);//获取ower share数据
         	if (null != arMapList && !arMapList.isEmpty()) {
         		//获取sap接口
         		SAPWebServiceSoap sapService = this.getSapSapService();

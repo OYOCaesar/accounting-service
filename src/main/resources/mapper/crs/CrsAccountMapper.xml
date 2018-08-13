@@ -79,13 +79,13 @@
 		    and z.checkin <![CDATA[>=]]> TO_DATE(#{checkInDateStart}, 'YYYY-MM-DD')
 		</if>
 		<if test="checkInDateStart == null or checkInDateStart == ''">
-		    and z.checkin <![CDATA[>=]]> date_trunc('month', now() :: DATE) - INTERVAL '1 month'
+		    and z.checkin <![CDATA[>=]]> DATE_TRUNC('month', now() :: DATE) - INTERVAL '1 month'
 		</if>
 		<if test="checkInDateEnd != null and checkInDateEnd != ''">
 		    and z.checkin <![CDATA[<=]]> TO_DATE(#{checkInDateEnd}, 'YYYY-MM-DD')
 		</if>
 		<if test="checkInDateEnd == null or checkInDateEnd == ''">
-		    and z.checkin <![CDATA[<]]> date_trunc('month', now() :: DATE)
+		    and z.checkin <![CDATA[<]]> DATE_TRUNC('month', now() :: DATE)
 		</if>				
 	</select>    
 	
@@ -98,25 +98,49 @@
 			BOOKINGS A,HOTELS H
 		WHERE A.HOTEL_ID = H.ID
 		AND H.COUNTRY = 'China'
-		AND A .CHECKIN <![CDATA[>=]]> date_trunc('month', now() :: DATE) - INTERVAL '1 month'
-		AND A .CHECKIN <![CDATA[<]]> date_trunc('month', now() :: DATE)
-		AND A .STATUS = 1
+		<!-- AND A.CHECKIN <![CDATA[>=]]> date_trunc('month', now() :: DATE) - INTERVAL '1 month'
+		AND A.CHECKIN <![CDATA[<]]> date_trunc('month', now() :: DATE) -->
+		<if test="checkInDateStart != null and checkInDateStart != ''">
+		    AND A.CHECKIN <![CDATA[>=]]> TO_DATE(#{checkInDateStart}, 'YYYY-MM-DD')
+		</if>
+		<if test="checkInDateStart == null or checkInDateStart == ''">
+		    AND A.CHECKIN <![CDATA[>=]]> DATE_TRUNC('month', now() :: DATE) - INTERVAL '1 month'
+		</if>
+		<if test="checkInDateEnd != null and checkInDateEnd != ''">
+		    AND A.CHECKIN <![CDATA[<=]]> TO_DATE(#{checkInDateEnd}, 'YYYY-MM-DD')
+		</if>
+		<if test="checkInDateEnd == null or checkInDateEnd == ''">
+		    AND A.CHECKIN <![CDATA[<]]> DATE_TRUNC('month', now() :: DATE)
+		</if>
+		AND A.STATUS = 1
 		GROUP BY
-			A .HOTEL_ID,H.NAME			
+			A.HOTEL_ID,H.NAME			
 		ORDER BY
-			A .HOTEL_ID
+			A.HOTEL_ID
 	</select>
 	
 	<!-- 获取hotel对应的Owner Share -->
 	<select id="getHotelOwnerShare" resultType="hashmap">
-		select x.hotel_id,y.rs_slabs
-		from hotel_agreement_details x, agreements y,bookings z
-		where x.agreement_id = y.id
-		and x.hotel_id = z.hotel_id
-		and z.checkin <![CDATA[>=]]> x.valid_from 
-		and z.checkin <![CDATA[<=]]> x.valid_till
-		and z.checkin <![CDATA[>=]]> date_trunc('month', now() :: DATE) - INTERVAL '1 month'
-		and z.checkin <![CDATA[<]]> date_trunc('month', now() :: DATE)				
+		SELECT X.HOTEL_ID,Y.RS_SLABS
+		FROM HOTEL_AGREEMENT_DETAILS X, AGREEMENTS Y,BOOKINGS Z
+		WHERE X.AGREEMENT_ID = Y.ID
+		AND X.HOTEL_ID = Z.HOTEL_ID
+		and Z.CHECKIN <![CDATA[>=]]> x.valid_from 
+		and Z.CHECKIN <![CDATA[<=]]> x.valid_till
+		<!-- and z.checkin <![CDATA[>=]]> date_trunc('month', now() :: DATE) - INTERVAL '1 month'
+		and z.checkin <![CDATA[<]]> date_trunc('month', now() :: DATE) -->	
+		<if test="checkInDateStart != null and checkInDateStart != ''">
+		    AND Z.CHECKIN <![CDATA[>=]]> TO_DATE(#{checkInDateStart}, 'YYYY-MM-DD')
+		</if>
+		<if test="checkInDateStart == null or checkInDateStart == ''">
+		    AND Z.CHECKIN <![CDATA[>=]]> DATE_TRUNC('month', now() :: DATE) - INTERVAL '1 month'
+		</if>
+		<if test="checkInDateEnd != null and checkInDateEnd != ''">
+		    AND Z.CHECKIN <![CDATA[<=]]> TO_DATE(#{checkInDateEnd}, 'YYYY-MM-DD')
+		</if>
+		<if test="checkInDateEnd == null or checkInDateEnd == ''">
+		    AND Z.CHECKIN <![CDATA[<]]> DATE_TRUNC('month', now() :: DATE)
+		</if>
 	</select>	
 	
 	<!-- 根据hotelId获取hotel名称 -->

@@ -16,10 +16,10 @@ public interface CrsAccountMapper {
 	public List<QueryCrsAccountingDto> queryCrsArApInfoByCondition(QueryCrsAccountingDto queryCrsAccountingDto);
 
 	//获取所有酒店的AR金额
-	public List<HashMap<String, String>> calHotelAmount();
+	public List<HashMap<String, String>> calHotelAmount(HashMap<String,String> map);
 	
 	//获取hotel对应的Owner Share
-	public List<HashMap<String, String>> getHotelOwnerShare();
+	public List<HashMap<String, String>> getHotelOwnerShare(HashMap<String,String> map);
 	
 	//根据hotelId获取hotel名称
 	public String getHotelNameById(@Param("hotelId") Integer hotelId);
