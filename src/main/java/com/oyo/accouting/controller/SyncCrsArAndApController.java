@@ -27,7 +27,8 @@ public class SyncCrsArAndApController {
     public String syncArAndAp(HttpServletRequest request) {
     	String result = "";
     	try {
-			result = syncCrsArAndApService.syncCrsArAndAp();
+    		String yearMonth = request.getParameter("yearMonth");
+			result = syncCrsArAndApService.syncCrsArAndAp(yearMonth);
 			log.info(result);
 		} catch (Exception e) {
 			result = "Synchronizing crs ar and ap throwing exception!";

@@ -42,7 +42,7 @@ public class SyncCrsArAndApService {
     @Autowired
     private SyncCrsArAndApMapper syncCrsArAndApMapper;
     
-    public String syncCrsArAndAp() throws Exception {
+    public String syncCrsArAndAp(String yearMonth) throws Exception {
     	log.info("----syncCrsArAndAp start-------------");
     	String result = "";
     	Integer totalCount = 0;//同步总记录数
@@ -59,7 +59,9 @@ public class SyncCrsArAndApService {
 	        ZonedDateTime zdt = lastMonthDateLocal.atStartOfDay(zoneId);
 	        Date lastMonthDate = Date.from(zdt.toInstant());
 	        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-	        String yearMonth = sdf.format(lastMonthDate);
+	        if (StringUtils.isEmpty(yearMonth)) {//如果未传同步年月，那么就取当前日期的上月为同步年月
+	        	yearMonth = sdf.format(lastMonthDate);
+	        }
 	        //先删除掉指定年月的Ar And Ap数据
     		syncCrsArAndApMapper.updateYearMonthCrsArAndApIsDelBatch(yearMonth);
     		

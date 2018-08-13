@@ -21,6 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.druid.util.StringUtils;
 import com.oyo.accouting.bean.SyncCrsArAndApDto;
 import com.oyo.accouting.bean.SyncLogDto;
 import com.oyo.accouting.constants.AccountingCode;
@@ -71,7 +72,7 @@ public class SyncArAndApAndJournalEntryToSapService {
      * @return
      * @throws Exception
      */
-    public String syncArAndApAndJournalEntryToSap() throws Exception {
+    public String syncArAndApAndJournalEntryToSap(String yearMonth) throws Exception {
     	log.info("----sync Ar anb Ap and Journal Entry to SAP start-------------");
     	String result = "";
     	Integer totalCount = 0;//同步总记录数
@@ -92,7 +93,9 @@ public class SyncArAndApAndJournalEntryToSapService {
 	        ZonedDateTime zdt = lastMonthDateLocal.atStartOfDay(zoneId);
 	        Date lastMonthDate = Date.from(zdt.toInstant());
 	        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-	        String yearMonth = sdf.format(lastMonthDate);// 同步的年月
+	        if (StringUtils.isEmpty(yearMonth)) {//如果未传同步年月，那么就取当前日期的上月为同步年月
+	        	yearMonth = sdf.format(lastMonthDate);// 同步的年月
+	        }
 	        
 	    	LocalDate fifteenDayOfThisMonth = now.withDayOfMonth(15);
 	        ZonedDateTime zdt1 = fifteenDayOfThisMonth.atStartOfDay(zoneId);

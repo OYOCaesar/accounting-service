@@ -26,7 +26,7 @@ public class SyncCrsArAndApJob implements BaseJob {
 		try {
 			ApplicationContext applicationContext = (ApplicationContext) context.getScheduler().getContext().get("applicationContext");
 			SyncCrsArAndApService service = applicationContext.getBean(SyncCrsArAndApService.class);
-			String result = service.syncCrsArAndAp();
+			String result = service.syncCrsArAndAp(null);
 			log.info(result);
 		} catch (Exception e) {
 			log.error("Sync AR and AP From CRS throwing exception!");
