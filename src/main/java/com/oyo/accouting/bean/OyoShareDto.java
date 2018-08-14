@@ -19,5 +19,7 @@ public class OyoShareDto {
   private String zoneName;
   private String fixedRate;
 
+  private String isTest;
+
   
 }

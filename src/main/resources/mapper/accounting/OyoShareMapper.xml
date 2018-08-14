@@ -13,6 +13,7 @@
         <result column="zone_name" property="zoneName"/>
         <result column="fixed_rate" property="fixedRate"/>
         <result column="oyo_share" property="oyoShare" />
+        <result column="is_test"  property="isTest"/>
     </resultMap>
 
     <select id="queryOyoShareList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.OyoShareDto">
@@ -29,6 +30,9 @@
         </if>
         <if test="oyoShare.status != null and oyoShare.status != ''">
             and status = #{oyoShare.status}
+        </if>
+        <if test="oyoShare.isTest !=null and oyoShare.isTest !=''">
+            and is_test =#{oyoShare.isTest}
         </if>
     </select>
 
