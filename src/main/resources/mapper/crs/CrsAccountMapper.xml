@@ -112,7 +112,7 @@
 		<if test="checkInDateEnd == null or checkInDateEnd == ''">
 		    AND A.CHECKIN <![CDATA[<]]> DATE_TRUNC('month', now() :: DATE)
 		</if>
-		AND A.STATUS = 1
+		<!-- AND A.STATUS = 1 -->
 		GROUP BY
 			A.HOTEL_ID,H.NAME			
 		ORDER BY
