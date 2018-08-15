@@ -1,5 +1,6 @@
 package com.oyo.accouting.job;
 
+import com.oyo.accouting.bean.HotelDto;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
@@ -21,7 +22,7 @@ public class SyncHotelJob implements BaseJob {
 		try {
 			applicationContext = (ApplicationContext) context.getScheduler().getContext().get("applicationContext");
 			SyncHotelToSapService service = applicationContext.getBean(SyncHotelToSapService.class);
-			String result = service.syncHotelToSap();
+			String result = service.syncHotelToSap(new HotelDto());
 			_log.info(result);
 		} catch (SchedulerException e) {
 			_log.error("Sync Ar and Ap and Journal Entry data to sap throwing exception!");
