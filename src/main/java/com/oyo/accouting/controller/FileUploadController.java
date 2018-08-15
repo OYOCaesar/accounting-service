@@ -19,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +40,7 @@ public class FileUploadController {
 	    return "file_upload";
 	}
 
-    @RequestMapping(value = "upload",method={RequestMethod.POST,RequestMethod.GET})
+    @RequestMapping(value = "upload")
     public ModelAndView fileUpload(HttpServletRequest request, Model mode, @RequestParam("file") MultipartFile file,@RequestParam("isTest")String isTest) throws IOException {
 
 	    ModelAndView view = new ModelAndView("file_upload");
@@ -64,9 +65,12 @@ public class FileUploadController {
             List<Object> apnModelList = null;
             apnModelList = ApnExcelParseTool.parseWorkbook(workbook,OyoShare.class);
             List<OyoShare> oyoShareList = new ArrayList<>();
+            SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String batch = sdf.format(new Date());
             for(Object o : apnModelList){
             	OyoShare oyoShare = (OyoShare) o;
                 oyoShare.setIsTest(isTest);
+                oyoShare.setBatch(batch);
             	if(!StringUtils.isEmpty(oyoShare.getOyoShare())){
             	    double d = Double.valueOf(oyoShare.getOyoShare());
             	    oyoShare.setOyoShare(String.format("%.2f",d));

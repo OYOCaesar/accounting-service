@@ -14,6 +14,7 @@
         <result column="fixed_rate" property="fixedRate"/>
         <result column="oyo_share" property="oyoShare" />
         <result column="is_test"  property="isTest"/>
+        <result column="batch" property="batch"/>
     </resultMap>
 
     <select id="queryOyoShareList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.OyoShareDto">
@@ -34,12 +35,20 @@
         <if test="oyoShare.isTest !=null and oyoShare.isTest !=''">
             and is_test =#{oyoShare.isTest}
         </if>
+        <if test="oyoShare.batch != null and oyoShare.batch != ''">
+            and batch = #{oyoShare.batch}
+        </if>
+    </select>
+
+    <select id="queryBatchData" resultType="com.oyo.accouting.bean.OyoShareDto" parameterType="com.oyo.accouting.bean.OyoShareDto">
+
+        SELECT batch FROM oyo_share group by batch
     </select>
 
     <!-- 批量插入 -->
     <insert id ="insertOyoShareList" parameterType="java.util.List" >
         insert into oyo_share
-        (hotel_id, oyo_share, status, unique_code,oyo_id,hotel_name,city,zone_name,fixed_rate)
+        (hotel_id, oyo_share, status, unique_code,oyo_id,hotel_name,city,zone_name,fixed_rate,is_test,batch)
         values
         <foreach collection ="oyoShareList" item="oyoShare" index= "index" separator =",">
             (
@@ -47,7 +56,9 @@
             #{oyoShare.status},#{oyoShare.uniqueCode},
             #{oyoShare.oyoId}, #{oyoShare.hotelName},
             #{oyoShare.city},#{oyoShare.zoneName},
-            #{oyoShare.fixedRate}
+            #{oyoShare.fixedRate},
+            #{oyoShare.isTest},
+            #{oyoShare.batch}
             )
         </foreach >
     </insert >

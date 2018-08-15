@@ -21,5 +21,6 @@ public class OyoShareDto {
 
   private String isTest;
 
+  private String batch;
   
 }

@@ -96,9 +96,13 @@
 
 
     <select id="queryHotelList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.HotelDto">
-        select h.*,a.rs_slabs from hotels h left join hotel_agreement_details had on h.id = had.hotel_id
-          left join agreements a on had.agreement_id = a.id where h.id = 20240
+        select h.* from hotels h where 1=1
+          <if test="searchHotel.id != null">
+              and h.id = #{searchHotel.id}
+          </if>
+          <if test="searchHotel.country">
+              and h.country = #{searchHotel.country}
+          </if>
           and h.status != 4
-          and had.valid_from &lt;= current_date and had.valid_till >= current_date
     </select>
 </mapper>

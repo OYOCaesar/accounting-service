@@ -45,9 +45,11 @@ public class SyncHotelToSapService {
     @Autowired
     private AccountingOyoShareMapper accountingOyoShareMapper;
 
-    public String syncHotelToSap(){
+    public String syncHotelToSap(HotelDto searchHotel){
 
-        List<HotelDto> hotelList = this.crsHotelMapper.queryHotelList();
+        if(searchHotel==null){searchHotel = new HotelDto();}
+        searchHotel.setCountry("China");
+        List<HotelDto> hotelList = this.crsHotelMapper.queryHotelList(searchHotel);
 
         JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
         jwpfb.setServiceClass(SAPWebServiceSoap.class);

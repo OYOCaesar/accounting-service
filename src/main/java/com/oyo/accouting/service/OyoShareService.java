@@ -26,6 +26,16 @@ public class OyoShareService {
         return list;
     }
 
+    public List<OyoShareDto> queryBatchData(OyoShareDto info){
+        List list = null;
+        try {
+            list = this.accountingOyoShareMapper.queryBatchData(info);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public int insertOyoShare(OyoShare info){
         int i = 0;
         try {

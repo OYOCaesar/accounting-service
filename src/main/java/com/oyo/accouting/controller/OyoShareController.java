@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestMapping("oyoShare")
@@ -29,6 +30,24 @@ public class OyoShareController {
 
 
         List<OyoShareDto> list = this.oyoShareService.queryOyoShare(info);
+        return ResponseEntity.ok(list);
+    }
+
+
+    /**
+     *
+     *
+     * @return
+     */
+    @RequestMapping(value = "queryBatchData")
+    public ResponseEntity<List<OyoShareDto>> queryBatchData(HttpServletRequest request,OyoShareDto info) {
+
+
+        List<OyoShareDto> list = this.oyoShareService.queryBatchData(info);
+        if(list == null || list.size() == 0 || list.get(0) == null){
+            list = new ArrayList<>();
+            list.add(new OyoShareDto());
+        }
         return ResponseEntity.ok(list);
     }
 

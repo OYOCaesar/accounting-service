@@ -1,5 +1,6 @@
 package com.oyo.accouting.controller;
 
+import com.oyo.accouting.bean.HotelDto;
 import com.oyo.accouting.bean.SyncHotel;
 import com.oyo.accouting.service.SyncHotelToSapService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,10 @@ public class SyncHotelController {
      * @return
      */
     @RequestMapping(value = "getSyncHotel", method = RequestMethod.GET)
-    public ResponseEntity<String> queryCartList(HttpServletRequest request) {
+    public ResponseEntity<String> queryCartList(HttpServletRequest request, HotelDto searchHotel) {
 
 
-        String res = this.syncHotelToSapService.syncHotelToSap();
+        String res = this.syncHotelToSapService.syncHotelToSap(searchHotel);
         return ResponseEntity.ok(res);
     }
 
