@@ -9,9 +9,9 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>anonymous complex typeµÄ Java Àà¡£
+ * <p>anonymous complex typeçš„ Java ç±»ã€‚
  * 
- * <p>ÒÔÏÂÄ£Ê½Æ¬¶ÎÖ¸¶¨°üº¬ÔÚ´ËÀàÖĞµÄÔ¤ÆÚÄÚÈİ¡£
+ * <p>ä»¥ä¸‹æ¨¡å¼ç‰‡æ®µæŒ‡å®šåŒ…å«åœ¨æ­¤ç±»ä¸­çš„é¢„æœŸå†…å®¹ã€‚
  * 
  * <pre>
  * &lt;complexType&gt;
@@ -38,7 +38,7 @@ public class HelloWorldResponse {
     protected String helloWorldResult;
 
     /**
-     * »ñÈ¡helloWorldResultÊôĞÔµÄÖµ¡£
+     * è·å–helloWorldResultå±æ€§çš„å€¼ã€‚
      * 
      * @return
      *     possible object is
@@ -50,7 +50,7 @@ public class HelloWorldResponse {
     }
 
     /**
-     * ÉèÖÃhelloWorldResultÊôĞÔµÄÖµ¡£
+     * è®¾ç½®helloWorldResultå±æ€§çš„å€¼ã€‚
      * 
      * @param value
      *     allowed object is

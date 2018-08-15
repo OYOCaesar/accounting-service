@@ -40,7 +40,7 @@ public class FileUploadController {
 	}
 
     @RequestMapping(value = "upload",method={RequestMethod.POST,RequestMethod.GET})
-    public ModelAndView fileUpload(HttpServletRequest request, Model mode, @RequestParam("file") MultipartFile file) throws IOException {
+    public ModelAndView fileUpload(HttpServletRequest request, Model mode, @RequestParam("file") MultipartFile file,@RequestParam("isTest")String isTest) throws IOException {
 
 	    ModelAndView view = new ModelAndView("file_upload");
 
@@ -66,14 +66,19 @@ public class FileUploadController {
             List<OyoShare> oyoShareList = new ArrayList<>();
             for(Object o : apnModelList){
             	OyoShare oyoShare = (OyoShare) o;
+                oyoShare.setIsTest(isTest);
             	if(!StringUtils.isEmpty(oyoShare.getOyoShare())){
             	    double d = Double.valueOf(oyoShare.getOyoShare());
             	    oyoShare.setOyoShare(String.format("%.2f",d));
                 }
-                int i = oyoShare.getHotelId().indexOf(".");
-                oyoShare.setHotelId(oyoShare.getHotelId().substring(0,i<0?oyoShare.getHotelId().length():i));
-                int j = oyoShare.getUniqueCode().indexOf(".");
-                oyoShare.setUniqueCode(oyoShare.getUniqueCode().substring(0,j<0?oyoShare.getUniqueCode().length():j));
+            	if(!StringUtils.isEmpty(oyoShare.getHotelId())) {
+                    int i = oyoShare.getHotelId().indexOf(".");
+                    oyoShare.setHotelId(oyoShare.getHotelId().substring(0, i < 0 ? oyoShare.getHotelId().length() : i));
+                }
+                if(!StringUtils.isEmpty(oyoShare.getUniqueCode())) {
+                    int j = oyoShare.getUniqueCode().indexOf(".");
+                    oyoShare.setUniqueCode(oyoShare.getUniqueCode().substring(0, j < 0 ? oyoShare.getUniqueCode().length() : j));
+                }
                 oyoShareList.add(oyoShare);
             }
             this.oyoShareService.insertOyoShareList(oyoShareList);

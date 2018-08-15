@@ -22,4 +22,6 @@ public class OyoShare {
   private String zoneName;
   private String fixedRate;
 
+  private String isTest;
+
 }

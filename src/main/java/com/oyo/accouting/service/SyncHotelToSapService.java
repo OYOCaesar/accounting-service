@@ -61,9 +61,6 @@ public class SyncHotelToSapService {
             //查询UserProfiles
             UserProfilesDto userProfiles = crsUserProfilesMapper.queryUserProfilesByHotelIdAndRole(h.getId());
             h.setUserProfiles(userProfiles);
-            //查询Cities
-            CitiesDto cities = this.crsCitiesMapper.queryCityesById(h.getCityId());
-            h.setCities(cities);
 
             //初始化SyncHotel
             SyncHotel syncHotel = new SyncHotel();
