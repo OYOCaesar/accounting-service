@@ -4,6 +4,9 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+
+import com.oyo.accouting.service.SyncCrsArAndApService;
 
 /***
  * 同步应收(AR)和应付(AP)到SAP定时任务
@@ -21,11 +24,10 @@ public class SyncCrsArAndApJob implements BaseJob {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		log.info("Sync AR and AP From CRS start.");
 		try {
-			/*ApplicationContext applicationContext = (ApplicationContext) context.getScheduler().getContext().get("applicationContext");
+			ApplicationContext applicationContext = (ApplicationContext) context.getScheduler().getContext().get("applicationContext");
 			SyncCrsArAndApService service = applicationContext.getBean(SyncCrsArAndApService.class);
 			String result = service.syncCrsArAndAp(null);
-			log.info(result);*/
-			log.info("Sync AR and Ap from CRS is successful.");
+			log.info(result);
 		} catch (Exception e) {
 			log.error("Sync AR and AP From CRS throwing exception!");
 			e.printStackTrace();
