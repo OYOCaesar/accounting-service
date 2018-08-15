@@ -12,6 +12,8 @@ public class JobAndTrigger {
 	private BigInteger TIMES_TRIGGERED;
 	private String CRON_EXPRESSION;
 	private String TIME_ZONE_ID;
+	private String TRIGGER_STATE;
+	private String result;
 	
 	public String getJOB_NAME() {
 		return JOB_NAME;
@@ -66,6 +68,18 @@ public class JobAndTrigger {
 	}
 	public void setTIME_ZONE_ID(String tIME_ZONE_ID) {
 		TIME_ZONE_ID = tIME_ZONE_ID;
+	}
+	public String getTRIGGER_STATE() {
+		return TRIGGER_STATE;
+	}
+	public void setTRIGGER_STATE(String tRIGGER_STATE) {
+		TRIGGER_STATE = tRIGGER_STATE;
+	}
+	public String getResult() {
+		return result;
+	}
+	public void setResult(String result) {
+		this.result = result;
 	}
 	
 }
