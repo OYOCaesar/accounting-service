@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oyo.accouting.mapper.accounting.AccountingSyncHotelMapper">
+
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.pojo.SyncHotel" >
+        <id column="id" property="id" />
+        <result column="cardcode" property="cardcode" />
+        <result column="cardname" property="cardname"/>
+        <result column="valid" property="valid"/>
+        <result column="cntctPrsn" property="cntctPrsn"/>
+        <result column="LicTradNum" property="licTradNum"/>
+        <result column="U_CRSID" property="uCrsid"/>
+        <result column="contacts" property="contacts"/>
+        <result column="address" property="address"/>
+    </resultMap>
+
+    <select id="querySyncHotelList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.pojo.SyncHotel">
+
+        SELECT * FROM sync_hotel where 1 = 1
+        <if test="syncHotel.cardcode != null and syncHotel.cardcode != ''">
+            and cardcode = #{syncHotel.cardcode}
+        </if>
+        <if test="syncHotel.cardname != null and syncHotel.cardname != ''">
+            and cardname like #{syncHotel.cardname}
+        </if>
+        <if test="syncHotel.uCrsid != null and syncHotel.uCrsid != ''">
+            and U_CRSID = #{syncHotel.uCrsid}
+        </if>
+    </select>
+	
+</mapper>

@@ -70,6 +70,17 @@
         </td>
     </tr>
 </table>
+
+<h2>同步主数据到SAP:</h2>
+<table style="width:600px;" class="table">
+    <tr>
+        <td align="left">cardcode: </td>
+        <td><input id="cardcode"/></td>
+        <td width="105px;">
+            <button class="button" id="syncHotelBtn">同步SAP</button>
+        </td>
+    </tr>
+</table>
 <br/>
 <div id="syncSapResult" style="color:blue;"></div><br/>
 <a id="search_badk" href="index.html" class="easyui-linkbutton" data-options="iconCls:'icon-back'" style="padding-left:30px;font-size:14px;">返回</a>
@@ -141,7 +152,7 @@
     		    type:'POST', //GET
     		    async:true,    //或false,是否异步
     		    data:{
-    		    	yearMonth:$("#syncSAP").val()
+    		    	yearMonth:$("#cardcode").val().trim()
     		    },
     		    timeout:3600000,    //超时时间
     		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
@@ -164,6 +175,38 @@
     		    	$("#syncSapBtn").html("同步CRS");
     		    }
     		});
+        });
+
+
+        $('#syncHotelBtn').click(function(){
+            $.ajax({
+                url:'syncHotel/syncHotelToSap',
+                type:'POST', //GET
+                async:true,    //或false,是否异步
+                data:{
+                    cardcode:$("#syncHotelSAP").val()
+                },
+                timeout:3600000,    //超时时间
+                dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+                beforeSend:function(xhr){
+                    $("#syncSapResult").html("");
+                    console.log(xhr);
+                    $("#syncSapBtn").html("正在同步中......");
+                    $("#syncSapBtn").attr("disabled",true);
+                },
+                success:function(data,textStatus,jqXHR){
+                    $("#syncSapResult").html(data);
+                },
+                error:function(xhr,textStatus){
+                    console.log(xhr)
+                    console.log(textStatus);
+                },
+                complete:function(data){
+                    $("#syncSapResult").html(data.responseText);
+                    $("#syncSapBtn").attr("disabled",false);
+                    $("#syncSapBtn").html("同步CRS");
+                }
+            });
         });
     });
 </script>

@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>oyoShare list</title>
+    <link rel="stylesheet" type="text/css"
+          href="easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="./easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="./easyui/demo/demo.css">
+    <script src="./js/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="./easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div>
+    <span>cardcode: </span><input class="easyui-textbox" value="" id="cardcode_inp" data-options="iconCls:'icon-search'">
+    <span>cardname: </span><input class="easyui-textbox" value="" id="cardname_inp" data-options="iconCls:'icon-search'">
+    <span>uCrsid: </span><input class="easyui-textbox" value="" id="uCrsid_inp" data-options="iconCls:'icon-search'">
+    <a id="search_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+    &nbsp;&nbsp;
+    <a id="reset_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">重置</a>
+</div>
+<div id="syncHotel_list">  </div>
+<script>
+
+    $(function () {
+
+        querySyncHotelList();
+
+        $('#search_btn').bind('click', function(){
+            var queryParams = getSyncHotelListQueryParams();
+            $('#syncHotel_list').datagrid('load',queryParams);
+        });
+
+        $('#reset_btn').bind('click', function(){
+            $('#cardcode_inp').attr('value','');
+            $('#cardname_inp').attr('value','');
+            $('#uCrsid_inp').attr('value','')
+        });
+    });
+
+    function querySyncHotelList() {
+
+        var queryParams = getSyncHotelListQueryParams();
+
+        $('#syncHotel_list').datagrid({
+            url:'syncHotel/querySyncHotelList',
+            columns:[[
+                {field:'id',title:'id',width:30},
+                {field:'cardcode',title:'cardcode',width:80},
+                {field:'cardname',title:'cardname',width:100},
+                {field:'valid',title:'valid',width:30},
+                {field:'cntctPrsn',title:'cntctPrsn',width:80},
+                {field:'licTradNum',title:'licTradNum',width:80},
+                {field:'ucrsid',title:'uCrsid',width:80},
+                {field:'contacts',title:'contacts',width:300},
+                {field:'address',title:'address',width:400}
+            ]],
+            queryParams: queryParams
+        });
+    }
+
+    function getSyncHotelListQueryParams() {
+        var cardcode = $('#cardcode_inp').attr('value').trim();
+        var cardname = $('#cardname_inp').attr('value').trim();
+        var uCrsid = $('#uCrsid_inp').attr('value').trim();
+        var queryParams = {
+            cardcode: cardcode,
+            cardname: cardname,
+            uCrsid:uCrsid
+        };
+        return queryParams;
+    }
+
+</script>
+</body>
+</html>

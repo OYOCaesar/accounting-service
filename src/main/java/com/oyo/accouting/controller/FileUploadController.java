@@ -41,7 +41,7 @@ public class FileUploadController {
 	}
 
     @RequestMapping(value = "upload")
-    public ModelAndView fileUpload(HttpServletRequest request, Model mode, @RequestParam("file") MultipartFile file,@RequestParam("isTest")String isTest) throws IOException {
+    public ModelAndView fileUpload(HttpServletRequest request, @RequestParam("file") MultipartFile file,@RequestParam("isTest")String isTest) throws IOException {
 
 	    ModelAndView view = new ModelAndView("file_upload");
 
@@ -87,10 +87,8 @@ public class FileUploadController {
             }
             this.oyoShareService.insertOyoShareList(oyoShareList);
             view.addObject("data","success!");
-            mode.addAttribute("data","success!");
         } else {
         	view.addObject("data","error!");
-            mode.addAttribute("data","error!");
         }
         
         return view;
