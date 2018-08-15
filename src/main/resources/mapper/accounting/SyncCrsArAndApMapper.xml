@@ -50,10 +50,17 @@
     
     <!-- 批量更新为已同步 -->
     <update id ="updateCrsArAndApIsSyncList" parameterType="java.util.List">
-        <foreach collection ="crsArAndApList" separator=";" item="item">
-            update sync_crs_ar_ap set is_sync = #{item.isSync}
-            where id = #{item.id}
-        </foreach>
+        update sync_crs_ar_ap 
+	    set is_sync =
+	    <foreach collection="crsArAndApList" item="item" index="index" 
+	        separator=" " open="case id" close="end">
+	        when #{item.id} then #{item.isSync}
+	    </foreach>
+	    where id in
+	    <foreach collection="crsArAndApList" index="index" item="item" 
+	        separator="," open="(" close=")">
+	        #{item.id}
+	    </foreach>
     </update>
     
     <!-- 批量更新为已删除 -->

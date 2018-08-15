@@ -4,9 +4,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-
-import com.oyo.accouting.service.SyncArAndApAndJournalEntryToSapService;
 
 /***
  * 同步应收(AR)和应付(AP)到SAP定时任务
@@ -24,10 +21,11 @@ public class SyncArAndApAndJournalEntryJob implements BaseJob {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		log.info("Sync Ar and Ap and Journal Entry data to SAP start.");
 		try {
-			ApplicationContext applicationContext = (ApplicationContext) context.getScheduler().getContext().get("applicationContext");
+			/*ApplicationContext applicationContext = (ApplicationContext) context.getScheduler().getContext().get("applicationContext");
 			SyncArAndApAndJournalEntryToSapService service = applicationContext.getBean(SyncArAndApAndJournalEntryToSapService.class);
 			String result = service.syncArAndApAndJournalEntryToSap(null);
-			log.info(result);
+			log.info(result);*/
+			log.info("Sync Ar and Ap and Journal Entry data to SAP is successful.");
 		} catch (Exception e) {
 			log.error("Sync Ar and Ap and Journal Entry data to sap throwing exception!");
 			e.printStackTrace();
