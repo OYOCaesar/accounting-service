@@ -54,6 +54,7 @@ public class SyncHotelToSapService {
 
         int sCount = 0,fCount=0;//成功，失败计数
 
+        //查询需要同步的酒店数据
         if(searchHotel==null){searchHotel = new HotelDto();}
         searchHotel.setCountry("China");
         List<HotelDto> hotelList = this.crsHotelMapper.queryHotelList(searchHotel);
@@ -64,18 +65,6 @@ public class SyncHotelToSapService {
         SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
 
         for(HotelDto h:hotelList){
-            //查询AccountDetails
-            //AccountDetailsDto accountDetails = crsAccountDetailsMapper.queryAccountDetailsByItemId(h.getId());
-            //h.setAccountDetails(accountDetails);
-            //查询UserProfiles
-            UserProfilesDto userProfiles = crsUserProfilesMapper.queryUserProfilesByHotelIdAndRole(h.getId());
-            h.setUserProfiles(userProfiles);
-
-            //初始化SyncHotel
-            SyncHotel syncHotel = new SyncHotel();
-            //处理业务逻辑
-            Map<String ,Object> syncHotemMap = syncHotel.getSyncHotelMap();
-            syncHotel.setSyncHotelMap(h,syncHotemMap);
 
             //查询同步日志，判断是否需要同步
             SyncLog syncLogSearch = new SyncLog();
@@ -89,10 +78,23 @@ public class SyncHotelToSapService {
             if(!syncLogDtoListIsNull)syncLogDto = syncLogDtoList.get(0);   //不为null
             //判断是否需要同步
             boolean isSync = syncLogDtoListIsNull || (!syncLogDtoListIsNull && syncLogDto!=null && h.getUpdatedAt().equals(syncLogDto.getSourceUpdateTime()));
-            //同步sap
+            //需要同步sap
             if(isSync){
+                //1 准备数据
+                //查询AccountDetails
+                //AccountDetailsDto accountDetails = crsAccountDetailsMapper.queryAccountDetailsByItemId(h.getId());
+                //h.setAccountDetails(accountDetails);
+                //查询UserProfiles
+                UserProfilesDto userProfiles = crsUserProfilesMapper.queryUserProfilesByHotelIdAndRole(h.getId());
+                h.setUserProfiles(userProfiles);
 
-                //同步到sap
+                //初始化SyncHotel
+                SyncHotel syncHotel = new SyncHotel();
+                //处理业务逻辑
+                Map<String ,Object> syncHotemMap = syncHotel.getSyncHotelMap();
+                syncHotel.setSyncHotelMap(h,syncHotemMap);
+
+                //2 同步到sap
                 Map syncHotelMap = syncHotel.getSyncHotelMap();
                 JSONObject hotelMapJson = JSONObject.fromObject(syncHotelMap);
                 String hotelMapStr = hotelMapJson.toString();
@@ -101,7 +103,7 @@ public class SyncHotelToSapService {
                 JSONObject resultJsonObj = JSONObject.fromObject(result);
 
 
-                //删除日志
+                //3 删除日志
                 if(Integer.valueOf(resultJsonObj.get("Code").toString())==0){ //同步成功
                     if(syncLogDto!=null) {
                         SyncLog record = new SyncLog();
@@ -116,7 +118,7 @@ public class SyncHotelToSapService {
                 delSyncHotel.setUCrsid(syncHotelMap.get("U_CRSID").toString());
                 this.accountingSyncHotelMapper.delete(delSyncHotel);
 
-                //插入日志
+                //4 插入日志
                 com.oyo.accouting.pojo.SyncHotel sh = new com.oyo.accouting.pojo.SyncHotel();
                 sh.setCardcode(hotelMapJson.get("cardcode").toString());
                 sh.setCardname(hotelMapJson.get("cardname").toString());

@@ -71,10 +71,12 @@
     </tr>
 </table>
 
+
+<div id="syncHotelResult" style="color:blue;"></div><br/>
 <h2>同步主数据到SAP:</h2>
 <table style="width:600px;" class="table">
     <tr>
-        <td align="left">cardcode: </td>
+        <td align="left">hotelId(酒店id): </td>
         <td><input id="cardcode"/></td>
         <td width="105px;">
             <button class="button" id="syncHotelBtn">同步SAP</button>
@@ -152,7 +154,7 @@
     		    type:'POST', //GET
     		    async:true,    //或false,是否异步
     		    data:{
-    		    	yearMonth:$("#cardcode").val().trim()
+    		    	yearMonth:$("#syncSAP").val().trim()
     		    },
     		    timeout:3600000,    //超时时间
     		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
@@ -184,27 +186,27 @@
                 type:'POST', //GET
                 async:true,    //或false,是否异步
                 data:{
-                    cardcode:$("#syncHotelSAP").val()
+                    id:$("#cardcode").val()
                 },
                 timeout:3600000,    //超时时间
                 dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
                 beforeSend:function(xhr){
-                    $("#syncSapResult").html("");
+                    $("#syncHotelResult").html("");
                     console.log(xhr);
-                    $("#syncSapBtn").html("正在同步中......");
-                    $("#syncSapBtn").attr("disabled",true);
+                    $("#syncHotelBtn").html("正在同步中......");
+                    $("#syncHotelBtn").attr("disabled",true);
                 },
                 success:function(data,textStatus,jqXHR){
-                    $("#syncSapResult").html(data);
+                    $("#syncHotelResult").html(data);
                 },
                 error:function(xhr,textStatus){
                     console.log(xhr)
                     console.log(textStatus);
                 },
                 complete:function(data){
-                    $("#syncSapResult").html(data.responseText);
-                    $("#syncSapBtn").attr("disabled",false);
-                    $("#syncSapBtn").html("同步CRS");
+                    $("#syncHotelResult").html(data.responseText);
+                    $("#syncHotelBtn").attr("disabled",false);
+                    $("#syncHotelBtn").html("同步CRS");
                 }
             });
         });
