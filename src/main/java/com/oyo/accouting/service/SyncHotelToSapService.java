@@ -9,7 +9,6 @@ import com.oyo.accouting.mapper.crs.CrsCitiesMapper;
 import com.oyo.accouting.mapper.crs.CrsHotelMapper;
 import com.oyo.accouting.mapper.crs.CrsUserProfilesMapper;
 
-import com.oyo.accouting.pojo.OyoShare;
 import com.oyo.accouting.pojo.SyncLog;
 import com.oyo.accouting.webservice.SAPWebServiceSoap;
 import net.sf.json.JSONObject;
@@ -51,15 +50,17 @@ public class SyncHotelToSapService {
     @Autowired
     private AccountingOyoShareMapper accountingOyoShareMapper;
 
-    public String syncHotelToSap(HotelDto searchHotel){
+    public String syncHotelToSap(HotelDto searchHotel) {
 
-        SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String batch = sdf.format(new Date());
 
-        int sCount = 0,fCount=0;//成功，失败计数
+        int sCount = 0, fCount = 0;//成功，失败计数
 
         //查询需要同步的酒店数据
-        if(searchHotel==null){searchHotel = new HotelDto();}
+        if (searchHotel == null) {
+            searchHotel = new HotelDto();
+        }
         searchHotel.setCountry("China");
         List<HotelDto> hotelList = this.crsHotelMapper.queryHotelList(searchHotel);
 
@@ -68,7 +69,7 @@ public class SyncHotelToSapService {
         jwpfb.setAddress("http://52.80.99.224:8080/SAPWebService.asmx");
         SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
 
-        for(HotelDto h:hotelList){
+        for (HotelDto h : hotelList) {
 
             //查询同步日志，判断是否需要同步
             SyncLogDto syncLogSearch = new SyncLogDto();
@@ -77,13 +78,13 @@ public class SyncHotelToSapService {
             syncLogSearch.setType("Hotel");
             List<SyncLogDto> syncLogDtoList = this.accountingSyncLogMapper.querySyncList(syncLogSearch);
 
-            boolean syncLogDtoListIsNull = syncLogDtoList==null || syncLogDtoList.size()== 0;  //同步日志是否为null
+            boolean syncLogDtoListIsNull = syncLogDtoList == null || syncLogDtoList.size() == 0;  //同步日志是否为null
             SyncLogDto syncLogDto = null;
-            if(!syncLogDtoListIsNull)syncLogDto = syncLogDtoList.get(0);   //不为null
+            if (!syncLogDtoListIsNull) syncLogDto = syncLogDtoList.get(0);   //不为null
             //判断是否需要同步
-            boolean isSync = syncLogDtoListIsNull || (!syncLogDtoListIsNull && syncLogDto!=null && (h.getUpdatedAt().getTime()-syncLogDto.getSourceUpdateTime().getTime()>60000));
+            boolean isSync = syncLogDtoListIsNull || (!syncLogDtoListIsNull && syncLogDto != null && (h.getUpdatedAt().getTime() - syncLogDto.getSourceUpdateTime().getTime() > 60000));
             //需要同步sap
-            if(isSync){
+            if (isSync) {
                 //1 准备数据
                 //查询AccountDetails
                 //AccountDetailsDto accountDetails = crsAccountDetailsMapper.queryAccountDetailsByItemId(h.getId());
@@ -95,57 +96,67 @@ public class SyncHotelToSapService {
                 //初始化SyncHotel
                 SyncHotel syncHotel = new SyncHotel();
                 //处理业务逻辑
-                Map<String ,Object> syncHotemMap = syncHotel.getSyncHotelMap();
-                syncHotel.setSyncHotelMap(h,syncHotemMap);
+                Map<String, Object> syncHotemMap = syncHotel.getSyncHotelMap();
+                //客户
+                syncHotel.setSyncHotelMapC(h, syncHotemMap);
 
                 //2 同步到sap
-                Map syncHotelMap = syncHotel.getSyncHotelMap();
-                JSONObject hotelMapJson = JSONObject.fromObject(syncHotelMap);
-                String hotelMapStr = hotelMapJson.toString();
-                String result = s.businessPartners(hotelMapStr);
-                
-                JSONObject resultJsonObj = JSONObject.fromObject(result);
+                boolean successC = syncHotelMethod(h,syncHotel,s,batch,syncLogDto);
+                //商家
+                syncHotel.setSyncHotelMapV(h, syncHotemMap);
+                // 同步到sap
+                boolean successV = syncHotelMethod(h,syncHotel,s,batch,syncLogDto);
 
-
-                //3 删除日志
-                if(Integer.valueOf(resultJsonObj.get("Code").toString())==0){ //同步成功
-                    if(syncLogDto!=null) {
-                        SyncLog record = new SyncLog();
-                        record.setId(syncLogDto.getId());
-                        this.accountingSyncLogMapper.delete(record);
-                    }
+                if(successC && successV){
                     sCount++;
                 }else{
                     fCount++;
                 }
-                com.oyo.accouting.pojo.SyncHotel delSyncHotel = new com.oyo.accouting.pojo.SyncHotel();
-                delSyncHotel.setUCrsid(syncHotelMap.get("U_CRSID").toString());
-                this.accountingSyncHotelMapper.delete(delSyncHotel);
-
-                //4 插入日志
-                com.oyo.accouting.pojo.SyncHotel sh = new com.oyo.accouting.pojo.SyncHotel();
-                sh.setCardcode(hotelMapJson.get("cardcode").toString());
-                sh.setCardname(hotelMapJson.get("cardname").toString());
-                sh.setCntctPrsn(hotelMapJson.get("CntctPrsn").toString());
-                sh.setValid(hotelMapJson.get("valid").toString());
-                sh.setLicTradNum(hotelMapJson.get("LicTradNum").toString());
-                sh.setUCrsid(hotelMapJson.get("U_CRSID").toString());
-                sh.setContacts(hotelMapJson.get("Contacts").toString());
-                sh.setAddress(hotelMapJson.get("Address").toString());
-                this.accountingSyncHotelMapper.insert(sh);
-
-                SyncLog sl = new SyncLog();
-                sl.setSourceId(h.getId());
-                sl.setCreateTime(new Timestamp(new Date().getTime()));
-                sl.setSourceUpdateTime(h.getUpdatedAt());
-                sl.setType("Hotel");
-                sl.setVersion(syncLogDtoListIsNull?1:syncLogDto.getVersion()+1);
-                sl.setJsonData(hotelMapStr);
-                sl.setStatus(Integer.valueOf(resultJsonObj.get("Code").toString()));
-                sl.setBatch(batch);
-                this.accountingSyncLogMapper.insert(sl);
             }
         }
-        return "成功"+sCount+"条，失败"+fCount+"条";
+        return "成功" + sCount + "条，失败" + fCount + "条";
+    }
+
+
+    private boolean syncHotelMethod(HotelDto h,SyncHotel syncHotel,SAPWebServiceSoap s,String batch,SyncLogDto syncLogDto){
+
+        boolean success = false;
+        Map syncHotelMap = syncHotel.getSyncHotelMap();
+        JSONObject hotelMapJson = JSONObject.fromObject(syncHotelMap);
+        String hotelMapStr = hotelMapJson.toString();
+        String result = s.businessPartners(hotelMapStr);
+
+        JSONObject resultJsonObj = JSONObject.fromObject(result);
+
+        //3
+        if(Integer.valueOf(resultJsonObj.get("Code").toString())==0){ //同步成功
+
+            //4 插入同步的数据
+            com.oyo.accouting.pojo.SyncHotel sh = new com.oyo.accouting.pojo.SyncHotel();
+            sh.setCardcode(hotelMapJson.get("cardcode").toString());
+            sh.setCardname(hotelMapJson.get("cardname").toString());
+            sh.setCntctPrsn(hotelMapJson.get("CntctPrsn").toString());
+            sh.setValid(hotelMapJson.get("valid").toString());
+            sh.setLicTradNum(hotelMapJson.get("LicTradNum").toString());
+            sh.setUCrsid(hotelMapJson.get("U_CRSID").toString());
+            sh.setContacts(hotelMapJson.get("Contacts").toString());
+            sh.setAddress(hotelMapJson.get("Address").toString());
+            sh.setBatch(batch);
+            this.accountingSyncHotelMapper.insert(sh);
+            success = true;
+        }
+        //插入日志
+        SyncLog sl = new SyncLog();
+        sl.setSourceId(h.getId());
+        sl.setCreateTime(new Timestamp(new Date().getTime()));
+        sl.setSourceUpdateTime(h.getUpdatedAt());
+        sl.setType("Hotel");
+        sl.setVersion(syncLogDto==null?1:syncLogDto.getVersion()+1);
+        sl.setJsonData(hotelMapStr);
+        sl.setStatus(Integer.valueOf(resultJsonObj.get("Code").toString()));
+        sl.setBatch(batch);
+        this.accountingSyncLogMapper.insert(sl);
+
+        return success;
     }
 }

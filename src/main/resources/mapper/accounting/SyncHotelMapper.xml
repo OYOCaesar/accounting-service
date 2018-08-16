@@ -14,6 +14,7 @@
         <result column="deb_pay_acct" property="debPayAcct"/>
         <result column="contacts" property="contacts"/>
         <result column="address" property="address"/>
+        <result column="batch" property="batch"/>
     </resultMap>
 
     <select id="querySyncHotelList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.pojo.SyncHotel">
@@ -27,6 +28,9 @@
         </if>
         <if test="syncHotel.uCrsid != null and syncHotel.uCrsid != ''">
             and u_crsid = #{syncHotel.uCrsid}
+        </if>
+        <if test="syncHotel.batch != null and syncHotel.batch != ''">
+            and batch = #{syncHotel.batch}
         </if>
     </select>
 	

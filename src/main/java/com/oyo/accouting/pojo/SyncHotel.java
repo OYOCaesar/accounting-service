@@ -26,6 +26,8 @@ public class SyncHotel {
   @Column(name = "deb_pay_acct")
   private String debPayAcct;
 
+  private String batch;
+
   private String contacts;
   private String address;
 
