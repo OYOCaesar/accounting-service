@@ -21,5 +21,6 @@ public class SyncLog {
   private Integer status;
   private String jsonData;
 
+  private String batch;
 
 }

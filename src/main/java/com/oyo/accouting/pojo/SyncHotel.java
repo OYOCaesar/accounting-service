@@ -15,14 +15,22 @@ public class SyncHotel {
   private String cardcode;
   private String cardname;
   private String valid;
-  @Column(name = "cntctPrsn")
+  @Column(name = "cntct_prsn")
   private String cntctPrsn;
-  @Column(name = "licTradNum")
+  @Column(name = "lic_trad_num")
   private String licTradNum;
-  @Column(name = "U_CRSID")
+  @Column(name = "u_crsid")
   private String uCrsid;
+  @Column(name = "card_type")
+  private String cardType;
+  @Column(name = "deb_pay_acct")
+  private String debPayAcct;
+
   private String contacts;
   private String address;
+
+
+
 
 
 }

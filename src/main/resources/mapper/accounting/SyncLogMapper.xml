@@ -11,11 +11,25 @@
         <result column="create_time" property="createTime" />
         <result column="status" property="status"/>
         <result column="json_data" property="jsonData"/>
+        <result column="batch" property="batch"/>
     </resultMap>
 
     <select id="querySyncList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.SyncLogDto">
 
-        SELECT * FROM sync_log sl where sl.source_id =#{syncLog.sourceId} and sl.type =#{syncLog.type} order by sl.id desc limit 1
+        SELECT * FROM sync_log sl where 1=1
+         <if test="syncLog.sourceId != null">
+             and sl.source_id =#{syncLog.sourceId}
+         </if>
+        <if test="syncLog.type != null and syncLog.type != ''">
+            and sl.type =#{syncLog.type}
+        </if>
+        <if test="syncLog.status != null">
+            and sl.status =#{syncLog.status}
+        </if>
+        <if test="syncLog.batch != null and syncLog.batch != ''">
+            and sl.batch =#{syncLog.batch}
+        </if>
+        order by sl.id desc
     </select>
 	
 </mapper>

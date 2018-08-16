@@ -7,9 +7,11 @@
         <result column="cardcode" property="cardcode" />
         <result column="cardname" property="cardname"/>
         <result column="valid" property="valid"/>
-        <result column="cntctPrsn" property="cntctPrsn"/>
-        <result column="LicTradNum" property="licTradNum"/>
-        <result column="U_CRSID" property="uCrsid"/>
+        <result column="cntct_prsn" property="cntctPrsn"/>
+        <result column="lic_trad_num" property="licTradNum"/>
+        <result column="u_crsid" property="uCrsid"/>
+        <result column="card_type" property="cardType"/>
+        <result column="deb_pay_acct" property="debPayAcct"/>
         <result column="contacts" property="contacts"/>
         <result column="address" property="address"/>
     </resultMap>
@@ -24,7 +26,7 @@
             and cardname like #{syncHotel.cardname}
         </if>
         <if test="syncHotel.uCrsid != null and syncHotel.uCrsid != ''">
-            and U_CRSID = #{syncHotel.uCrsid}
+            and u_crsid = #{syncHotel.uCrsid}
         </if>
     </select>
 	

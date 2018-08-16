@@ -280,7 +280,7 @@ public class SyncJournalEntryToSapService {
   		sLog.setType(type);
   		
   		//查询同步日志，判断是否需要同步
-  		SyncLog syncLogSearch = new SyncLog();
+		SyncLogDto syncLogSearch = new SyncLogDto();
   		syncLogSearch.setSourceId(Integer.valueOf(hotelId));
   		syncLogSearch.setType(type);
   		List<SyncLogDto> syncLogDtoList = this.accountingSyncLogMapper.querySyncList(syncLogSearch);
