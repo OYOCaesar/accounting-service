@@ -151,16 +151,16 @@ public class SyncArAndApAndJournalEntryToSapService {
                     if ("0".equals(code)) {
                     	successCount ++;
                     	jsonData = new JSONObject();
-        		        jsonData.put("RefDate", sdf.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
-        		        jsonData.put("DueDate", sdf.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号
-        		        jsonData.put("TaxDate", sdf.format(lastDayOfPreviousMonthDate));//单据日期,固定为每月最后一天
+        		        jsonData.put("RefDate", sdf2.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
+        		        jsonData.put("DueDate", sdf2.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号
+        		        jsonData.put("TaxDate", sdf2.format(lastDayOfPreviousMonthDate));//单据日期,固定为每月最后一天
         		        jsonData.put("Memo", "CH-" + hotelId);//备注
         		        
         		        JSONArray jsonArray = new JSONArray();
         		        JSONObject obj = new JSONObject();
         		        //应收Sales Memo
         		        obj.put("CardCode", "CH-" + hotelId);//客户代码，传递时前面加C
-        		        obj.put("Account", AccountingCode.CODE_60010201.getCode());//科目代码
+        		        //obj.put("Account", AccountingCode.CODE_11220203);//科目代码
         		        obj.put("Debit", syncCrsArAndAp.getArAmount());//借方金额
         		        obj.put("Credit", 0);//贷方金额
         		        obj.put("LineMemo", "Sales Memo");//行备注
@@ -168,19 +168,19 @@ public class SyncArAndApAndJournalEntryToSapService {
         		    	
         		        //应付 Cost Memo
         		        obj.put("CardCode", "CH-" + hotelId);//客户代码，传递时前面加C
-        		        obj.put("Account", AccountingCode.CODE_60010401.getCode());//科目代码
+        		        //obj.put("Account", AccountingCode.CODE_22020203);//科目代码
         		        obj.put("Debit", 0);//借方金额
         		        obj.put("Credit", syncCrsArAndAp.getApAmount());//贷方金额
         		        obj.put("LineMemo", "Cost Memo");//行备注
         		        jsonArray.add(obj);
         		        
         		        //应付 OYO Share
-        		        obj.put("CardCode", "CH-" + hotelId);//客户代码，传递时前面加C
+        		        //obj.put("CardCode", "");//客户代码，传递时前面加C
         		        obj.put("Account", AccountingCode.CODE_60010601.getCode());//科目代码
         		        BigDecimal oyoAmount = new BigDecimal("0");
         		        oyoAmount = syncCrsArAndAp.getArAmount().subtract(syncCrsArAndAp.getApAmount());
-        		        obj.put("Debit", oyoAmount);//借方金额
-        		        obj.put("Credit", 0);//贷方金额
+        		        obj.put("Debit", 0);//借方金额
+        		        obj.put("Credit", oyoAmount);//贷方金额
         		        obj.put("LineMemo", "OYO Share");//行备注
         		        jsonArray.add(obj);
         		        
@@ -262,7 +262,7 @@ public class SyncArAndApAndJournalEntryToSapService {
 		sLog.setStatus(status);//状态码
 		
 		//查询同步日志，判断是否需要同步
-		SyncLog syncLogSearch = new SyncLog();
+		SyncLogDto syncLogSearch = new SyncLogDto();
 		syncLogSearch.setSourceId(Integer.valueOf(hotelId));
 		syncLogSearch.setType(type);
 		List<SyncLogDto> syncLogDtoList = this.accountingSyncLogMapper.querySyncList(syncLogSearch);
