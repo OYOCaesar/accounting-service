@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,9 @@ public class SyncHotelToSapService {
 
     public String syncHotelToSap(HotelDto searchHotel){
 
+        SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String batch = sdf.format(new Date());
+
         int sCount = 0,fCount=0;//成功，失败计数
 
         //查询需要同步的酒店数据
@@ -67,7 +71,7 @@ public class SyncHotelToSapService {
         for(HotelDto h:hotelList){
 
             //查询同步日志，判断是否需要同步
-            SyncLog syncLogSearch = new SyncLog();
+            SyncLogDto syncLogSearch = new SyncLogDto();
             syncLogSearch.setSourceId(h.getId());
             syncLogSearch.setStatus(0);//同步成功的日志
             syncLogSearch.setType("Hotel");
@@ -138,6 +142,7 @@ public class SyncHotelToSapService {
                 sl.setVersion(syncLogDtoListIsNull?1:syncLogDto.getVersion()+1);
                 sl.setJsonData(hotelMapStr);
                 sl.setStatus(Integer.valueOf(resultJsonObj.get("Code").toString()));
+                sl.setBatch(batch);
                 this.accountingSyncLogMapper.insert(sl);
             }
         }

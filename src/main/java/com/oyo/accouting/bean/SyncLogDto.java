@@ -19,5 +19,7 @@ public class SyncLogDto {
   private Integer status;
   private String jsonData;
 
+  private String batch;
+
 
 }

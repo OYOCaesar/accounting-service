@@ -1,5 +1,6 @@
 package com.oyo.accouting.service;
 
+import com.oyo.accouting.bean.SyncLogDto;
 import com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper;
 import com.oyo.accouting.pojo.SyncLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,10 @@ public class SyncLogService {
     @Autowired
     private AccountingSyncLogMapper accountingSyncLogMapper;
 
-    public List<SyncLog> querySyncLog(SyncLog syncLog){
+    public List<SyncLog> querySyncLog(SyncLogDto syncLog){
         List list = null;
         try {
-            list = this.accountingSyncLogMapper.select(syncLog);
+            list = this.accountingSyncLogMapper.querySyncList(syncLog);
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -1,6 +1,8 @@
 package com.oyo.accouting.bean;
 
 
+import com.oyo.accouting.constants.AccountingCode;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,10 +27,12 @@ public class SyncHotel {
 
         syncHotel.put("cardcode","C"+(hotel.getId().toString().length()<7?"H-":"")+hotel.getId().toString());
         syncHotel.put("cardname",hotel.getOyoId()==null? "" : (hotel.getOyoId() + " - " + hotel.getName()));
-        syncHotel.put("valid",hotel.getStatus()==1?"Y":"N");
+        syncHotel.put("valid","Y");
         syncHotel.put("CntctPrsn",hotel.getManagerName());
         syncHotel.put("LicTradNum","");
         syncHotel.put("U_CRSID",hotel.getOyoId());
+        syncHotel.put("CardType","C");
+        syncHotel.put("DebPayAcct",AccountingCode.CODE_11220203);
 
 
         Map<String ,Object>[] contactEmployees = new LinkedHashMap[1];

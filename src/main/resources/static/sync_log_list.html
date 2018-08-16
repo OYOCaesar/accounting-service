@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>oyoShare list</title>
+    <link rel="stylesheet" type="text/css"
+          href="easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="./easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="./easyui/demo/demo.css">
+    <script src="./js/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="./easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+<div style="margin-top: 20px;">
+    <span>sourceId: </span><input class="easyui-textbox" value="" id="sourceId_inp" data-options="iconCls:'icon-search'">
+    <span>type: </span><input class="easyui-textbox" value="" id="type_inp" data-options="iconCls:'icon-search'">
+    <span>status: </span><input class="easyui-textbox" value="" id="status_inp" data-options="iconCls:'icon-search'">
+    <span>batch: </span><input class="easyui-textbox" value="" id="batch_inp" data-options="iconCls:'icon-search'">
+    <a id="search_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+    &nbsp;&nbsp;
+    <a id="reset_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-undo'">重置</a>
+</div>
+<div id="syncLog_list">  </div>
+<script>
+
+    $(function () {
+
+        querySyncHotelList();
+
+        $('#search_btn').bind('click', function(){
+            var queryParams = getSyncHotelListQueryParams();
+            $('#syncLog_list').datagrid('load',queryParams);
+        });
+
+        $('#reset_btn').bind('click', function(){
+            $('#sourceId_inp').attr('value','');
+            $('#type_inp').attr('value','');
+            $('#status_inp').attr('value','');
+            $('#batch_inp').attr('value','')
+        });
+    });
+
+    function querySyncHotelList() {
+
+        var queryParams = getSyncHotelListQueryParams();
+
+        $('#syncLog_list').datagrid({
+            url:'syncLog/querySyncLoglist',
+            columns:[[
+                {field:'id',title:'id',width:60},
+                {field:'sourceId',title:'sourceId',width:60},
+                {field:'type',title:'同步数据类型',width:100},
+                {field:'status',title:'同步状态',width:60},
+                {field:'jsonData',title:'同步的数据',width:600},
+                {field:'batch',title:'同步批次',width:100}
+            ]],
+            queryParams: queryParams
+        });
+    }
+
+    function getSyncHotelListQueryParams() {
+        var sourceId = $('#sourceId_inp').attr('value').trim();
+        var type = $('#type_inp').attr('value').trim();
+        var status = $('#status_inp').attr('value').trim();
+        var batch = $('#batch_inp').attr('value').trim();
+        var queryParams = {
+            sourceId: sourceId,
+            type: type,
+            status:status,
+            batch:batch
+        };
+        return queryParams;
+    }
+
+</script>
+</body>
+</html>

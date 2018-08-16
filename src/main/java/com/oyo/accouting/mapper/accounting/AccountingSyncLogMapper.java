@@ -10,6 +10,6 @@ import java.util.List;
 @Mapper
 public interface AccountingSyncLogMapper extends com.github.abel533.mapper.Mapper<SyncLog> {
 
-    public List<SyncLogDto> querySyncList(@Param("syncLog") SyncLog syncLog);
+    public List<SyncLogDto> querySyncList(@Param("syncLog") SyncLogDto syncLog);
 
 }
