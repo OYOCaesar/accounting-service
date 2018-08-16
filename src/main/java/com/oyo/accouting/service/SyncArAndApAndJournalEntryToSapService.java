@@ -161,31 +161,33 @@ public class SyncArAndApAndJournalEntryToSapService {
         		        //应收Sales Memo
         		        obj.put("CardCode", "CH-" + hotelId);//客户代码，传递时前面加C
         		        //obj.put("Account", AccountingCode.CODE_11220203);//科目代码
-        		        obj.put("Debit", syncCrsArAndAp.getArAmount());//借方金额
-        		        obj.put("Credit", 0);//贷方金额
-        		        obj.put("LineMemo", "Sales Memo");//行备注
+        		        obj.put("Debit", 0);//借方金额
+        		        obj.put("Credit", syncCrsArAndAp.getArAmount());//贷方金额
+        		        obj.put("LineMemo", "CH-" + hotelId);//行备注
         		        jsonArray.add(obj);
         		    	
         		        //应付 Cost Memo
-        		        obj.put("CardCode", "CH-" + hotelId);//客户代码，传递时前面加C
+        		        obj.put("CardCode", "H-" + hotelId);//客户代码，传递时前面加C
         		        //obj.put("Account", AccountingCode.CODE_22020203);//科目代码
-        		        obj.put("Debit", 0);//借方金额
-        		        obj.put("Credit", syncCrsArAndAp.getApAmount());//贷方金额
-        		        obj.put("LineMemo", "Cost Memo");//行备注
+        		        obj.put("Debit", syncCrsArAndAp.getApAmount());//借方金额
+        		        obj.put("Credit", 0);//贷方金额
+        		        obj.put("LineMemo", "CH-" + hotelId);//行备注
         		        jsonArray.add(obj);
         		        
         		        //应付 OYO Share
-        		        //obj.put("CardCode", "");//客户代码，传递时前面加C
+        		        obj.put("CardCode", "");//客户代码，传递时前面加C
         		        obj.put("Account", AccountingCode.CODE_60010601.getCode());//科目代码
         		        BigDecimal oyoAmount = new BigDecimal("0");
         		        oyoAmount = syncCrsArAndAp.getArAmount().subtract(syncCrsArAndAp.getApAmount());
-        		        obj.put("Debit", 0);//借方金额
-        		        obj.put("Credit", oyoAmount);//贷方金额
-        		        obj.put("LineMemo", "OYO Share");//行备注
+        		        obj.put("Debit", oyoAmount);//借方金额
+        		        obj.put("Credit", 0);//贷方金额
+        		        obj.put("LineMemo", "CH-" + hotelId);//行备注
         		        jsonArray.add(obj);
         		        
         		        jsonData.put("Lines", jsonArray);
         		    	
+        		        log.info("Invoke sap interface for <Journal Entry> json String:" + jsonData);
+        		        
         		    	//调用SAP接口同步日记账分表应付信息
                         String syncSapApResult = sapService.journalEntries(JSONObject.fromObject(jsonData).toString());
                         log.info("Invoke sap interface for <Journal Entry> result:" + syncSapApResult);
