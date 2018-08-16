@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.oyo.accouting.bean.PageResult;
 import com.oyo.accouting.bean.QueryCrsAccountingDto;
 import com.oyo.accouting.job.SyncArAndApJob;
 import com.oyo.accouting.service.QueryCrsArAndApService;
@@ -30,8 +31,8 @@ public class QueryCrsArAndApController {
 
     @RequestMapping(value = "query")
     @ResponseBody
-    public JSONObject query(HttpServletRequest request, QueryCrsAccountingDto queryCrsAccountingDto) {
-    	JSONObject result = new JSONObject();
+    public PageResult query(HttpServletRequest request, QueryCrsAccountingDto queryCrsAccountingDto) {
+    	PageResult result = new PageResult();
     	try {
     		int pageNumber = Integer.parseInt(request.getParameter("page")); //获取当前页码
     		int pageSize = Integer.parseInt(request.getParameter("rows")); //获取每页显示多少行
@@ -41,10 +42,9 @@ public class QueryCrsArAndApController {
     		queryCrsAccountingDto.setSortName(sortName);
     		queryCrsAccountingDto.setSortOrder(sortOrder);
     		List<QueryCrsAccountingDto> list = queryCrsArAndApService.queryCrsArAndAp(queryCrsAccountingDto);
+    		result.setRows(list);
 			PageInfo<QueryCrsAccountingDto> pageInfo = new PageInfo<>(list);
-			JSONObject page = JSONObject.fromObject(pageInfo);
-			result.put("total", page.getInt("pages"));
-			result.put("rows", page.getJSONArray("list"));
+			result.setTotal(pageInfo.getTotal());
 		} catch (Exception e) {
 			log.error("Query crs ar and ap throwing exception:{}", e);
 		}

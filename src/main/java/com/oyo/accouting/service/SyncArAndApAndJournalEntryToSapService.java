@@ -159,23 +159,29 @@ public class SyncArAndApAndJournalEntryToSapService {
         		        JSONArray jsonArray = new JSONArray();
         		        JSONObject obj = new JSONObject();
         		        //应收Sales Memo
+        		        obj.put("CardCode", "CH-" + hotelId);//客户代码，传递时前面加C
         		        obj.put("Account", AccountingCode.CODE_60010201.getCode());//科目代码
         		        obj.put("Debit", syncCrsArAndAp.getArAmount());//借方金额
         		        obj.put("Credit", 0);//贷方金额
+        		        obj.put("LineMemo", "Sales Memo");//行备注
         		        jsonArray.add(obj);
         		    	
         		        //应付 Cost Memo
+        		        obj.put("CardCode", "CH-" + hotelId);//客户代码，传递时前面加C
         		        obj.put("Account", AccountingCode.CODE_60010401.getCode());//科目代码
         		        obj.put("Debit", 0);//借方金额
         		        obj.put("Credit", syncCrsArAndAp.getApAmount());//贷方金额
+        		        obj.put("LineMemo", "Cost Memo");//行备注
         		        jsonArray.add(obj);
         		        
         		        //应付 OYO Share
+        		        obj.put("CardCode", "CH-" + hotelId);//客户代码，传递时前面加C
         		        obj.put("Account", AccountingCode.CODE_60010601.getCode());//科目代码
-        		        obj.put("Debit", 0);//借方金额
         		        BigDecimal oyoAmount = new BigDecimal("0");
         		        oyoAmount = syncCrsArAndAp.getArAmount().subtract(syncCrsArAndAp.getApAmount());
-        		        obj.put("Credit", oyoAmount);//贷方金额
+        		        obj.put("Debit", oyoAmount);//借方金额
+        		        obj.put("Credit", 0);//贷方金额
+        		        obj.put("LineMemo", "OYO Share");//行备注
         		        jsonArray.add(obj);
         		        
         		        jsonData.put("Lines", jsonArray);
