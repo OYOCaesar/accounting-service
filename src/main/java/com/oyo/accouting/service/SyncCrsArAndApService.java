@@ -91,7 +91,7 @@ public class SyncCrsArAndApService {
     		    	BigDecimal apAmount = new BigDecimal("0");
     		    	
     		    	if (null != ownerShareMapList && !ownerShareMapList.isEmpty()) {
-    		    		HashMap<String,String> ownerShareMap = ownerShareMapList.stream().filter(q->Integer.valueOf(String.valueOf(q.get("hotel_id"))).equals(hotelId)).collect(Collectors.toList()).get(0);
+    		    		HashMap<String,String> ownerShareMap = ownerShareMapList.stream().filter(q->Integer.valueOf(String.valueOf(q.get("hotel_id"))).equals(hotelId)).distinct().collect(Collectors.toList()).get(0);
     		    		String ownerShareJson = String.valueOf(ownerShareMap.get("rs_slabs"));
     		    		if (StringUtils.isNotEmpty(ownerShareJson)) {
     			    		String[] ownerShareArray = ownerShareJson.split(",");

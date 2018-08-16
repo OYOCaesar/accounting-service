@@ -7,7 +7,7 @@
         <result column="source_id" property="sourceId" />
         <result column="type" property="type" />
         <result column="version" property="version" />
-        <result column="update_time" property="updateTime" />
+        <result column="source_update_time" property="sourceUpdateTime" />
         <result column="create_time" property="createTime" />
         <result column="status" property="status"/>
         <result column="json_data" property="jsonData"/>

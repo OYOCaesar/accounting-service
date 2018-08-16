@@ -77,7 +77,7 @@ public class SyncHotelToSapService {
             SyncLogDto syncLogDto = null;
             if(!syncLogDtoListIsNull)syncLogDto = syncLogDtoList.get(0);   //不为null
             //判断是否需要同步
-            boolean isSync = syncLogDtoListIsNull || (!syncLogDtoListIsNull && syncLogDto!=null && h.getUpdatedAt().equals(syncLogDto.getSourceUpdateTime()));
+            boolean isSync = syncLogDtoListIsNull || (!syncLogDtoListIsNull && syncLogDto!=null && (h.getUpdatedAt().getTime()-syncLogDto.getSourceUpdateTime().getTime()>60000));
             //需要同步sap
             if(isSync){
                 //1 准备数据

@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class QueryCrsArAndApService {
     			BigDecimal apAmount = new BigDecimal("0");
     			
     			if (null != owerShareMapList && !owerShareMapList.isEmpty()) {
-    				
+    				owerShareMapList = owerShareMapList.stream().distinct().collect(Collectors.toList());
 		    		String ownerShareJson = String.valueOf(owerShareMapList.get(0).get("rs_slabs"));
 		    		if (StringUtils.isNotEmpty(ownerShareJson)) {
 			    		String[] ownerShareArray = ownerShareJson.split(",");
@@ -86,7 +87,7 @@ public class QueryCrsArAndApService {
 			    		q.setApAmount(apAmount);
 		    		}
 		    		
-		    	}
+		    	} 
     			
     		});
     	}
