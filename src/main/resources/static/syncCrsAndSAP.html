@@ -48,7 +48,7 @@
 </head>
 <body>
 <h2>同步CRS AR And AP到Accounting:</h2>
-<table style="width:600px;" class="table">
+<table style="width:600px;margin-left:10px;" class="table">
     <tr>
         <td align="left">同步年月(<b>格式：yyyy-MM,如：2018-08</b>): </td>
         <td><input id="syncCrs"/></td>
@@ -61,7 +61,7 @@
 <div id="syncCrsResult" style="color:blue;"></div><br/>
 
 <h2>同步AR And AP到SAP:</h2>
-<table style="width:600px;" class="table">
+<table style="width:600px;margin-left:10px;" class="table">
     <tr>
         <td align="left">同步年月(格式：<b>yyyy-MM,如：2018-08</b>): </td>
         <td><input id="syncSAP"/></td>
@@ -74,7 +74,7 @@
 
 <div id="syncHotelResult" style="color:blue;"></div><br/>
 <h2>同步主数据到SAP:</h2>
-<table style="width:600px;" class="table">
+<table style="width:600px;margin-left:10px;" class="table">
     <tr>
         <td align="left">hotelId(酒店id): </td>
         <td><input id="cardcode"/></td>
@@ -174,7 +174,7 @@
     		    complete:function(data){
     		    	$("#syncSapResult").html(data.responseText);
     		    	$("#syncSapBtn").attr("disabled",false);
-    		    	$("#syncSapBtn").html("同步CRS");
+    		    	$("#syncSapBtn").html("同步SAP");
     		    }
     		});
         });
