@@ -23,4 +23,6 @@ public class SyncLog {
 
   private String batch;
 
+  private String message;
+
 }
