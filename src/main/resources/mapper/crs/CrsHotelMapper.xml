@@ -103,6 +103,5 @@
           <if test="searchHotel.country">
               and h.country = #{searchHotel.country}
           </if>
-          and h.status != 4
     </select>
 </mapper>

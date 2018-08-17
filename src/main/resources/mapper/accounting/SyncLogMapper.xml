@@ -12,6 +12,7 @@
         <result column="status" property="status"/>
         <result column="json_data" property="jsonData"/>
         <result column="batch" property="batch"/>
+        <result column="message" property="message"/>
     </resultMap>
 
     <select id="querySyncList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.SyncLogDto">
@@ -24,7 +25,12 @@
             and sl.type =#{syncLog.type}
         </if>
         <if test="syncLog.status != null">
-            and sl.status =#{syncLog.status}
+            <if test="syncLog.status == 0">
+                and sl.status =#{syncLog.status}
+            </if>
+            <if test="syncLog.status != 0">
+                and sl.status != 0
+            </if>
         </if>
         <if test="syncLog.batch != null and syncLog.batch != ''">
             and sl.batch =#{syncLog.batch}

@@ -21,5 +21,7 @@ public class SyncLogDto {
 
   private String batch;
 
+  private String message;
+
 
 }

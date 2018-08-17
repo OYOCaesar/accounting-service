@@ -15,9 +15,13 @@
     <span>cardcode: </span><input class="easyui-textbox" value="" id="cardcode_inp" data-options="iconCls:'icon-search'">
     <span>cardname: </span><input class="easyui-textbox" value="" id="cardname_inp" data-options="iconCls:'icon-search'">
     <span>uCrsid: </span><input class="easyui-textbox" value="" id="uCrsid_inp" data-options="iconCls:'icon-search'">
+    <span>批次: </span><input class="easyui-textbox" value="" id="batch_inp" data-options="iconCls:'icon-search'">
+    &nbsp;&nbsp;
     <a id="search_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
     &nbsp;&nbsp;
     <a id="reset_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-undo'">重置</a>
+    &nbsp;&nbsp;
+    <a id="search_badk" href="./index.html" class="easyui-linkbutton" data-options="iconCls:'icon-back'">返回</a>
 </div>
 <div id="syncHotel_list">  </div>
 <script>
@@ -53,7 +57,8 @@
                 {field:'licTradNum',title:'licTradNum',width:80},
                 {field:'ucrsid',title:'uCrsid',width:80},
                 {field:'contacts',title:'contacts',width:300},
-                {field:'address',title:'address',width:400}
+                {field:'address',title:'address',width:400},
+                {field:'batch',title:'批次',width:80}
             ]],
             queryParams: queryParams
         });
@@ -63,10 +68,12 @@
         var cardcode = $('#cardcode_inp').attr('value').trim();
         var cardname = $('#cardname_inp').attr('value').trim();
         var uCrsid = $('#uCrsid_inp').attr('value').trim();
+        var batch = $('#batch_inp').attr('value').trim();
         var queryParams = {
             cardcode: cardcode,
             cardname: cardname,
-            uCrsid:uCrsid
+            uCrsid:uCrsid,
+            batch:batch
         };
         return queryParams;
     }

@@ -52,8 +52,8 @@ public class SyncHotelToSapService {
 
     public String syncHotelToSap(HotelDto searchHotel) {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String batch = sdf.format(new Date());
+        //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String batch = String.valueOf(new Date().getTime());//sdf.format(new Date());
 
         int sCount = 0, fCount = 0;//成功，失败计数
 
@@ -129,7 +129,7 @@ public class SyncHotelToSapService {
         JSONObject resultJsonObj = JSONObject.fromObject(result);
 
         //3
-        if(Integer.valueOf(resultJsonObj.get("Code").toString())==0){ //同步成功
+        if(Integer.valueOf(resultJsonObj.get("Code").toString().trim())==0){ //同步成功
 
             //4 插入同步的数据
             com.oyo.accouting.pojo.SyncHotel sh = new com.oyo.accouting.pojo.SyncHotel();
@@ -155,6 +155,7 @@ public class SyncHotelToSapService {
         sl.setJsonData(hotelMapStr);
         sl.setStatus(Integer.valueOf(resultJsonObj.get("Code").toString()));
         sl.setBatch(batch);
+        sl.setMessage(resultJsonObj.get("Message").toString());
         this.accountingSyncLogMapper.insert(sl);
 
         return success;
