@@ -44,48 +44,56 @@
 		color: black;
 		border: 2px solid #4CAF50;
     }
+    .result{
+        color:blue;
+        margin-left:10px;
+        border:1px green dashed;
+        width:750px;
+    }
     </style>
 </head>
 <body>
-<h2>同步CRS AR And AP到Accounting:</h2>
-<table style="width:600px;" class="table">
+<h2 style="margin-left:10px;">sync CRS AR And AP to Accounting:</h2>
+<table style="width:750px;margin-left:10px;" class="table">
     <tr>
-        <td align="left">同步年月(<b>格式：yyyy-MM,如：2018-08</b>): </td>
+        <td align="left">sync year and month(format：<b>yyyy-MM,for example：2018-08</b>): </td>
         <td><input id="syncCrs"/></td>
         <td width="105px;">
-            <button class="button" id="syncCrsBtn">同步CRS</button>
+            <button class="button" id="syncCrsBtn">sync CRS</button>
         </td>
     </tr>
 </table>
 <br/>
-<div id="syncCrsResult" style="color:blue;"></div><br/>
+<div id="syncCrsResult" class="result"></div><br/>
 
-<h2>同步AR And AP到SAP:</h2>
-<table style="width:600px;" class="table">
+<h2 style="margin-left:10px;">sync AR And AP to SAP:</h2>
+<table style="width:750px;margin-left:10px;" class="table">
     <tr>
-        <td align="left">同步年月(格式：<b>yyyy-MM,如：2018-08</b>): </td>
+        <td align="left">sync year and month(format：<b>yyyy-MM,for example：2018-08</b>): </td>
         <td><input id="syncSAP"/></td>
         <td width="105px;">
-            <button class="button" id="syncSapBtn">同步SAP</button>
-        </td>
-    </tr>
-</table>
-
-
-<div id="syncHotelResult" style="color:blue;"></div><br/>
-<h2>同步主数据到SAP:</h2>
-<table style="width:600px;" class="table">
-    <tr>
-        <td align="left">hotelId(酒店id): </td>
-        <td><input id="cardcode"/></td>
-        <td width="105px;">
-            <button class="button" id="syncHotelBtn">同步SAP</button>
+            <button class="button" id="syncSapBtn">sync SAP</button>
         </td>
     </tr>
 </table>
 <br/>
-<div id="syncSapResult" style="color:blue;"></div><br/>
-<a id="search_badk" href="index.html" class="easyui-linkbutton" data-options="iconCls:'icon-back'" style="padding-left:30px;font-size:14px;">返回</a>
+<div id="syncSapResult" class="result"></div><br/>
+
+<h2 style="margin-left:10px;">sync main data to SAP:</h2>
+<table style="width:750px;margin-left:10px;" class="table">
+    <tr>
+        <td align="left">hotelId(hotelId): </td>
+        <td><input id="cardcode"/></td>
+        <td width="105px;">
+            <button class="button" id="syncHotelBtn">sync SAP</button>
+        </td>
+    </tr>
+</table>
+<br/>
+<div id="syncHotelResult" class="result"></div><br/>
+
+<a id="search_badk" href="index.html" class="easyui-linkbutton" data-options="iconCls:'icon-back'" style="padding-left:30px;font-size:14px;">back</a>
+
 <script>
 
 	//执行一个laydate实例
@@ -127,9 +135,9 @@
     		    timeout:3600000,    //超时时间
     		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
     		    beforeSend:function(xhr){
-    		    	$("#syncCrsResult").html("");
+    		    	$("#syncCrsResult").val("");
     		        console.log(xhr);
-    		        $("#syncCrsBtn").html("正在同步中......");
+    		        $("#syncCrsBtn").html("Synchronizing...");
     		        $("#syncCrsBtn").attr("disabled",true);
     		    },
     		    success:function(data,textStatus,jqXHR){
@@ -142,7 +150,7 @@
     		    complete:function(data){
     		    	$("#syncCrsResult").html(data.responseText);
     		    	$("#syncCrsBtn").attr("disabled",false);
-    		    	$("#syncCrsBtn").html("同步CRS");
+    		    	$("#syncCrsBtn").html("sync CRS");
     		    }
     		});
     		
@@ -159,9 +167,9 @@
     		    timeout:3600000,    //超时时间
     		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
     		    beforeSend:function(xhr){
-    		    	$("#syncSapResult").html("");
+    		    	$("#syncSapResult").val("");
     		        console.log(xhr);
-    		        $("#syncSapBtn").html("正在同步中......");
+    		        $("#syncSapBtn").html("Synchronizing...");
     		        $("#syncSapBtn").attr("disabled",true);
     		    },
     		    success:function(data,textStatus,jqXHR){
@@ -174,7 +182,7 @@
     		    complete:function(data){
     		    	$("#syncSapResult").html(data.responseText);
     		    	$("#syncSapBtn").attr("disabled",false);
-    		    	$("#syncSapBtn").html("同步CRS");
+    		    	$("#syncSapBtn").html("sync SAP");
     		    }
     		});
         });
@@ -191,13 +199,13 @@
                 timeout:3600000,    //超时时间
                 dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
                 beforeSend:function(xhr){
-                    $("#syncHotelResult").html("");
+                    $("#syncHotelResult").val("");
                     console.log(xhr);
-                    $("#syncHotelBtn").html("正在同步中......");
+                    $("#syncHotelBtn").html("Synchronizing...");
                     $("#syncHotelBtn").attr("disabled",true);
                 },
                 success:function(data,textStatus,jqXHR){
-                    $("#syncHotelResult").html(data);
+                    $("#syncHotelSapResult").html(data);
                 },
                 error:function(xhr,textStatus){
                     console.log(xhr)
@@ -206,7 +214,7 @@
                 complete:function(data){
                     $("#syncHotelResult").html(data.responseText);
                     $("#syncHotelBtn").attr("disabled",false);
-                    $("#syncHotelBtn").html("同步CRS");
+                    $("#syncHotelBtn").html("sync SAP");
                 }
             });
         });

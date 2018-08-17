@@ -87,7 +87,10 @@ public class QueryCrsArAndApService {
 			    		q.setApAmount(apAmount);
 		    		}
 		    		
-		    	} 
+		    	} else {
+		    		q.setApAmount(apAmount);
+		    		q.setRate(0);
+		    	}
     			
     		});
     	}
