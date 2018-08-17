@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.slf4j.Logger;
@@ -72,7 +73,7 @@ public class SyncArAndApAndJournalEntryToSapService {
      * @return
      * @throws Exception
      */
-    public String syncArAndApAndJournalEntryToSap(String yearMonth) throws Exception {
+    public String syncArAndApAndJournalEntryToSap(String yearMonth, Integer syncHotelId) throws Exception {
     	log.info("----sync Ar anb Ap and Journal Entry to SAP start-------------");
     	String result = "";
     	Integer totalCount = 0;//同步总记录数
@@ -110,6 +111,9 @@ public class SyncArAndApAndJournalEntryToSapService {
     		map.put("syncYearMonth", yearMonth);
     		//获取AR and AP列表数据
     		crsArAndApList = this.syncCrsArAndApMapper.selectByMap(map);
+    		if (!StringUtils.isEmpty("syncHotelId")) {
+    			crsArAndApList = crsArAndApList.stream().filter(q->q.getHotelId().intValue() == syncHotelId.intValue()).collect(Collectors.toList());
+    		}
         	totalCount = crsArAndApList.size();
         	totalCountJournalEntries = crsArAndApList.size();
         	if (null != crsArAndApList && !crsArAndApList.isEmpty()) {
@@ -202,6 +206,9 @@ public class SyncArAndApAndJournalEntryToSapService {
                         } else {
                         	failedCountJournalEntries ++;
                         }
+                        
+                        //插入同步日志
+        		    	insertSyncLog(Integer.valueOf(journalEntriesCode), journalEntriesMessage, jsonData, hotelId, "Sync JE To SAP");
         		    	
         		    	//若AR AP 及 JournalEntry均成功，那么将表中sync_crs_ar_ap该条记录更新为已同步
         		    	if ("0".equals(journalEntriesCode)) {
@@ -216,7 +223,7 @@ public class SyncArAndApAndJournalEntryToSapService {
                     }
                     
     		    	//插入同步日志
-    		    	insertSyncLog(Integer.valueOf(code), jsonData, hotelId, "Sync Ar And Ap To SAP");
+    		    	insertSyncLog(Integer.valueOf(code), message, jsonData, hotelId, "Sync Ar And Ap To SAP");
     		    	
 				}
         	}
@@ -255,7 +262,7 @@ public class SyncArAndApAndJournalEntryToSapService {
     }
 
     //插入同步日志
-	private void insertSyncLog(Integer status, JSONObject jsonData, Integer hotelId, String type) {
+	private void insertSyncLog(Integer status, String message, JSONObject jsonData, Integer hotelId, String type) {
 		log.info("----insertSyncLog start-------------");
 		SyncLog sLog = new SyncLog();
 		sLog.setSourceId(Integer.valueOf(hotelId));

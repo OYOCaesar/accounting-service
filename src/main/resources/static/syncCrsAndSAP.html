@@ -71,6 +71,8 @@
     <tr>
         <td align="left">sync year and month(format：<b>yyyy-MM,for example：2018-08</b>): </td>
         <td><input id="syncSAP"/></td>
+        <td>hotelId：</td>
+        <td><input id="hotelId"/></td>
         <td width="105px;">
             <button class="button" id="syncSapBtn">sync SAP</button>
         </td>
@@ -162,7 +164,8 @@
     		    type:'POST', //GET
     		    async:true,    //或false,是否异步
     		    data:{
-    		    	yearMonth:$("#syncSAP").val().trim()
+    		    	yearMonth:$("#syncSAP").val().trim(),
+    		    	hotelId:$("#hotelId").val().trim()
     		    },
     		    timeout:3600000,    //超时时间
     		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text

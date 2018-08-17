@@ -1,4 +1,4 @@
-package com.oyo.accouting.mapper.crs;
+package com.oyo.accouting.mapper.munshi;
 
 import java.util.HashMap;
 import java.util.List;
@@ -7,19 +7,19 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.oyo.accouting.bean.QueryCrsAccountingDto;
+import com.oyo.accouting.bean.QueryMunshiAccountingDto;
 
 @Mapper
-public interface CrsAccountMapper {
+public interface MunshiOrdersMapper {
 	
 	//条件查询CRS中的Ar and AP信息
-	public List<QueryCrsAccountingDto> queryCrsArApInfoByCondition(QueryCrsAccountingDto queryCrsAccountingDto);
+	public List<QueryMunshiAccountingDto> queryMunshiArApInfoByCondition(Map<String,Object> map);
 
 	//获取所有酒店的AR金额
 	public List<HashMap<String, String>> calHotelAmount(HashMap<String,Object> map);
 	
 	//获取hotel对应的Owner Share
-	public List<HashMap<String, String>> getHotelOwnerShare(HashMap<String,Object> map);
+	public List<HashMap<String, String>> getHotelOwnerShare(HashMap<String,String> map);
 	
 	//根据hotelId获取hotel名称
 	public String getHotelNameById(@Param("hotelId") Integer hotelId);

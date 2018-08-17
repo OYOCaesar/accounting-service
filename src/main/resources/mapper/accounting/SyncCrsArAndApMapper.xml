@@ -23,6 +23,22 @@
         <if test="syncYearMonth != null and syncYearMonth != ''">
             and sync_year_month = #{syncYearMonth}
         </if>
+        <if test="hotelName != null and hotelName != ''">
+            and hotel_name ~* #{hotelName}
+        </if>
+    </select>
+    
+    <!-- 分页条件查询 -->
+    <select id="selectByMapPage" resultType="com.oyo.accouting.bean.QueryCrsAccountingDto" parameterType="java.util.Map">
+        SELECT id, sync_year_month, hotel_id, hotel_name, ar_amount, ap_amount, rate, create_time, is_sync, is_del
+        FROM sync_crs_ar_ap 
+        where is_del = 0 and is_sync = 0
+        <if test="syncYearMonth != null and syncYearMonth != ''">
+            and sync_year_month = #{syncYearMonth}
+        </if>
+        <if test="hotelName != null and hotelName != ''">
+            and hotel_name ~* #{hotelName}
+        </if>
     </select>
 
     <!-- 批量插入 -->

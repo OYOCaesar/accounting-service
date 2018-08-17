@@ -103,6 +103,16 @@
           <if test="searchHotel.country">
               and h.country = #{searchHotel.country}
           </if>
-          and h.status != 4
+    </select>
+    
+    <!-- 获取酒店id和name -->
+    <select id="queryHotelNameList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.HotelDto">
+        select h.id,h.name from hotels h where 1=1
+          <if test="searchHotel.id != null">
+              and h.id = #{searchHotel.id}
+          </if>
+          <if test="searchHotel.country">
+              and h.country = #{searchHotel.country}
+          </if>
     </select>
 </mapper>

@@ -21,7 +21,7 @@ import com.oyo.accouting.util.MybtatisSqlSessionFactory;
  *
  */
 @Configuration
-@MapperScan(basePackages = "com.oyo.munshi.mapper."+MunshiDataSourceConfig.prefix, sqlSessionTemplateRef = MunshiDataSourceConfig.prefix+"SqlSessionTemplate")
+@MapperScan(basePackages = "com.oyo.accouting.mapper."+MunshiDataSourceConfig.prefix, sqlSessionTemplateRef = MunshiDataSourceConfig.prefix+"SqlSessionTemplate")
 public class MunshiDataSourceConfig extends MybtatisSqlSessionFactory {
 	
 	public static final String prefix="munshi";
