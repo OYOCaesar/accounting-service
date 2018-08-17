@@ -29,7 +29,7 @@ public class SyncMunshiJob implements BaseJob {
 			String result = service.syncMunshiAr(null);
 			log.info(result);
 		} catch (Exception e) {
-			log.error("Sync munshi throwing exception!");
+			log.error("Sync munshi throwing exception,exception is:{}", e);
 			e.printStackTrace();
 		}
         log.info("Sync munshi ar end.");

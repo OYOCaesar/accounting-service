@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.oyo.accouting.bean.HotelDto;
 import com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper;
@@ -53,6 +54,7 @@ public class SyncMunshiOrderService {
     @Autowired
     private CrsHotelMapper crsHotelMapper;
     
+    @Transactional(value="accountingTransactionManager", rollbackFor = Exception.class)
     public String syncMunshiAr(String yearMonth) throws Exception {
     	log.info("----sync mushi ar start-------------");
     	String result = "";

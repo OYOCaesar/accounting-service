@@ -31,7 +31,7 @@ public class SyncArAndApJournalEntryController {
 			result = syncArAndApAndJournalEntryToSapService.syncArAndApAndJournalEntryToSap(yearMonth,hotelId);
 			log.info(result);
 		} catch (Exception e) {
-			result = "Synchronizing ar and ap and JournalEntry to SAP throwing exception：" + e.getMessage() ;
+			result = "Synchronizing ar and ap and JournalEntry to SAP throwing exception：" + e.getMessage();
 			log.error("Synchronizing ar and ap and JournalEntry to SAP throwing exception:{}", e);
 		}
     	return result;

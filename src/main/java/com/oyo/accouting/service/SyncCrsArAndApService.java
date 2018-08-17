@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountMapper;
@@ -44,6 +45,7 @@ public class SyncCrsArAndApService {
     @Autowired
     private SyncCrsArAndApMapper syncCrsArAndApMapper;
     
+    @Transactional(value="accountingTransactionManager", rollbackFor = Exception.class)
     public String syncCrsArAndAp(String yearMonth) throws Exception {
     	log.info("----syncCrsArAndAp start-------------");
     	String result = "";
@@ -78,9 +80,16 @@ public class SyncCrsArAndApService {
     		
     		//AR列表数据
         	arMapList = this.crsAccountMapper.calHotelAmount(map);//获取应收金额
-        	totalCount = arMapList.size();
-        	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare(map);//获取ower share数据
         	if (null != arMapList && !arMapList.isEmpty()) {
+        		
+        		totalCount = arMapList.size();
+        		List<Integer> hotleIds = new ArrayList<Integer>();
+        		arMapList.forEach(q->{
+        			hotleIds.add(Integer.valueOf(String.valueOf(q.get("hotel_id"))));
+        		});
+            	map.put("hotelsIds", hotleIds);//只查询当前年月酒店的ower share数据
+            	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare(map);//获取ower share数据
+            	
         		SyncCrsArAndAp syncCrsArAndAp = null;
         		for (Iterator<HashMap<String, String>> iterator = arMapList.iterator(); iterator.hasNext();) {
         			syncCrsArAndAp = new SyncCrsArAndAp();

@@ -29,7 +29,7 @@ public class SyncCrsArAndApJob implements BaseJob {
 			String result = service.syncCrsArAndAp(null);
 			log.info(result);
 		} catch (Exception e) {
-			log.error("Sync AR and AP From CRS throwing exception!");
+			log.error("Sync AR and AP From CRS throwing exception,exception is:{}", e);
 			e.printStackTrace();
 		}
         log.info("Sync AR and AP From CRS end.");
