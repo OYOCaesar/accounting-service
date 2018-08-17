@@ -114,7 +114,7 @@ public class SyncHotelToSapService {
                 }
             }
         }
-        return "成功" + sCount + "条，失败" + fCount + "条";
+        return "同步批次："+batch+"，成功" + sCount + "条，失败" + fCount + "条";
     }
 
 

@@ -60,9 +60,9 @@
                         } else {
                             return '失败';
                         }}},
-                {field:'jsonData',title:'同步的数据',width:600},
+                {field:'jsonData',title:'同步的数据',width:450,formatter:formatCellTooltip},
                 {field:'batch',title:'同步批次',width:100},
-                {field:'message',title:'同步消息',width:200}
+                {field:'message',title:'同步消息',width:200,formatter:formatCellTooltip}
             ]],
             fitColumns:true,
             queryParams: queryParams
@@ -81,6 +81,13 @@
             batch:batch
         };
         return queryParams;
+    }
+
+    //格式化单元格提示信息
+    function formatCellTooltip(value,row,index){
+
+        value = value.replace(/\'/g, "");
+        return "<span title='" + value + "'>" + value +"</span>";
     }
 
 </script>
