@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oyo.accouting.mapper.munshi.MunshiOrdersMapper">
+    
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.QueryMunshiAccountingDto" >
+        <result column="hotel_id" property="hotelId" />
+        <result column="hotel_name" property="hotelName" />
+        <result column="ar_amount" property="arAmount" />
+        <result column="checkin" property="checkInDate"/>
+        <result column="checkout" property="checkOutDate"/>
+        <result column="status" property="status"/>
+    </resultMap>
+	
+	<select id="calHotelAmount"  resultType="hashmap">
+	    SELECT
+		    B.ITEM_ID AS HOTEL_ID,
+		    SUM(C.BUYER_SHARE + C.SELLER_SHARE)
+		FROM
+			ORDERS A,
+			GENERIC_ENTITIES B,
+			GENERIC_ACCOUNTS C 
+		WHERE
+			A.ENTITY_ID = B.ID 
+			AND C.ORDER_ID = A.ID 
+		    AND B.ITEM_TYPE = 'Hotel'
+		    AND B.COUNTRY_ID = 50 <!-- 中国 -->
+		    <if test="month != null and month != ''">
+		        AND C.MONTH = #{month}
+		    </if>	
+			<if test="year != null and year != ''">
+		        AND C.YEAR = #{year}
+		    </if>
+		GROUP BY B.ITEM_ID
+		ORDER BY B.ITEM_ID
+	</select>
+	
+</mapper>

@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Munshi cr and cp list</title>
+    <link rel="stylesheet" type="text/css" href="./easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="./easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="./easyui/demo/demo.css">
+    <script type="text/javascript" src="./js/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="./easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+<table style="border:none;width:98%;">
+    <tr>
+        <td align="left">Year Month: </td>
+        <td>
+            <input id="yearMonth" name="yearMonth" class="easyui-datebox" data-options="formatter:myformatter,parser:myparser"/>
+        </td>
+        <td>hotelName:</td>
+        <td>
+            <input class="easyui-textbox" value="" id="hotelName" name="hotelName" data-options="iconCls:'icon-search'" style="width:300px;">
+            &nbsp;
+		    <a id="search_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+		    <a id="reset_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-undo'">重置</a>
+        </td>
+    </tr>
+</table>
+<br/>
+<div id="munshi_ar_ap_list"></div><br/>
+<center>
+    <a id="search_badk" href="index.html" class="easyui-linkbutton" data-options="iconCls:'icon-back'">返回</a>
+</center>
+<script>
+    $(function () {
+    	queryMunshiArAndAPList();
+    	
+        $('#search_btn').bind('click', function(){
+        	queryCrsArAndAPList();
+        });
+
+        $('#reset_btn').bind('click', function(){
+            $('#checkInDateStart').combobox('clear');
+            $('#checkInDateEnd').combobox('clear');
+            $('#checkOutDateStart').combobox('clear');
+            $('#checkOutDateEnd').combobox('clear');
+            $('#hotelName').attr('value','');
+            $('#status').combobox('setText','1');
+            $('#status').combobox('setValue','1');
+        });
+    });
+
+    function queryMunshiArAndAPList() {
+    	var checkInDateStart = $('#checkInDateStart').combo('getValue');
+    	var checkInDateEnd = $('#checkInDateEnd').combo('getValue');
+    	var checkOutDateStart = $('#checkOutDateStart').combo('getValue');
+    	var checkOutDateEnd = $('#checkOutDateEnd').combo('getValue');
+    	var hotelName = $('#hotelName').val().trim();
+    	var status = $('#status').combo('getValue');
+    	
+    	var queryParams = {
+        	checkInDateStart: checkInDateStart,
+        	checkInDateEnd: checkInDateEnd,
+        	checkOutDateStart: checkOutDateStart,
+        	checkOutDateEnd: checkOutDateEnd,
+            hotelName: hotelName,
+            status: status
+        }
+
+        var grid = $('#munshi_ar_ap_list').datagrid({
+            url:'queryCrsArAp/query',
+            columns:[[
+                {field:'hotelId',title:'hotel id',width:60,sortable:true},
+                {field:'hotelName',title:'hotel name',sortable:true},
+                {field:'arAmount',title:'ar Amount',width:80,sortable:true},
+                {field:'apAmount',title:'ap Amount',width:80},
+                {field:'rate',title:'rate',width:60}
+            ]],
+            loadMsg : '正在加载数据，请稍后...',
+            fitColumns:true,
+            rownumbers:true,
+            pagination: true,
+            striped:true,
+            sortName:'hotelId',
+            sortOrder:'asc',
+            pageNumber:1, //第几页显示（默认第一页，可以省略）
+            pageSize: 10, //分页大小  
+            pageList: [10,20,50,100,200,500,1000],
+            queryParams: queryParams
+        });
+
+    }
+    
+    function myformatter(date){
+		var y = date.getFullYear();
+		var m = date.getMonth()+1;
+		var d = date.getDate();
+		return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+	}
+	function myparser(s){
+		if (!s) return new Date();
+		var ss = (s.split('-'));
+		var y = parseInt(ss[0],10);
+		var m = parseInt(ss[1],10);
+		var d = parseInt(ss[2],10);
+		if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+			return new Date(y,m-1,d);
+		} else {
+			return new Date();
+		}
+	}
+
+</script>
+</body>
+</html>

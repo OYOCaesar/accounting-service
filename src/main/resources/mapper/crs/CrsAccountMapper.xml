@@ -141,6 +141,12 @@
 		<if test="checkInDateEnd == null or checkInDateEnd == ''">
 		    AND Z.CHECKIN <![CDATA[<]]> DATE_TRUNC('month', now() :: DATE)
 		</if>
+		<if test="hotelsIds != null or hotelsIds != ''">
+		    AND X.HOTEL_ID IN
+		    <foreach collection="hotelsIds" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+		</if>
 	</select>	
 	
 	<!-- 根据hotelId获取hotel名称 -->

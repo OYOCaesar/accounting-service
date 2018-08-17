@@ -10,29 +10,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.oyo.accouting.job.SyncArAndApJob;
-import com.oyo.accouting.service.SyncArAndApAndJournalEntryToSapService;
+import com.oyo.accouting.service.SyncMunshiOrderService;
 
-//同步ar and ap and JournalEntry 到sapcontroller
-@RequestMapping("syncArAndApAndJournalEntryToSap")
+//从Munshi同步AR数据controller
+@RequestMapping("syncMunshiAr")
 @Controller
-public class SyncArAndApJournalEntryController {
+public class SyncMunshiArController {
 	private static Logger log = LoggerFactory.getLogger(SyncArAndApJob.class);
 
     @Autowired
-    private SyncArAndApAndJournalEntryToSapService syncArAndApAndJournalEntryToSapService;
+    private SyncMunshiOrderService syncMunshiOrderService;
 
-    @RequestMapping(value = "syncToSap")
+    @RequestMapping(value = "syncMunshiAr")
     @ResponseBody
     public String syncArAndAp(HttpServletRequest request) {
     	String result = "";
     	try {
     		String yearMonth = request.getParameter("yearMonth");
-    		Integer hotelId = Integer.valueOf(request.getParameter("hotelId"));
-			result = syncArAndApAndJournalEntryToSapService.syncArAndApAndJournalEntryToSap(yearMonth,hotelId);
+			result = syncMunshiOrderService.syncMunshiAr(yearMonth);
 			log.info(result);
 		} catch (Exception e) {
-			result = "Synchronizing ar and ap and JournalEntry to SAP throwing exception：" + e.getMessage() ;
-			log.error("Synchronizing ar and ap and JournalEntry to SAP throwing exception:{}", e);
+			result = "Synchronizing munshi ar throwing exception!";
+			log.error("Synchronizing munshi ar throwing exception:{}", e);
 		}
     	return result;
     }

@@ -23,29 +23,38 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.oyo.accouting.bean.HotelDto;
 import com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountMapper;
+import com.oyo.accouting.mapper.crs.CrsHotelMapper;
+import com.oyo.accouting.mapper.munshi.MunshiOrdersMapper;
 import com.oyo.accouting.pojo.SyncCrsArAndAp;
 
 import net.sf.json.JSONObject;
 
 /**
- * sync crs ar and ap interface.
+ * sync munshi order ar interface.
  * @author ZhangSuYun
- * @date 2018-08-10 11:28
+ * @date 2018-08-16 20:21
  */
 @Service
-public class SyncCrsArAndApService {
-	private static Logger log = LoggerFactory.getLogger(SyncCrsArAndApService.class);
+public class SyncMunshiOrderService {
+	private static Logger log = LoggerFactory.getLogger(SyncMunshiOrderService.class);
 
-    @Autowired
+	@Autowired
     private CrsAccountMapper crsAccountMapper;
+	
+    @Autowired
+    private MunshiOrdersMapper munshiOrdersMapper;
     
     @Autowired
     private SyncCrsArAndApMapper syncCrsArAndApMapper;
     
-    public String syncCrsArAndAp(String yearMonth) throws Exception {
-    	log.info("----syncCrsArAndAp start-------------");
+    @Autowired
+    private CrsHotelMapper crsHotelMapper;
+    
+    public String syncMunshiAr(String yearMonth) throws Exception {
+    	log.info("----sync mushi ar start-------------");
     	String result = "";
     	Integer totalCount = 0;//同步总记录数
     	
@@ -76,11 +85,28 @@ public class SyncCrsArAndApService {
     		map.put("checkInDateStart", firstDayOfThisMonth.format(df));
     		map.put("checkInDateEnd", lastDayOfThisMonth.format(df));
     		
+    		HashMap<String,Object> mapMunshi = new HashMap<String,Object>();
+    		String[] yearMonthArr = yearMonth.toString().split("-");
+    		mapMunshi.put("year", Integer.valueOf(yearMonthArr[0]));
+    		mapMunshi.put("month", Integer.valueOf(yearMonthArr[1]));
+    		
     		//AR列表数据
-        	arMapList = this.crsAccountMapper.calHotelAmount(map);//获取应收金额
+        	arMapList = this.munshiOrdersMapper.calHotelAmount(mapMunshi);//获取应收金额
         	totalCount = arMapList.size();
-        	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare(map);//获取ower share数据
+        	
         	if (null != arMapList && !arMapList.isEmpty()) {
+        		
+        		List<Integer> hotleIds = new ArrayList<Integer>();
+        		arMapList.forEach(q->{
+        			hotleIds.add(Integer.valueOf(String.valueOf(q.get("hotel_id"))));
+        		});
+            	map.put("hotelsIds", hotleIds);//只查询当前年月酒店的ower share数据
+            	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare(map);//获取ower share数据
+            	
+        		HotelDto searchHotel = new HotelDto();
+        		searchHotel.setCountryId(50);//知搜中国的酒店
+        		List<HotelDto> hotelList = crsHotelMapper.queryHotelNameList(searchHotel);
+        		
         		SyncCrsArAndAp syncCrsArAndAp = null;
         		for (Iterator<HashMap<String, String>> iterator = arMapList.iterator(); iterator.hasNext();) {
         			syncCrsArAndAp = new SyncCrsArAndAp();
@@ -134,7 +160,11 @@ public class SyncCrsArAndApService {
     		        
     		        syncCrsArAndAp.setSyncYearMonth(yearMonth);
     		        syncCrsArAndAp.setHotelId(hotelId);
-    		        syncCrsArAndAp.setHotelName(hashMap.get("hotel_name"));
+    		        String hotelName = "";
+    		        if (null != hotelList && !hotelList.isEmpty()) {
+    		        	hotelName = hotelList.stream().filter(q->q.getId().intValue() == hotelId.intValue()).collect(Collectors.toList()).get(0).getName();
+    		        }
+    		        syncCrsArAndAp.setHotelName(hotelName);
     		        syncCrsArAndAp.setArAmount(arAmount);
     		        syncCrsArAndAp.setApAmount(apAmount);
     		        syncCrsArAndAp.setIsSync(Boolean.FALSE);
@@ -168,10 +198,10 @@ public class SyncCrsArAndApService {
         	}
         	
     	} catch (Exception e) {
-    		result = "sync CRS ar and ap throw exception, hotelId is:" + hotelIdMark;
+    		result = "sync sync mushi ar throw exception, hotelId is:" + hotelIdMark;
     		throw e;
     	} 
-    	log.info("----syncCrsArAndAp end-------------");
+    	log.info("----sync mushi ar end-------------");
     	result += "Sync result:totalCount=" + totalCount;
         return result;
     }

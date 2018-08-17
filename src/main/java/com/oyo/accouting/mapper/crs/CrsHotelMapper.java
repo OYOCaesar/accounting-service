@@ -1,17 +1,20 @@
 package com.oyo.accouting.mapper.crs;
 
-import com.oyo.accouting.bean.HotelDto;
-import com.oyo.accouting.pojo.Hotel;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
-import java.util.List;
+import com.oyo.accouting.bean.HotelDto;
 
 @Mapper
 public interface CrsHotelMapper{
 
 
     public List<HotelDto> queryHotelList(@Param("searchHotel")HotelDto searchHotel);
+    
+    //条件查询酒店id和名称
+    public List<HotelDto> queryHotelNameList(@Param("searchHotel")HotelDto searchHotel);
+    
 
 }
