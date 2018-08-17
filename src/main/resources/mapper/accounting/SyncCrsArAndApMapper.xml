@@ -26,6 +26,9 @@
         <if test="hotelName != null and hotelName != ''">
             and hotel_name ~* #{hotelName}
         </if>
+        <if test="hotelId != null and hotelId != ''">
+            and hotel_id = #{hotelId}
+        </if>
     </select>
     
     <!-- 分页条件查询 -->
