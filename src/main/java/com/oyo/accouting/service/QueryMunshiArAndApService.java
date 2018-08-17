@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.oyo.accouting.bean.QueryCrsAccountingDto;
+import com.oyo.accouting.bean.SyncCrsArAndApDto;
 import com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper;
 
 /**
@@ -24,8 +24,9 @@ public class QueryMunshiArAndApService {
     @Autowired
     private SyncCrsArAndApMapper syncCrsArAndApMapper;
     
-    	List<QueryCrsAccountingDto> resultList = new ArrayList<>();
-    	public List<QueryCrsAccountingDto> queryCrsArAndAp(Map<String,Object> map) throws Exception {
+    	
+	public List<SyncCrsArAndApDto> queryCrsArAndAp(Map<String,Object> map) throws Exception {
+		List<SyncCrsArAndApDto> resultList = new ArrayList<>();
     	log.info("----queryMunshiArAndAp start-------------");
     	resultList = syncCrsArAndApMapper.selectByMapPage(map);
     	log.info("----queryMunshiArAndAp end-------------");

@@ -17,7 +17,7 @@ public interface SyncCrsArAndApMapper extends com.github.abel533.mapper.Mapper<S
     public List<SyncCrsArAndApDto> selectByMap(Map<String,Object> map);
     
     //分页条件查询ar and ap数据
-    public List<QueryCrsAccountingDto> selectByMapPage(Map<String,Object> map);
+    public List<SyncCrsArAndApDto> selectByMapPage(Map<String,Object> map);
     
     //批量插入ar and ap数据
     public int insertCrsArAndApList(@Param("crsArAndApList") List<SyncCrsArAndAp> syncCrsArAndApList);

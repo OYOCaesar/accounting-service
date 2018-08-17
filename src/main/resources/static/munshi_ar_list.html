@@ -8,13 +8,14 @@
     <link rel="stylesheet" type="text/css" href="./easyui/demo/demo.css">
     <script type="text/javascript" src="./js/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="./easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="./laydate/laydate.js"></script>
 </head>
 <body>
 <table style="border:none;width:98%;">
     <tr>
         <td align="left">Year Month: </td>
         <td>
-            <input id="yearMonth" name="yearMonth" class="easyui-datebox" data-options="formatter:myformatter,parser:myparser"/>
+            <input id="yearMonth" name="yearMonth"/>
         </td>
         <td>hotelName:</td>
         <td>
@@ -31,43 +32,51 @@
     <a id="search_badk" href="index.html" class="easyui-linkbutton" data-options="iconCls:'icon-back'">返回</a>
 </center>
 <script>
+
+	//执行一个laydate实例
+	laydate.render({
+	    elem: '#yearMonth' //指定元素
+	    ,type: 'month'
+	});
+
     $(function () {
+    	//补零函数
+    	function prefixInteger(num, n) {
+           return (Array(n).join(0) + num).slice(-n);
+        }
+    	
+    	var myDate = new Date();
+    	//获取当前年
+    	var year=myDate.getFullYear();
+    	//获取当前月
+    	var month=myDate.getMonth()+1;
+    	month = prefixInteger(month,2);
+    	
+    	$("#yearMonth").val(year + "-" + month);
+    	
     	queryMunshiArAndAPList();
     	
         $('#search_btn').bind('click', function(){
-        	queryCrsArAndAPList();
+        	queryMunshiArAndAPList();
         });
 
         $('#reset_btn').bind('click', function(){
-            $('#checkInDateStart').combobox('clear');
-            $('#checkInDateEnd').combobox('clear');
-            $('#checkOutDateStart').combobox('clear');
-            $('#checkOutDateEnd').combobox('clear');
+            $('#yearMonth').attr('value','');
             $('#hotelName').attr('value','');
-            $('#status').combobox('setText','1');
-            $('#status').combobox('setValue','1');
         });
     });
 
     function queryMunshiArAndAPList() {
-    	var checkInDateStart = $('#checkInDateStart').combo('getValue');
-    	var checkInDateEnd = $('#checkInDateEnd').combo('getValue');
-    	var checkOutDateStart = $('#checkOutDateStart').combo('getValue');
-    	var checkOutDateEnd = $('#checkOutDateEnd').combo('getValue');
+    	var yearMonth = $('#yearMonth').val().trim();
     	var hotelName = $('#hotelName').val().trim();
-    	var status = $('#status').combo('getValue');
     	
     	var queryParams = {
-        	checkInDateStart: checkInDateStart,
-        	checkInDateEnd: checkInDateEnd,
-        	checkOutDateStart: checkOutDateStart,
-        	checkOutDateEnd: checkOutDateEnd,
-            hotelName: hotelName,
-            status: status
+    	    yearMonth: yearMonth,
+    	    hotelName: hotelName
         }
 
         var grid = $('#munshi_ar_ap_list').datagrid({
-            url:'queryCrsArAp/query',
+            url:'queryMunshiArAp/query',
             columns:[[
                 {field:'hotelId',title:'hotel id',width:60,sortable:true},
                 {field:'hotelName',title:'hotel name',sortable:true},

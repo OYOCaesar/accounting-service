@@ -18,8 +18,6 @@ import com.oyo.accouting.bean.QueryCrsAccountingDto;
 import com.oyo.accouting.job.SyncArAndApJob;
 import com.oyo.accouting.service.QueryCrsArAndApService;
 
-import net.sf.json.JSONObject;
-
 //查询CRS中AR和AP数据controller
 @RequestMapping("queryCrsArAp")
 @Controller
