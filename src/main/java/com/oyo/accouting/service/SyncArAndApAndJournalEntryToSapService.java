@@ -216,7 +216,9 @@ public class SyncArAndApAndJournalEntryToSapService {
         		    		SyncCrsArAndAp syncCrsArAndApSuccess = new SyncCrsArAndAp();
         		    		BeanUtils.copyProperties(syncCrsArAndAp, syncCrsArAndApSuccess);
         		    		syncCrsArAndApSuccess.setIsSync(Boolean.TRUE);//更新为已同步
-                        	crsArAndApSuccessList.add(syncCrsArAndApSuccess);
+        		    		if (hotelId.intValue() != 20240) {
+        		    			crsArAndApSuccessList.add(syncCrsArAndApSuccess);
+        		    		}
         		    	}
                     } else {
                     	failedCount ++;
