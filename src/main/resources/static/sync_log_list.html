@@ -86,7 +86,10 @@
     //格式化单元格提示信息
     function formatCellTooltip(value,row,index){
 
-        value = value.replace(/\'/g, "");
+    	if(value!=null){
+    		value = value.replace(/\'/g, "");
+    	}
+        
         return "<span title='" + value + "'>" + value +"</span>";
     }
 
