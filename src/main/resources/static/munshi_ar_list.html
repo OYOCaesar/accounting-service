@@ -50,7 +50,12 @@
     	var month=myDate.getMonth()+1;
     	month = prefixInteger(month,2);
     	
-    	$("#yearMonth").val(year + "-" + month);
+    	var lastMonthDate = new Date(myDate.getFullYear(),myDate.getMonth()-1,myDate.getDate());//上个月
+    	var lastYear = lastMonthDate.getFullYear();
+    	var lastMonth = lastMonthDate.getMonth()+1;
+    	lastMonth = prefixInteger(lastMonth,2);
+    	
+    	$("#yearMonth").val(lastYear + "-" + lastMonth);
     	
     	queryMunshiArAndAPList();
     	
