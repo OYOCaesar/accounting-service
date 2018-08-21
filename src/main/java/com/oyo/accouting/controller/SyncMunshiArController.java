@@ -30,7 +30,7 @@ public class SyncMunshiArController {
 			result = syncMunshiOrderService.syncMunshiAr(yearMonth);
 			log.info(result);
 		} catch (Exception e) {
-			result = "Synchronizing munshi ar throwing exception!";
+			result = "Synchronizing munshi ar throwing exception：" + e.getMessage();
 			log.error("Synchronizing munshi ar throwing exception:{}", e);
 		}
     	return result;

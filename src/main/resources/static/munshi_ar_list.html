@@ -20,17 +20,23 @@
         <td>hotelName:</td>
         <td>
             <input class="easyui-textbox" value="" id="hotelName" name="hotelName" data-options="iconCls:'icon-search'" style="width:300px;">
+        </td>
+        <td>isSync:</td>
+        <td>
+            <select id="isSync" class="easyui-combobox" name="isSync" style="width:80px;">
+		        <option value="" selected="selected">--All--</option>
+			    <option value="1">true</option>
+			    <option value="0">false</option>
+		    </select>
             &nbsp;
 		    <a id="search_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
 		    <a id="reset_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-undo'">重置</a>
+		    <a id="search_badk" href="index.html" class="easyui-linkbutton" data-options="iconCls:'icon-back'">返回</a>
         </td>
     </tr>
 </table>
 <br/>
 <div id="munshi_ar_ap_list"></div><br/>
-<center>
-    <a id="search_badk" href="index.html" class="easyui-linkbutton" data-options="iconCls:'icon-back'">返回</a>
-</center>
 <script>
 
 	//执行一个laydate实例
@@ -52,7 +58,12 @@
     	var month=myDate.getMonth()+1;
     	month = prefixInteger(month,2);
     	
-    	$("#yearMonth").val(year + "-" + month);
+    	var lastMonthDate = new Date(myDate.getFullYear(),myDate.getMonth()-1,myDate.getDate());//上个月
+    	var lastYear = lastMonthDate.getFullYear();
+    	var lastMonth = lastMonthDate.getMonth()+1;
+    	lastMonth = prefixInteger(lastMonth,2);
+    	
+    	$("#yearMonth").val(lastYear + "-" + lastMonth);
     	
     	queryMunshiArAndAPList();
     	
@@ -63,16 +74,19 @@
         $('#reset_btn').bind('click', function(){
             $('#yearMonth').attr('value','');
             $('#hotelName').attr('value','');
+            $('#isSync').combobox('setValue','');
         });
     });
 
     function queryMunshiArAndAPList() {
     	var yearMonth = $('#yearMonth').val().trim();
     	var hotelName = $('#hotelName').val().trim();
+    	var isSync = $('#isSync').combo('getValue');
     	
     	var queryParams = {
     	    yearMonth: yearMonth,
-    	    hotelName: hotelName
+    	    hotelName: hotelName,
+    	    isSync:isSync
         }
 
         var grid = $('#munshi_ar_ap_list').datagrid({
@@ -82,7 +96,8 @@
                 {field:'hotelName',title:'hotel name',sortable:true},
                 {field:'arAmount',title:'ar Amount',width:80,sortable:true},
                 {field:'apAmount',title:'ap Amount',width:80},
-                {field:'rate',title:'rate',width:60}
+                {field:'rate',title:'rate',width:60},
+                {field:'isSync',title:'isSync',width:60}
             ]],
             loadMsg : '正在加载数据，请稍后...',
             fitColumns:true,

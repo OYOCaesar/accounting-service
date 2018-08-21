@@ -53,10 +53,23 @@
     </style>
 </head>
 <body>
+<h2 style="margin-left:10px;">sync munshi ar to Accounting(<span style="color:red;font-weight:bold;">Only prod can be used</span>):</h2>
+<table style="width:750px;margin-left:10px;" class="table">
+    <tr>
+        <td align="left">sync year and month(format：<b>yyyy-MM,for example：2018-07</b>): </td>
+        <td><input id="syncMunshi"/></td>
+        <td width="105px;">
+            <button class="button" id="syncMunshiBtn">sync Munshi</button>
+        </td>
+    </tr>
+</table>
+<br/>
+<div id="syncMunshiResult" class="result"></div><br/>
+
 <h2 style="margin-left:10px;">sync CRS AR And AP to Accounting:</h2>
 <table style="width:750px;margin-left:10px;" class="table">
     <tr>
-        <td align="left">sync year and month(format：<b>yyyy-MM,for example：2018-08</b>): </td>
+        <td align="left">sync year and month(format：<b>yyyy-MM,for example：2018-07</b>): </td>
         <td><input id="syncCrs"/></td>
         <td width="105px;">
             <button class="button" id="syncCrsBtn">sync CRS</button>
@@ -69,7 +82,7 @@
 <h2 style="margin-left:10px;">sync AR And AP to SAP:</h2>
 <table style="width:750px;margin-left:10px;" class="table">
     <tr>
-        <td align="right">sync year and month(format：<b>yyyy-MM,for example：2018-08</b>): </td>
+        <td align="right">sync year and month(format：<b>yyyy-MM,for example：2018-07</b>): </td>
         <td><input id="syncSAP"/></td>
         <td width="105px;">
             <button class="button" id="syncSapBtn">sync SAP</button>
@@ -126,9 +139,49 @@
     	var month=myDate.getMonth()+1;
     	month = prefixInteger(month,2);
     	
-    	$("#syncCrs").val(year + "-" + month);
-    	$("#syncSAP").val(year + "-" + month);
+    	var lastMonthDate = new Date(myDate.getFullYear(),myDate.getMonth()-1,myDate.getDate());//上个月
+    	var lastYear = lastMonthDate.getFullYear();
+    	var lastMonth = lastMonthDate.getMonth()+1;
+    	lastMonth = prefixInteger(lastMonth,2);
     	
+    	$("#syncMunshi").val(lastYear + "-" + lastMonth);
+    	$("#syncCrs").val(lastYear + "-" + lastMonth);
+    	$("#syncSAP").val(lastYear + "-" + lastMonth);
+    	
+    	//同步mushi
+    	$('#syncMunshiBtn').click(function(){
+    		$.ajax({
+    		    url:'syncMunshiAr/syncMunshiAr',
+    		    type:'POST', //GET
+    		    async:true,    //或false,是否异步
+    		    data:{
+    		    	yearMonth:$("#syncMunshi").val()
+    		    },
+    		    timeout:3600000,    //超时时间
+    		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+    		    beforeSend:function(xhr){
+    		    	$("#syncMunshiResult").val("");
+    		        console.log(xhr);
+    		        $("#syncMunshiBtn").html("Synchronizing...");
+    		        $("#syncMunshiBtn").attr("disabled",true);
+    		    },
+    		    success:function(data,textStatus,jqXHR){
+    		    	$("#syncMunshiResult").html(data);
+    		    },
+    		    error:function(xhr,textStatus){
+    		        console.log(xhr)
+    		        console.log(textStatus);
+    		    },
+    		    complete:function(data){
+    		    	$("#syncMunshiResult").html(data.responseText);
+    		    	$("#syncMunshiBtn").attr("disabled",false);
+    		    	$("#syncMunshiBtn").html("sync munshi");
+    		    }
+    		});
+    		
+        });
+    	
+    	//同步crs
     	$('#syncCrsBtn').click(function(){
     		$.ajax({
     		    url:'syncCrsArAp/syncArApFromCrs',
@@ -161,6 +214,7 @@
     		
         });
     	
+    	//同步ar and ap to SAP
         $('#syncSapBtn').click(function(){
         	$.ajax({
     		    url:'syncArAndApAndJournalEntryToSap/syncToSap',
@@ -193,7 +247,7 @@
     		});
         });
 
-
+        //同步hotel to SAP
         $('#syncHotelBtn').click(function(){
             $.ajax({
                 url:'syncHotel/syncHotelToSap',

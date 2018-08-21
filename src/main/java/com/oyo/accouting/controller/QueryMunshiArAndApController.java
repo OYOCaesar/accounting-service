@@ -33,7 +33,7 @@ public class QueryMunshiArAndApController {
 
     @RequestMapping(value = "query")
     @ResponseBody
-    public PageResult query(HttpServletRequest request,@RequestParam("yearMonth") String yearMonth,@RequestParam("hotelName") String hotelName) {
+    public PageResult query(HttpServletRequest request,@RequestParam("yearMonth") String yearMonth,@RequestParam("hotelName") String hotelName,@RequestParam("isSync") String isSync) {
     	PageResult result = new PageResult();
     	try {
     		Map<String,Object> map = new HashMap<String,Object>();
@@ -44,6 +44,7 @@ public class QueryMunshiArAndApController {
     		PageHelper.startPage(pageNumber, pageSize);
     		map.put("yearMonth", yearMonth);
     		map.put("hotelName", hotelName);
+    		map.put("isSync", isSync);
     		List<SyncCrsArAndApDto> list = queryMunshiArAndApService.queryCrsArAndAp(map);
     		result.setRows(list);
 			PageInfo<SyncCrsArAndApDto> pageInfo = new PageInfo<>(list);

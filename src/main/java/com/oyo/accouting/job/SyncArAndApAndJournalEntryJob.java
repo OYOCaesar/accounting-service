@@ -29,7 +29,7 @@ public class SyncArAndApAndJournalEntryJob implements BaseJob {
 			String result = service.syncArAndApAndJournalEntryToSap(null,null);
 			log.info(result);
 		} catch (Exception e) {
-			log.error("Sync Ar and Ap and Journal Entry data to sap throwing exception!");
+			log.error("Sync Ar and Ap and Journal Entry data to sap throwing exception,exception is:{}", e);
 			e.printStackTrace();
 		}
         log.info("Sync Ar and Ap and Journal Entry data to SAP end.");
