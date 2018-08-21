@@ -47,5 +47,8 @@ logging:
 #sap webservice url   
 sapWebServiceUrl: http://52.80.99.224:8080/SAPWebService.asmx
 
+#quartz 文件名
+quartzFileName: quartz-dev.properties
+
       
     
