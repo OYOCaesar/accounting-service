@@ -35,12 +35,15 @@
     <select id="selectByMapPage" resultMap="BaseResultMap" parameterType="java.util.Map">
         SELECT id, sync_year_month, hotel_id, hotel_name, ar_amount, ap_amount, rate, create_time, is_sync, is_del
         FROM sync_crs_ar_ap 
-        where is_del = 0 and is_sync = 0
+        where is_del = 0 
         <if test="yearMonth != null and yearMonth != ''">
             and sync_year_month = #{yearMonth}
         </if>
         <if test="hotelName != null and hotelName != ''">
             and hotel_name like CONCAT('%' ,#{hotelName}, '%')
+        </if>
+        <if test="isSync != null and isSync != ''">
+            and is_sync = #{isSync}
         </if>
     </select>
 

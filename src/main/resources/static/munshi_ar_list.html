@@ -20,6 +20,14 @@
         <td>hotelName:</td>
         <td>
             <input class="easyui-textbox" value="" id="hotelName" name="hotelName" data-options="iconCls:'icon-search'" style="width:300px;">
+        </td>
+        <td>isSync:</td>
+        <td>
+            <select id="isSync" class="easyui-combobox" name="isSync" style="width:80px;">
+		        <option value="" selected="selected">--All--</option>
+			    <option value="1">true</option>
+			    <option value="0">false</option>
+		    </select>
             &nbsp;
 		    <a id="search_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
 		    <a id="reset_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-undo'">重置</a>
@@ -66,16 +74,19 @@
         $('#reset_btn').bind('click', function(){
             $('#yearMonth').attr('value','');
             $('#hotelName').attr('value','');
+            $('#isSync').combobox('setValue','');
         });
     });
 
     function queryMunshiArAndAPList() {
     	var yearMonth = $('#yearMonth').val().trim();
     	var hotelName = $('#hotelName').val().trim();
+    	var isSync = $('#isSync').combo('getValue');
     	
     	var queryParams = {
     	    yearMonth: yearMonth,
-    	    hotelName: hotelName
+    	    hotelName: hotelName,
+    	    isSync:isSync
         }
 
         var grid = $('#munshi_ar_ap_list').datagrid({
