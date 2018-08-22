@@ -12,6 +12,12 @@ spring:
       password: admin12345
       filters: stat,wall
       driver-class-name: org.postgresql.Driver
+    coupon:
+      url: jdbc:mysql://coupon-staging.ckdb8i72sy2s.rds.cn-north-1.amazonaws.com.cn:3306/oyo_coupon
+      username: coupon
+      password: OYOcoupon
+      filters: stat,wall
+      driver-class-name: com.mysql.jdbc.Driver
 
   thymeleaf:
     # 这个是配置模板路径的，默认是templates

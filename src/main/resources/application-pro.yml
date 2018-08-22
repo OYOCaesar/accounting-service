@@ -12,6 +12,12 @@ spring:
       password: analytics#123
       filters: stat,wall
       driver-class-name: org.postgresql.Driver
+    coupon:
+      url: jdbc:mysql://coupon-staging.ckdb8i72sy2s.rds.cn-north-1.amazonaws.com.cn:3306/oyo_coupon
+      username: coupon
+      password: OYOcoupon
+      filters: stat,wall
+      driver-class-name: com.mysql.jdbc.Driver
     munshi:
       url: jdbc:postgresql://munshi-slave.cy8was0ngyna.rds.cn-north-1.amazonaws.com.cn:5432/munshi
       username: uc0s0psnqc13qs

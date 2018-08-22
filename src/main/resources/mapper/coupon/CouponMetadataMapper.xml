@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oyo.accouting.mapper.coupon.CouponMetadataMapper">
+  <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.CouponMetadata">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="coupon_metadata_code" jdbcType="VARCHAR" property="couponMetadataCode" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="category" jdbcType="INTEGER" property="category" />
+    <result column="max_num" jdbcType="BIGINT" property="maxNum" />
+    <result column="rule_description" jdbcType="VARCHAR" property="ruleDescription" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="amount" jdbcType="DECIMAL" property="amount" />
+    <result column="max_amount" jdbcType="DECIMAL" property="maxAmount" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="per_hotel_usage_max" jdbcType="INTEGER" property="perHotelUsageMax" />
+    <result column="user_level" jdbcType="VARCHAR" property="userLevel" />
+    <result column="channel" jdbcType="VARCHAR" property="channel" />
+    <result column="per_user_usage_max" jdbcType="INTEGER" property="perUserUsageMax" />
+    <result column="min_price" jdbcType="DECIMAL" property="minPrice" />
+    <result column="max_price" jdbcType="DECIMAL" property="maxPrice" />
+    <result column="ext_key" jdbcType="VARCHAR" property="extKey" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="last_update_time" jdbcType="TIMESTAMP" property="lastUpdateTime" />
+    <result column="last_update_by" jdbcType="VARCHAR" property="lastUpdateBy" />
+    <result column="currency_id" jdbcType="INTEGER" property="currencyId" />
+    <result column="include_hotel_list" jdbcType="VARCHAR" property="includeHotelList" />
+    <result column="exclude_hotel_list" jdbcType="VARCHAR" property="excludeHotelList" />
+    <result column="exclude_area_list" jdbcType="VARCHAR" property="excludeAreaList" />
+    <result column="include_area_list" jdbcType="VARCHAR" property="includeAreaList" />
+    <result column="include_user_list" jdbcType="VARCHAR" property="includeUserList" />
+    <result column="exclude_user_list" jdbcType="VARCHAR" property="excludeUserList" />
+    <result column="show_name" jdbcType="VARCHAR" property="showName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, coupon_metadata_code, name, category, max_num, rule_description, status, amount, 
+    max_amount, start_time, end_time, per_hotel_usage_max, user_level, channel, per_user_usage_max, 
+    min_price, max_price, ext_key, create_time, create_by, last_update_time, last_update_by, 
+    currency_id, include_hotel_list, exclude_hotel_list, exclude_area_list, include_area_list, 
+    include_user_list, exclude_user_list, show_name
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from coupon_metadata
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByConditions" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from coupon_metadata
+    where 1=1
+    <if test="endTime != null and endTime != ''">
+        AND end_time <![CDATA[<]]> #{endTime}
+    </if>
+    <if test="statusList != null">
+        AND status in
+        <foreach collection="statusList" index="index" item="item"
+                 separator="," open="(" close=")">
+          #{item}
+        </foreach>
+    </if>
+  </select>
+
+
+  <update id="updateByConditions" parameterType="java.util.Map">
+    update coupon_metadata
+    <set>
+      <if test="targetStatus != null">
+        status = #{targetStatus,jdbcType=INTEGER},
+      </if>
+      <if test="lastUpdateTime != null">
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where 1=1
+    <if test="idList != null">
+      AND id in
+      <foreach collection="idList" index="index" item="item"
+               separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+    <if test="statusList != null">
+      AND status in
+      <foreach collection="statusList" index="index" item="item"
+               separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+  </update>
+
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.oyo.accouting.bean.CouponMetadata">
+    update coupon_metadata
+    <set>
+      <if test="couponMetadataCode != null">
+        coupon_metadata_code = #{couponMetadataCode,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+        category = #{category,jdbcType=INTEGER},
+      </if>
+      <if test="maxNum != null">
+        max_num = #{maxNum,jdbcType=BIGINT},
+      </if>
+      <if test="ruleDescription != null">
+        rule_description = #{ruleDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="amount != null">
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="maxAmount != null">
+        max_amount = #{maxAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="startTime != null">
+        start_time = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="perHotelUsageMax != null">
+        per_hotel_usage_max = #{perHotelUsageMax,jdbcType=INTEGER},
+      </if>
+      <if test="userLevel != null">
+        user_level = #{userLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null">
+        channel = #{channel,jdbcType=VARCHAR},
+      </if>
+      <if test="perUserUsageMax != null">
+        per_user_usage_max = #{perUserUsageMax,jdbcType=INTEGER},
+      </if>
+      <if test="minPrice != null">
+        min_price = #{minPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="maxPrice != null">
+        max_price = #{maxPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="extKey != null">
+        ext_key = #{extKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="lastUpdateTime != null">
+        last_update_time = #{lastUpdateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdateBy != null">
+        last_update_by = #{lastUpdateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="currencyId != null">
+        currency_id = #{currencyId,jdbcType=INTEGER},
+      </if>
+      <if test="includeHotelList != null">
+        include_hotel_list = #{includeHotelList,jdbcType=VARCHAR},
+      </if>
+      <if test="excludeHotelList != null">
+        exclude_hotel_list = #{excludeHotelList,jdbcType=VARCHAR},
+      </if>
+      <if test="excludeAreaList != null">
+        exclude_area_list = #{excludeAreaList,jdbcType=VARCHAR},
+      </if>
+      <if test="includeAreaList != null">
+        include_area_list = #{includeAreaList,jdbcType=VARCHAR},
+      </if>
+      <if test="includeUserList != null">
+        include_user_list = #{includeUserList,jdbcType=VARCHAR},
+      </if>
+      <if test="excludeUserList != null">
+        exclude_user_list = #{excludeUserList,jdbcType=VARCHAR},
+      </if>
+      <if test="showName != null">
+        show_name = #{showName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+</mapper>
