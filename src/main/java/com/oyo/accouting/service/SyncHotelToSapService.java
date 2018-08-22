@@ -11,7 +11,6 @@ import com.oyo.accouting.mapper.crs.CrsUserProfilesMapper;
 
 import com.oyo.accouting.pojo.SyncLog;
 import com.oyo.accouting.webservice.SAPWebServiceSoap;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;

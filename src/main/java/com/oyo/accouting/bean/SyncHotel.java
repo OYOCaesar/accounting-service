@@ -38,6 +38,8 @@ public class SyncHotel {
         this.syncHotelMap.put("U_CRSID",hotel.getOyoId());
         this.syncHotelMap.put("CardType",isC?"C":"V");
         this.syncHotelMap.put("DebPayAcct",isC?AccountingCode.CODE_11220203.getCode():AccountingCode.CODE_22020203.getCode());
+        this.syncHotelMap.put("StartDate",hotel.getActivationDate().toString());
+        this.syncHotelMap.put("UpdateRemark", "{from_time:"+checkNull(hotel.getFromTime())+",to_time:"+checkNull(hotel.getToTime())+",meta_data:"+checkNull(hotel.getMetaData())+"}");
 
 
         Map<String ,Object>[] contactEmployees = new LinkedHashMap[1];

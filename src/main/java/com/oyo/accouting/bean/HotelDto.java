@@ -119,4 +119,10 @@ public class HotelDto {
 
   private String oyoShare;
 
+
+  private String fromTime;
+
+  private String toTime;
+
+  private String metaData;
 }

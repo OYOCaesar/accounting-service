@@ -92,6 +92,9 @@
         <result column="hawk_eye_hotel_id" property="hawkEyeHotelId" />
         <result column="hawk_eye_url" property="hawkEyeUrl" />
         <result column="rs_slabs" property="oyoShare"/>
+        <result column="from_time" property="fromTime"/>
+        <result column="to_time" property="toTime"/>
+        <result column="meta_data" property="metaData"/>
     </resultMap>
 
 
