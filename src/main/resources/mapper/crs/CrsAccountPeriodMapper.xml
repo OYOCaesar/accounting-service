@@ -64,8 +64,8 @@
 			and D.zone_id = E.id
 			and C.city = D.name
 			and C.country_id = 50
-			and (A.checkin >= to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <= to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
-			     and A.checkout >= to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <= to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
+			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
+			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
 			<if test="orderNo != null and orderNo != ''">
 			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
 			</if>
@@ -106,8 +106,8 @@
 			and D.zone_id = E.id
 			and C.city = D.name
 			and C.country_id = 50
-			and (A.checkin < to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
-			     and A.checkout >= to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <= to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
+			and (A.checkin <![CDATA[<]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
+			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
 			<if test="orderNo != null and orderNo != ''">
 			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
 			</if>
@@ -148,8 +148,8 @@
 			and D.zone_id = E.id
 			and C.city = D.name
 			and C.country_id = 50
-			and (A.checkin >= to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <= to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
-			     and (A.checkout > to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') or A.checkout is null))
+			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
+			     and (A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') or A.checkout is null))
 	    	<if test="orderNo != null and orderNo != ''">
 			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
 			</if>
