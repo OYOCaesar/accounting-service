@@ -31,6 +31,12 @@ public class SyncHotel {
   private String contacts;
   private String address;
 
+  @Column(name = "start_date")
+  private String startDate;
+
+  @Column(name = "update_remark")
+  private String updateRemark;
+
 
 
 

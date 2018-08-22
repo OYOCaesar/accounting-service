@@ -92,17 +92,27 @@
         <result column="hawk_eye_hotel_id" property="hawkEyeHotelId" />
         <result column="hawk_eye_url" property="hawkEyeUrl" />
         <result column="rs_slabs" property="oyoShare"/>
+        <result column="from_time" property="fromTime"/>
+        <result column="to_time" property="toTime"/>
+        <result column="meta_data" property="metaData"/>
     </resultMap>
 
 
     <select id="queryHotelList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.HotelDto">
-        select h.* from hotels h where 1=1
-          <if test="searchHotel.id != null">
-              and h.id = #{searchHotel.id}
-          </if>
-          <if test="searchHotel.country">
-              and h.country = #{searchHotel.country}
-          </if>
+
+        select h.*,b.* from hotels h left join (
+        select hr.* from hotel_restrictions hr where
+        hr.restriction_id = 29 and hr.from_time >=DATE_TRUNC('month', current_date :: DATE)
+        and hr.to_time &lt; DATE_TRUNC('month', current_date :: DATE) + INTERVAL '1 month'
+
+        ) b on h.id = b.hotel_id where 1=1
+
+        <if test="searchHotel.id != null">
+            and h.id = #{searchHotel.id}
+        </if>
+        <if test="searchHotel.country">
+            and h.country = #{searchHotel.country}
+        </if>
     </select>
     
     <!-- 获取酒店id和name -->

@@ -18,9 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author zfguo
@@ -71,41 +69,53 @@ public class SyncHotelToSapService {
 
         for (HotelDto h : hotelList) {
 
+            //1 准备数据
+            //查询AccountDetails
+            AccountDetailsDto accountDetails = crsAccountDetailsMapper.queryAccountDetailsByItemId(h.getId());
+            h.setAccountDetails(accountDetails);
+            //查询UserProfiles
+            UserProfilesDto userProfiles = crsUserProfilesMapper.queryUserProfilesByHotelIdAndRole(h.getId());
+            h.setUserProfiles(userProfiles);
+
+            //初始化SyncHotel
+            SyncHotel syncHotelC = new SyncHotel();
+            //处理业务逻辑
+            Map<String, Object> syncHotemMap = syncHotelC.getSyncHotelMap();
+            //客户
+            syncHotelC.setSyncHotelMap(h,true);
+            //初始化SyncHotelV
+            SyncHotel syncHotelV = new SyncHotel();
+            //商家
+            syncHotelV.setSyncHotelMap(h,false);
+
             //查询同步日志，判断是否需要同步
             SyncLogDto syncLogSearch = new SyncLogDto();
-            syncLogSearch.setSourceId(h.getId());
+            syncLogSearch.setSourceId(h.getId());//这个酒店
             syncLogSearch.setStatus(0);//同步成功的日志
             syncLogSearch.setType("Hotel");
             List<SyncLogDto> syncLogDtoList = this.accountingSyncLogMapper.querySyncList(syncLogSearch);
 
             boolean syncLogDtoListIsNull = syncLogDtoList == null || syncLogDtoList.size() == 0;  //同步日志是否为null
             SyncLogDto syncLogDto = null;
-            if (!syncLogDtoListIsNull) syncLogDto = syncLogDtoList.get(0);   //不为null
+            boolean compare = false;//true相等 false不相等
+            if (!syncLogDtoListIsNull) {
+                syncLogDto = syncLogDtoList.get(0);   //不为null
+                String jsonData = syncLogDto.getJsonData();
+                JSONObject  jasonObject = JSONObject.fromObject(jsonData);
+                Map map = (Map)jasonObject;//上次同步的数据
+                //判断数据是否有变更
+                compare = "C".equals(map.get("CardType"))?compareMap(map,syncHotelC.getSyncHotelMap()):compareMap(map,syncHotelV.getSyncHotelMap());
+            }
             //判断是否需要同步
-            boolean isSync = syncLogDtoListIsNull || (!syncLogDtoListIsNull && syncLogDto != null && (h.getUpdatedAt().getTime() - syncLogDto.getSourceUpdateTime().getTime() > 60000));
+            boolean isSync = syncLogDtoListIsNull || (!syncLogDtoListIsNull && syncLogDto != null && !compare);
             //需要同步sap
             if (isSync) {
-                //1 准备数据
-                //查询AccountDetails
-                //AccountDetailsDto accountDetails = crsAccountDetailsMapper.queryAccountDetailsByItemId(h.getId());
-                //h.setAccountDetails(accountDetails);
-                //查询UserProfiles
-                UserProfilesDto userProfiles = crsUserProfilesMapper.queryUserProfilesByHotelIdAndRole(h.getId());
-                h.setUserProfiles(userProfiles);
-
-                //初始化SyncHotel
-                SyncHotel syncHotel = new SyncHotel();
-                //处理业务逻辑
-                Map<String, Object> syncHotemMap = syncHotel.getSyncHotelMap();
-                //客户
-                syncHotel.setSyncHotelMapC(h, syncHotemMap);
 
                 //2 同步到sap
-                boolean successC = syncHotelMethod(h,syncHotel,s,batch,syncLogDto);
-                //商家
-                syncHotel.setSyncHotelMapV(h, syncHotemMap);
+                boolean successC = syncHotelMethod(h,syncHotelC,s,batch,syncLogDto);
+
                 // 同步到sap
-                boolean successV = syncHotelMethod(h,syncHotel,s,batch,syncLogDto);
+                boolean successV = syncHotelMethod(h,syncHotelV,s,batch,syncLogDto);
 
                 if(successC && successV){
                     sCount++;
@@ -160,4 +170,26 @@ public class SyncHotelToSapService {
 
         return success;
     }
+
+    private boolean compareMap(Map<String, Object> m1,Map<String, Object> m2){
+
+        JSONObject m1JsonArray = JSONObject.fromObject(m1);
+        JSONObject m2JsonArray = JSONObject.fromObject(m2);
+        Iterator<String> keys = m1JsonArray.keys();
+        while(keys.hasNext()){
+            String key = keys.next();
+            Object m1value = m1JsonArray.get(key) == null?"":m1JsonArray.get(key);
+            Object m2value = m2JsonArray.get(key)==null?"":m2JsonArray.get(key);
+            if(m1value instanceof String){
+                if (!m1value.equals(m2value)) return false;
+
+            }else if("net.sf.json.JSONArray".equals(m1value.getClass().getName())){
+                if (!m1value.toString().equals(m2value.toString())) return false;
+
+            }
+
+        }
+        return true;
+    }
+
 }
