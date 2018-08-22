@@ -27,8 +27,8 @@ public class QueryAccountPeriodDto {
     private String city;//City
 	private String hotelName;// 酒店名称
 	
-	private Integer pageNum;//第几页，从1开始
-	private Integer pageSize;//每页记录数
+	private Integer pageNum = 1;//第几页，从1开始
+	private Integer pageSize = 10;//每页记录数
 	
     
 }

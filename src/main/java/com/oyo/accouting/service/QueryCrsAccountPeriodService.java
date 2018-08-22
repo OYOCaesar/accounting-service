@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -24,6 +25,7 @@ import com.oyo.accouting.bean.CrsEnumsDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
 import com.oyo.accouting.mapper.crs.CrsAccountPeriodMapper;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 /**
@@ -113,7 +115,11 @@ public class QueryCrsAccountPeriodService {
     				}
     				
     				//本月应结算总额（计算）,=房价*天数 currentMonthSettlementTotalAmountCompute
-    				q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(6, BigDecimal.ROUND_HALF_UP));
+    				if (null != q.getRoomPrice() && null != q.getCheckInDays()) {
+    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(6, BigDecimal.ROUND_HALF_UP));
+    				} else {
+    					q.setCurrentMonthSettlementTotalAmountCompute(null);
+    				}
     				//订单状态描述;
     				q.setStatusDes(crsEnumsDtoList.stream().filter(m->"status".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue()).collect(Collectors.toList()).get(0).getEnumVal());
     				//本月已用间夜数 currentMonthRoomsNumber
@@ -121,8 +127,17 @@ public class QueryCrsAccountPeriodService {
     				//本月应结算总额 currentMonthSettlementTotalAmount
     				q.setCurrentMonthSettlementTotalAmount(q.getCurrentMonthSettlementTotalAmountCompute()); //待定
     				//支付方式 paymentMethod
-    				JSONObject obj = JSONObject.fromObject(q.getPaymentMethod());
-    				q.setPaymentMethod(obj.getString("mode"));
+    				if (StringUtils.isNotEmpty(q.getPaymentMethod())) {
+    					if (q.getPaymentMethod().startsWith("[")) {
+    						JSONArray arr = JSONArray.fromObject(q.getPaymentMethod());
+    						q.setPaymentMethod(arr.getJSONObject(0).getString("mode"));
+    					} else {
+    						JSONObject obj = JSONObject.fromObject(q.getPaymentMethod());
+        					if (null != obj) {
+        						q.setPaymentMethod(obj.getString("mode"));
+        					}
+    					}
+    				}    				
     				//支付类型（预付/后付费）paymentType
     				q.setPaymentType(crsEnumsDtoList.stream().filter(m->"payment_type".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue()).collect(Collectors.toList()).get(0).getEnumVal());
     				//本月匹配费率 currentMonthRate

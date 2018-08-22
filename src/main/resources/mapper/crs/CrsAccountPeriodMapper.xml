@@ -66,16 +66,16 @@
 			and C.country_id = 50
 			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
 			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
-			<if test="orderNo != null and orderNo != ''">
+			<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
 			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
 			</if>
-			<if test="region != null and region != ''">
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
 			    AND E.name = #{queryAccountPeriodDto.region}
 			</if>
-			<if test="city != null and city != ''">
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
 			    AND C.city = #{queryAccountPeriodDto.city}
 			</if>
-			<if test="hotelName != null and hotelName != ''">
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
 			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
 			</if>
 			union all		 
@@ -108,16 +108,16 @@
 			and C.country_id = 50
 			and (A.checkin <![CDATA[<]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
 			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
-			<if test="orderNo != null and orderNo != ''">
+			<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
 			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
 			</if>
-			<if test="region != null and region != ''">
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
 			    AND E.name = #{queryAccountPeriodDto.region}
 			</if>
-			<if test="city != null and city != ''">
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
 			    AND C.city = #{queryAccountPeriodDto.city}
 			</if>
-			<if test="hotelName != null and hotelName != ''">
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
 			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
 			</if>
 			union all
@@ -150,16 +150,16 @@
 			and C.country_id = 50
 			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
 			     and (A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') or A.checkout is null))
-	    	<if test="orderNo != null and orderNo != ''">
+	    	<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
 			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
 			</if>
-			<if test="region != null and region != ''">
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
 			    AND E.name = #{queryAccountPeriodDto.region}
 			</if>
-			<if test="city != null and city != ''">
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
 			    AND C.city = #{queryAccountPeriodDto.city}
 			</if>
-			<if test="hotelName != null and hotelName != ''">
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
 			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
 			</if>
 	    </foreach>
