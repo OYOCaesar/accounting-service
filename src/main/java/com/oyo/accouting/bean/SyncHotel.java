@@ -43,7 +43,7 @@ public class SyncHotel {
         Map<String ,Object>[] contactEmployees = new LinkedHashMap[1];
         UserProfilesDto userProfiles = hotel.getUserProfiles();
         contactEmployees[0] = new LinkedHashMap<>();
-        contactEmployees[0].put("Name",checkNull(userProfiles.getFirstName()+userProfiles.getLastName()));
+        contactEmployees[0].put("Name",checkNull(userProfiles.getFirstName()).toString()+checkNull(userProfiles.getLastName()).toString());
         contactEmployees[0].put("Tel1",checkNull(userProfiles.getPhone()));
         this.syncHotelMap.put("Contacts",contactEmployees);
 

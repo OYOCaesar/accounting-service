@@ -97,8 +97,12 @@
 
     <select id="queryHotelList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.HotelDto">
 
-        select * from hotels h ,hotel_restrictions b where h.id  = b.hotel_id and b.restriction_id = 29
-        and b.from_time >=DATE_TRUNC('month', current_date :: DATE)and b.to_time &lt; DATE_TRUNC('month', current_date :: DATE) + INTERVAL '1 month'
+        select h.*,b.* from hotels h left join (
+        select hr.* from hotel_restrictions hr where
+        hr.restriction_id = 29 and hr.from_time >=DATE_TRUNC('month', current_date :: DATE)
+        and hr.to_time &lt; DATE_TRUNC('month', current_date :: DATE) + INTERVAL '1 month'
+
+        ) b on h.id = b.hotel_id where 1=1
 
         <if test="searchHotel.id != null">
             and h.id = #{searchHotel.id}
