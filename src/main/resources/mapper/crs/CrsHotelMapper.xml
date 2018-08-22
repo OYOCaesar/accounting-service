@@ -96,13 +96,16 @@
 
 
     <select id="queryHotelList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.HotelDto">
-        select h.* from hotels h where 1=1
-          <if test="searchHotel.id != null">
-              and h.id = #{searchHotel.id}
-          </if>
-          <if test="searchHotel.country">
-              and h.country = #{searchHotel.country}
-          </if>
+
+        select * from hotels h ,hotel_restrictions b where h.id  = b.hotel_id and b.restriction_id = 29
+        and b.from_time >=DATE_TRUNC('month', current_date :: DATE)and b.to_time &lt; DATE_TRUNC('month', current_date :: DATE) + INTERVAL '1 month'
+
+        <if test="searchHotel.id != null">
+            and h.id = #{searchHotel.id}
+        </if>
+        <if test="searchHotel.country">
+            and h.country = #{searchHotel.country}
+        </if>
     </select>
     
     <!-- 获取酒店id和name -->
