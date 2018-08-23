@@ -15,7 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -104,7 +108,7 @@ public class QueryCrsAccountPeriodController {
     			List<AccountPeriodDto> eachList = entry.getValue();
     			String fileName = entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + System.currentTimeMillis() + ".xlsx";
     			fis = new FileInputStream(excelModelName);
-    			out = new FileOutputStream("/" + fileName);
+    			out = new FileOutputStream("d:/" + fileName);
     			workBook = new XSSFWorkbook(fis);
     			XSSFSheet sheet1 = workBook.getSheet("月账单");
     			XSSFCell oyoIdCell = sheet1.getRow(1).getCell(2);
@@ -120,23 +124,24 @@ public class QueryCrsAccountPeriodController {
     			titleCell.setCellValue(eachList.get(0).getAccountPeriod().substring(0, 4) + "/" + eachList.get(0).getAccountPeriod().substring(4) + "账单总结");// 2018/07账单总结
     			
     			XSSFCell roomsNightCell = sheet1.getRow(7).getCell(2);
-    			roomsNightCell.setCellValue(eachList.stream().map(AccountPeriodDto::getCurrentMonthRoomsNumber).reduce(Integer::sum).orElse(0));// 1. 本月双方确认的已售间夜数
+    			roomsNightCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthRoomsNumber() != null).map(AccountPeriodDto::getCurrentMonthRoomsNumber).reduce(Integer::sum).orElse(0));// 1. 本月双方确认的已售间夜数
     			
     			XSSFCell currentMonthSettlementTotalAmountCell = sheet1.getRow(8).getCell(2);
     			currentMonthSettlementTotalAmountCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmount() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmount).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// 2. 本月双方确认的营收
     			
     			XSSFCell oyoShareCell = sheet1.getRow(9).getCell(2);
-    			oyoShareCell.setCellValue(eachList.stream().map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// //3. 本月双方确认的OYO的提成
+    			oyoShareCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// //3. 本月双方确认的OYO的提成
     			
     			XSSFCell ownerPayCell = sheet1.getRow(12).getCell(2);
-    			ownerPayCell.setCellValue(eachList.stream().map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// //6. 本月业主应支付OYO金额
+    			ownerPayCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// //6. 本月业主应支付OYO金额
     			
     			XSSFSheet sheet = workBook.getSheet("CRS明细");
     			
     			sheet.shiftRows(3, 3 + entry.getValue().size(), 1, true, false); // 第1个参数是指要开始插入的行，第2个参数是结尾行数
 				for (int i = 0; i < entry.getValue().size(); i++) {
-					XSSFRow creRow = sheet.createRow(1 + i);
-					creRow.setRowStyle(sheet.getRow(1).getRowStyle());
+					XSSFRow creRow = sheet.createRow(3 + i);
+					CellStyle cellStyle = sheet.getRow(2).getRowStyle();
+					creRow.setRowStyle(cellStyle);
 					creRow.createCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
 					creRow.createCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
 					creRow.createCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
