@@ -104,10 +104,15 @@ public class QueryCrsAccountPeriodService {
     			//获取CRS中所有的bookings表的枚举类型
     			List<CrsEnumsDto> crsEnumsDtoList = crsAccountPeriodMapper.queryCrsEnumByTableName("bookings");
     			
-    			
     			resultList.forEach(q->{
     				//订单渠道
-    				q.setOrderChannel(crsEnumsDtoList.stream().filter(m->"source".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue()).collect(Collectors.toList()).get(0).getEnumVal());
+    				if (StringUtils.isNotEmpty(q.getOrderChannel())) {
+    					if (crsEnumsDtoList.stream().anyMatch(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.valueOf(q.getOrderChannel())))) {
+    						q.setOrderChannel(crsEnumsDtoList.stream().filter(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.valueOf(q.getOrderChannel()))).collect(Collectors.toList()).get(0).getEnumVal());
+    					}
+    				} else {
+    					q.setOrderChannel("");
+    				}
     				
     				//计算房间价格 roomPrice
     				if (q.getRoomsNumber() != null && q.getRoomsNumber().intValue() != 0 && q.getCheckInDays() != null && q.getCheckInDays().intValue() != 0) {
@@ -121,11 +126,17 @@ public class QueryCrsAccountPeriodService {
     					q.setCurrentMonthSettlementTotalAmountCompute(null);
     				}
     				//订单状态描述;
-    				q.setStatusDes(crsEnumsDtoList.stream().filter(m->"status".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue()).collect(Collectors.toList()).get(0).getEnumVal());
+    				if (q.getStatusCode() != null) {
+    					if (crsEnumsDtoList.stream().anyMatch(m->"status".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue())) {
+    						q.setStatusDes(crsEnumsDtoList.stream().filter(m->"status".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue()).collect(Collectors.toList()).get(0).getEnumVal());
+    					}
+    				} else {
+    					q.setStatusDes("");
+    				}
     				//本月已用间夜数 currentMonthRoomsNumber
     				q.setCurrentMonthRoomsNumber(q.getRoomsNumber() * q.getCheckInDays());
     				//本月应结算总额 currentMonthSettlementTotalAmount
-    				q.setCurrentMonthSettlementTotalAmount(q.getCurrentMonthSettlementTotalAmountCompute()); //待定
+    				q.setCurrentMonthSettlementTotalAmount(null); //待定
     				//支付方式 paymentMethod
     				if (StringUtils.isNotEmpty(q.getPaymentMethod())) {
     					if (q.getPaymentMethod().startsWith("[")) {
@@ -139,7 +150,11 @@ public class QueryCrsAccountPeriodService {
     					}
     				}    				
     				//支付类型（预付/后付费）paymentType
-    				q.setPaymentType(crsEnumsDtoList.stream().filter(m->"payment_type".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue()).collect(Collectors.toList()).get(0).getEnumVal());
+    				if (StringUtils.isNotEmpty(q.getPaymentType())) {
+    					if (crsEnumsDtoList.stream().anyMatch(m->"payment_type".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.parseInt(q.getPaymentType())))) {
+    						q.setPaymentType(crsEnumsDtoList.stream().filter(m->"payment_type".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.parseInt(q.getPaymentType()))).collect(Collectors.toList()).get(0).getEnumVal());
+    					}
+    				}
     				//本月匹配费率 currentMonthRate
     				
     				//OYO share

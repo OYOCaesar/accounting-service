@@ -36,11 +36,17 @@ public class QueryCrsAccountPeriodController {
     	try {
     		PageHelper.startPage(queryAccountPeriodDto.getPageNum(), queryAccountPeriodDto.getPageSize());
     		LocalDate localDate = LocalDate.now();
-    		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery())) {
+    		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
+    		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
     			queryAccountPeriodDto.setStartYearAndMonthQuery(localDate.getYear() + "-" + localDate.getMonthValue());
-    		}
-    		if (StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
     			queryAccountPeriodDto.setEndYearAndMonthQuery(localDate.getYear() + "-" + localDate.getMonthValue());
+    		} else {
+    			if (StringUtils.isNotEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
+        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery());
+        		}
+        		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isNotEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
+        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
+        		}
     		}
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
     		result.setRows(list);

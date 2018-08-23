@@ -28,7 +28,7 @@ public class QueryAccountPeriodDto {
 	private String hotelName;// 酒店名称
 	
 	private Integer pageNum = 1;//第几页，从1开始
-	private Integer pageSize = 10;//每页记录数
+	private Integer pageSize = 1000;//每页记录数
 	
     
 }
