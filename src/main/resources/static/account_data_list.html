@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>oyoShare list</title>
+    <link rel="stylesheet" type="text/css"
+          href="easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="./easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="./easyui/demo/demo.css">
+    <script src="./js/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="./easyui/jquery.easyui.min.js"></script>
+    <style>
+    </style>
+</head>
+<body>
+<div class="search_div" style="margin-top: 20px;" th:width="100%" th:height="100">
+    <table>
+        <tr>
+            <td><span class="title_span">账期: </span><input class="easyui-datebox" value="" id="fromDate_inp" data-options="iconCls:'icon-search'"> 至 <input class="easyui-datebox" value="" id="endDate_inp" data-options="iconCls:'icon-search'"></td>
+            <td><span class="title_span right_span">入住日期: </span><input class="easyui-datebox" value="" id="checkinDate_inp" data-options="iconCls:'icon-search'"></td>
+        </tr>
+        <tr><td></td><td></td></tr>
+    </table>
+    <div>
+        <span class="title_span">退房日期: </span><input class="easyui-datebox" value="" id="checkoutDate_inp" data-options="iconCls:'icon-search'">
+        <span class="title_span right_span">订单号: </span><input class="easyui-textbox" value="" id="orderNo_inp" data-options="iconCls:'icon-search'">
+    </div>
+    <div>
+        <span class="title_span">区域: </span><input class="easyui-combobox" value="" id="area_inp" data-options="iconCls:'icon-search'">
+        <span class="title_span right_span">城市: </span><input class="easyui-combobox" value="" id="city_inp" data-options="iconCls:'icon-search'">
+    </div>
+    <div><span class="title_span">酒店名称: </span><input class="easyui-textbox" value="" id="hotelName_inp" data-options="iconCls:'icon-search'"></div>
+    <div>
+        <a id="search_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+
+        <a id="reset_btn" href="javascript:void(0);" class="easyui-linkbutton" data-options="iconCls:'icon-undo'">重置</a>
+
+        <a id="search_badk" href="./index.html" class="easyui-linkbutton" data-options="iconCls:'icon-back'">返回</a>
+    </div>
+</div>
+<div class="data_div" th:width="100%">
+    <div id="dataTable" th:width="100%">  </div>
+</div>
+<script>
+
+    $(function () {
+
+        querySyncHotelList();
+
+        $('#search_btn').bind('click', function(){
+            var queryParams = getSyncHotelListQueryParams();
+            $('#dataTable').datagrid('load',queryParams);
+        });
+
+        $('#reset_btn').bind('click', function(){
+            $('#sourceId_inp').attr('value','');
+            $('#type_inp').combobox('setValue','');
+            $('#status_inp').combobox('setValue','');
+            $('#batch_inp').attr('value','')
+        });
+    });
+
+    function querySyncHotelList() {
+
+        var queryParams = {};//getSyncHotelListQueryParams();
+
+        $('#dataTable').datagrid({
+            url:'',
+            columns:[[
+                {field:'id',title:'id',width:60},
+                {field:'sourceId',title:'sourceId',width:60},
+                {field:'type',title:'同步数据类型',width:80},
+                {field:'status',title:'同步状态',width:60},
+                {field:'message',title:'同步结果',width:80},
+                {field:'batch',title:'同步批次',width:100},
+                {field:'jsonData',title:'同步的数据',width:450}
+            ]],
+            fitColumns:true,
+            queryParams: queryParams
+        });
+    }
+
+    function getSyncHotelListQueryParams() {
+        var sourceId = $('#sourceId_inp').attr('value').trim();
+        var type = $('#type_inp').combobox('getValue');
+        var status = $('#status_inp').combobox('getValue');
+        var batch = $('#batch_inp').attr('value').trim();
+        var queryParams = {
+            sourceId: sourceId,
+            type: type,
+            status:status,
+            batch:batch
+        };
+        return queryParams;
+    }
+
+
+</script>
+</body>
+</html>
