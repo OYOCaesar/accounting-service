@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oyo.accouting.mapper.crs.CrsAccountPeriodMapper">
+    
+    <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.AccountPeriodDto" >
+        <result column="unique_code" property="uniqueCode" />
+        <result column="period" property="accountPeriod" />
+        <result column="hotel_name" property="hotelName" />
+        <result column="order_no" property="orderNo" />
+        <result column="guest_name" property="guestName" />
+        <result column="source" property="orderChannel" />
+        <result column="checkin" property="checkInDate" />
+        <result column="checkout" property="checkOutDate" />
+        <result column="period_start_date" property="startDateOfAccountPeriod" />
+        <result column="period_end_date" property="endDateOfAccountPeriod" />
+        <result column="check_in_days" property="checkInDays" />
+        <result column="status" property="statusCode" />
+        <result column="oyo_rooms" property="roomsNumber" />
+        <result column="amount" property="orderTotalAmount" />
+        <result column="payments" property="paymentMethod" />
+        <result column="payment_type" property="paymentType" />
+        <result column="ota_id" property="otaId" />
+        <result column="city" property="city" />
+        <result column="region" property="region" />
+        <result column="hotel_id" property="hotelId" />
+        <result column="oyo_id" property="oyoId" />
+    </resultMap>
+    
+    <resultMap id="BaseResultMapCrsEnum" type="com.oyo.accouting.bean.CrsEnumsDto" >
+        <result column="id" property="id" />
+        <result column="table_name" property="tableName" />
+        <result column="column_name" property="columnName" />
+        <result column="enum_key" property="enumKey" />
+        <result column="enum_val" property="enumVal" />
+    </resultMap>
+    
+    <!-- 汇总统计 -->
+    <resultMap id="BaseResultTotalMap" type="com.oyo.accouting.bean.AccountPeriodTotalDto" >
+        <result column="oyo_id" property="oyoId" />
+        <result column="unique_code" property="uniqueCode" />
+        <result column="hotel_name" property="hotelName" />
+        <result column="period" property="accountPeriod" />
+        <result column="oyo_rooms" property="roomsNumber" />
+        <result column="amount" property="orderTotalAmount" />
+        <result column="city" property="city" />
+        <result column="region" property="region" />
+        <result column="hotel_id" property="hotelId" />
+        <result column="check_in_days" property="checkInDays" />
+    </resultMap>
+    
+    <!-- 明细统计 -->
+    <resultMap id="BaseResultDetailsMap" type="com.oyo.accouting.bean.AccountPeriodDetailsDto" >
+        <result column="oyo_id" property="oyoId" />
+        <result column="unique_code" property="uniqueCode" />
+        <result column="hotel_name" property="hotelName" />
+        <result column="period" property="accountPeriod" />
+        <result column="order_no" property="orderNo" />
+        <result column="guest_name" property="guestName" />
+        <result column="source" property="orderChannel" />
+        <result column="checkin" property="checkInDate" />
+        <result column="checkout" property="checkOutDate" />
+        <result column="status" property="statusCode" />
+        <result column="oyo_rooms" property="roomsNumber" />
+        <result column="amount" property="orderTotalAmount" />
+        <result column="payments" property="paymentMethod" />
+        <result column="payment_type" property="paymentType" />
+        <result column="ota_id" property="otaId" />
+        <result column="city" property="city" />
+        <result column="region" property="region" />
+        <result column="hotel_id" property="hotelId" />
+        <result column="period_start_date" property="startDateOfAccountPeriod" />
+        <result column="period_end_date" property="endDateOfAccountPeriod" />
+        <result column="check_in_days" property="checkInDays" />
+    </resultMap>
+    
+    <!-- 条件查询CRS中的账期信息 -->
+    <select id="queryAccountPeriodByCondition"  resultMap="BaseResultMap" parameterType="java.util.List">
+        select unique_code,oyo_id,period,hotel_name,order_no,guest_name,source,checkin,checkout,period_start_date,period_end_date,
+		check_in_days,status,oyo_rooms,amount,payments,payment_type,ota_id,city,region,hotel_id from (
+		<foreach collection="list" item="queryAccountPeriodDto" separator=" union all ">
+		    <!-- 1.checkin in period and checkout in period -->
+			select
+			c.unique_code,
+			c.oyo_id, 
+			#{queryAccountPeriodDto.accountPeriod} period,
+			C.name hotel_name,
+			A.invoice_no order_no,
+			CONCAT(B.last_name,B.first_name) guest_name,
+			A.source,
+			A.checkin,
+			A.checkout,
+			A.checkin period_start_date,
+			A.checkout period_end_date,
+			(A.checkout - A.checkin) check_in_days,
+			A.status,
+			A.oyo_rooms,
+			A.amount,
+			A.payments,
+			A.payment_type,
+			A.ota_id,
+			C.city,
+			E.name region,
+			C.id hotel_id
+			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			where A.guest_id = B.id
+			and A.hotel_id = C.id
+			and D.zone_id = E.id
+			and C.city = D.name
+			and C.country_id = 50
+			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
+			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
+			<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
+			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
+			</if>
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
+			    AND E.name = #{queryAccountPeriodDto.region}
+			</if>
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
+			    AND C.city = #{queryAccountPeriodDto.city}
+			</if>
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
+			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
+			</if>
+			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
+			    AND C.id = #{queryAccountPeriodDto.hotelId}
+			</if>
+			union all		 
+			<!-- 2.checkin not in period and checkout in period	-->	 
+			select 
+			c.unique_code,
+			c.oyo_id,
+			#{queryAccountPeriodDto.accountPeriod} period,
+			C.name hotel_name,
+			A.invoice_no order_no,
+			CONCAT(B.last_name,B.first_name) guest_name,
+			A.source,
+			A.checkin,
+			A.checkout,
+			to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD')  period_start_date,
+			A.checkout period_end_date,
+			(A.checkout - to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD')) check_in_days,
+			A.status,
+			A.oyo_rooms,
+			A.amount,
+			A.payments,
+			A.payment_type,
+			A.ota_id,
+			C.city,
+			E.name region,
+			C.id hotel_id
+			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			where A.guest_id = B.id
+			and A.hotel_id = C.id
+			and D.zone_id = E.id
+			and C.city = D.name
+			and C.country_id = 50
+			and (A.checkin <![CDATA[<]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
+			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
+			<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
+			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
+			</if>
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
+			    AND E.name = #{queryAccountPeriodDto.region}
+			</if>
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
+			    AND C.city = #{queryAccountPeriodDto.city}
+			</if>
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
+			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
+			</if>
+			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
+			    AND C.id = #{queryAccountPeriodDto.hotelId}
+			</if>
+			union all
+			<!-- 3.checkin in period and checkout not in period or checkout is null-->			 
+			select 
+			c.unique_code,
+			c.oyo_id,
+			#{queryAccountPeriodDto.accountPeriod} period,
+			C.name hotel_name,
+			A.invoice_no order_no,
+			CONCAT(B.last_name,B.first_name) guest_name,
+			A.source,
+			A.checkin,
+			A.checkout,
+			A.checkin  period_start_date,
+			to_date(#{queryAccountPeriodDto.nextAccountPeriodStart},'YYYY-MM-DD') period_end_date,
+			(to_date(#{queryAccountPeriodDto.nextAccountPeriodStart},'YYYY-MM-DD') - A.checkin) check_in_days,
+			A.status,
+			A.oyo_rooms,
+			A.amount,
+			A.payments,
+			A.payment_type,
+			A.ota_id,
+			C.city,
+			E.name region,
+			C.id hotel_id
+			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			where A.guest_id = B.id
+			and A.hotel_id = C.id
+			and D.zone_id = E.id
+			and C.city = D.name
+			and C.country_id = 50
+			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
+			     and (A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') or A.checkout is null))
+	    	<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
+			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
+			</if>
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
+			    AND E.name = #{queryAccountPeriodDto.region}
+			</if>
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
+			    AND C.city = #{queryAccountPeriodDto.city}
+			</if>
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
+			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
+			</if>
+			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
+			    AND C.id = #{queryAccountPeriodDto.hotelId}
+			</if>
+	    </foreach>
+		) as foo
+		ORDER BY foo.hotel_name,foo.order_no,foo.guest_name,foo.checkin desc
+	</select>
+        
+	<!-- 条件查询CRS中汇总的账期信息 -->
+    <select id="queryTotalAccountPeriodByCondition"  resultMap="BaseResultTotalMap" parameterType="java.util.List">
+        select oyo_id,unique_code,hotel_name,period,oyo_rooms,amount,city,region,hotel_id,check_in_days
+		from (
+		<foreach collection="list" item="queryAccountPeriodDto" separator=" union all ">
+		    <!-- 1.checkin in period and checkout in period -->
+			select
+			c.oyo_id,
+			c.unique_code,
+			C.name hotel_name,
+			#{queryAccountPeriodDto.accountPeriod} period,
+			A.oyo_rooms,
+			A.amount,
+			C.city,
+			E.name region,
+			C.id hotel_id,
+			(A.checkout - A.checkin) check_in_days
+			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			where A.guest_id = B.id
+			and A.hotel_id = C.id
+			and D.zone_id = E.id
+			and C.city = D.name
+			and C.country_id = 50
+			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
+			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
+			<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
+			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
+			</if>
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
+			    AND E.name = #{queryAccountPeriodDto.region}
+			</if>
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
+			    AND C.city = #{queryAccountPeriodDto.city}
+			</if>
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
+			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
+			</if>
+			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
+			    AND C.id = #{queryAccountPeriodDto.hotelId}
+			</if>
+			union all		 
+			<!-- 2.checkin not in period and checkout in period	-->	 
+			select 
+			c.oyo_id,
+			c.unique_code,
+			C.name hotel_name,
+			A.oyo_rooms,
+			A.amount,
+			C.city,
+			E.name region,
+			C.id hotel_id,
+			(A.checkout - to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD')) check_in_days
+			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			where A.guest_id = B.id
+			and A.hotel_id = C.id
+			and D.zone_id = E.id
+			and C.city = D.name
+			and C.country_id = 50
+			and (A.checkin <![CDATA[<]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
+			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
+			<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
+			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
+			</if>
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
+			    AND E.name = #{queryAccountPeriodDto.region}
+			</if>
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
+			    AND C.city = #{queryAccountPeriodDto.city}
+			</if>
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
+			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
+			</if>
+			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
+			    AND C.id = #{queryAccountPeriodDto.hotelId}
+			</if>
+			union all
+			<!-- 3.checkin in period and checkout not in period or checkout is null-->			 
+			select 
+			c.oyo_id,
+			c.unique_code,
+			C.name hotel_name,
+			A.oyo_rooms,
+			A.amount,
+			C.city,
+			E.name region,
+			C.id hotel_id,
+			(to_date(#{queryAccountPeriodDto.nextAccountPeriodStart},'YYYY-MM-DD') - A.checkin) check_in_days
+			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			where A.guest_id = B.id
+			and A.hotel_id = C.id
+			and D.zone_id = E.id
+			and C.city = D.name
+			and C.country_id = 50
+			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
+			     and (A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') or A.checkout is null))
+	    	<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
+			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
+			</if>
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
+			    AND E.name = #{queryAccountPeriodDto.region}
+			</if>
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
+			    AND C.city = #{queryAccountPeriodDto.city}
+			</if>
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
+			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
+			</if>
+			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
+			    AND C.id = #{queryAccountPeriodDto.hotelId}
+			</if>
+	    </foreach>
+		) as foo
+		ORDER BY c.oyo_id
+	</select>
+	
+	<!-- 条件查询CRS中明细的账期信息 -->
+    <select id="queryDetailsAccountPeriodByCondition"  resultMap="BaseResultDetailsMap" parameterType="java.util.List">
+        select oyo_id,unique_code,hotel_name,period,order_no,guest_name,source,checkin,checkout,status,oyo_rooms,
+        amount,payments,payment_type,ota_id,city,region,hotel_id,period_start_date,period_end_date,check_in_days
+        from (
+		<foreach collection="list" item="queryAccountPeriodDto" separator=" union all ">
+		    <!-- 1.checkin in period and checkout in period -->
+			select
+			c.unique_code,
+			c.oyo_id, 
+			#{queryAccountPeriodDto.accountPeriod} period,
+			C.name hotel_name,
+			A.invoice_no order_no,
+			CONCAT(B.last_name,B.first_name) guest_name,
+			A.source,
+			A.checkin,
+			A.checkout,
+			A.checkin period_start_date,
+			A.checkout period_end_date,
+			(A.checkout - A.checkin) check_in_days,
+			A.status,
+			A.oyo_rooms,
+			A.amount,
+			A.payments,
+			A.payment_type,
+			A.ota_id,
+			C.city,
+			E.name region,
+			C.id hotel_id
+			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			where A.guest_id = B.id
+			and A.hotel_id = C.id
+			and D.zone_id = E.id
+			and C.city = D.name
+			and C.country_id = 50
+			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
+			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
+			<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
+			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
+			</if>
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
+			    AND E.name = #{queryAccountPeriodDto.region}
+			</if>
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
+			    AND C.city = #{queryAccountPeriodDto.city}
+			</if>
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
+			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
+			</if>
+			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
+			    AND C.id = #{queryAccountPeriodDto.hotelId}
+			</if>
+			union all		 
+			<!-- 2.checkin not in period and checkout in period	-->	 
+			select 
+			c.unique_code,
+			c.oyo_id,
+			#{queryAccountPeriodDto.accountPeriod} period,
+			C.name hotel_name,
+			A.invoice_no order_no,
+			CONCAT(B.last_name,B.first_name) guest_name,
+			A.source,
+			A.checkin,
+			A.checkout,
+			to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD')  period_start_date,
+			A.checkout period_end_date,
+			(A.checkout - to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD')) check_in_days,
+			A.status,
+			A.oyo_rooms,
+			A.amount,
+			A.payments,
+			A.payment_type,
+			A.ota_id,
+			C.city,
+			E.name region,
+			C.id hotel_id
+			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			where A.guest_id = B.id
+			and A.hotel_id = C.id
+			and D.zone_id = E.id
+			and C.city = D.name
+			and C.country_id = 50
+			and (A.checkin <![CDATA[<]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
+			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
+			<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
+			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
+			</if>
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
+			    AND E.name = #{queryAccountPeriodDto.region}
+			</if>
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
+			    AND C.city = #{queryAccountPeriodDto.city}
+			</if>
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
+			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
+			</if>
+			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
+			    AND C.id = #{queryAccountPeriodDto.hotelId}
+			</if>
+			union all
+			<!-- 3.checkin in period and checkout not in period or checkout is null-->			 
+			select 
+			c.unique_code,
+			c.oyo_id,
+			#{queryAccountPeriodDto.accountPeriod} period,
+			C.name hotel_name,
+			A.invoice_no order_no,
+			CONCAT(B.last_name,B.first_name) guest_name,
+			A.source,
+			A.checkin,
+			A.checkout,
+			A.checkin  period_start_date,
+			to_date(#{queryAccountPeriodDto.nextAccountPeriodStart},'YYYY-MM-DD') period_end_date,
+			(to_date(#{queryAccountPeriodDto.nextAccountPeriodStart},'YYYY-MM-DD') - A.checkin) check_in_days,
+			A.status,
+			A.oyo_rooms,
+			A.amount,
+			A.payments,
+			A.payment_type,
+			A.ota_id,
+			C.city,
+			E.name region,
+			C.id hotel_id
+			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			where A.guest_id = B.id
+			and A.hotel_id = C.id
+			and D.zone_id = E.id
+			and C.city = D.name
+			and C.country_id = 50
+			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
+			     and (A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') or A.checkout is null))
+	    	<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
+			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
+			</if>
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
+			    AND E.name = #{queryAccountPeriodDto.region}
+			</if>
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
+			    AND C.city = #{queryAccountPeriodDto.city}
+			</if>
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
+			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
+			</if>
+			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
+			    AND C.id = #{queryAccountPeriodDto.hotelId}
+			</if>
+	    </foreach>
+		) as foo
+		ORDER BY foo.hotel_name,foo.order_no,foo.guest_name,foo.checkin desc
+	</select>
+	
+	<!-- 查询所有的bookings的枚举 -->
+	<select id="queryCrsEnumByTableName"  resultMap="BaseResultMapCrsEnum" parameterType="java.lang.String">
+	    select id, table_name, column_name, enum_key, enum_val
+	    from crs_enums
+	    <where>
+	        <if test="tableName != null and tableName != ''">
+	            and table_name = #{tableName}
+	        </if>
+	    </where>
+	</select>
+	
+</mapper>

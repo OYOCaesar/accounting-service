@@ -2,6 +2,7 @@ package com.oyo.accouting.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class SyncArAndApJournalEntryController {
     	String result = "";
     	try {
     		String yearMonth = request.getParameter("yearMonth");
-    		Integer hotelId = Integer.valueOf(request.getParameter("hotelId"));
+    		Integer hotelId = StringUtils.isNotEmpty(request.getParameter("hotelId")) ? Integer.valueOf(request.getParameter("hotelId")) : null;
 			result = syncArAndApAndJournalEntryToSapService.syncArAndApAndJournalEntryToSap(yearMonth,hotelId);
 			log.info(result);
 		} catch (Exception e) {

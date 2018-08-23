@@ -34,8 +34,8 @@ public class CouponService {
         // 一般情况不会一次出现太多过期的优惠券模板，暂不分页处理
         List<CouponMetadata> couponMetadataList = couponMetadataMapper.selectByConditions(MapUtils.createConditionMap("endTime", DateUtils.getCurrentDate(),
                 "statusList", Arrays.asList(CouponMetadataStatus.READY.getStatus(),CouponMetadataStatus.ONLINE.getStatus())));
-        _log.info("expire metadata = {}",couponMetadataList);
         if(CollectionUtils.isNotEmpty(couponMetadataList)){
+            _log.info("expire metadata.size = {}",couponMetadataList.size());
             List<List<CouponMetadata>> metaList = ListUtils.partition(couponMetadataList,200);
             for(List<CouponMetadata> subMetaList : metaList){
                 doExpire(subMetaList);
@@ -44,7 +44,7 @@ public class CouponService {
         return null;
     }
 
-    @Transactional(rollbackFor = Throwable.class,propagation = Propagation.REQUIRES_NEW)
+    @Transactional(value="couponTransactionManager", rollbackFor = Throwable.class,propagation = Propagation.REQUIRES_NEW)
     public void doExpire(List<CouponMetadata> subMetaList){
        couponsMapper.updateByConditions(MapUtils.createConditionMap("metadataIdList", Lists.transform(subMetaList, new Function<CouponMetadata,Long>() {
             @Override
