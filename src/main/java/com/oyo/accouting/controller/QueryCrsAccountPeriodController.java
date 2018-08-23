@@ -114,7 +114,7 @@ public class QueryCrsAccountPeriodController {
     			hotelNameCell.setCellValue(eachList.get(0).getHotelName());// hotel name
     			
     			XSSFCell rateCell = sheet1.getRow(4).getCell(2);
-    			rateCell.setCellValue(eachList.get(0).getCurrentMonthRate().toString());// rate
+    			rateCell.setCellValue(null != eachList.get(0).getCurrentMonthRate() ? eachList.get(0).getCurrentMonthRate().toString() : "");// rate
     			
     			XSSFCell titleCell = sheet1.getRow(6).getCell(1);
     			titleCell.setCellValue(eachList.get(0).getAccountPeriod().substring(0, 4) + "/" + eachList.get(0).getAccountPeriod().substring(4) + "账单总结");// 2018/07账单总结
@@ -123,7 +123,7 @@ public class QueryCrsAccountPeriodController {
     			roomsNightCell.setCellValue(eachList.stream().map(AccountPeriodDto::getCurrentMonthRoomsNumber).reduce(Integer::sum).orElse(0));// 1. 本月双方确认的已售间夜数
     			
     			XSSFCell currentMonthSettlementTotalAmountCell = sheet1.getRow(8).getCell(2);
-    			currentMonthSettlementTotalAmountCell.setCellValue(eachList.stream().map(AccountPeriodDto::getCurrentMonthSettlementTotalAmount).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// 2. 本月双方确认的营收
+    			currentMonthSettlementTotalAmountCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmount() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmount).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// 2. 本月双方确认的营收
     			
     			XSSFCell oyoShareCell = sheet1.getRow(9).getCell(2);
     			oyoShareCell.setCellValue(eachList.stream().map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// //3. 本月双方确认的OYO的提成
@@ -138,41 +138,28 @@ public class QueryCrsAccountPeriodController {
 					XSSFRow creRow = sheet.createRow(1 + i);
 					creRow.setRowStyle(sheet.getRow(1).getRowStyle());
 					creRow.createCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
-					creRow.createCell(1).setCellValue(entry.getValue().get(i).getUniqueCode());//unique Code
-					creRow.createCell(2).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
-					creRow.createCell(3).setCellValue(entry.getValue().get(i).getAccountPeriod());//账期，如：201807
-					creRow.createCell(4).setCellValue(entry.getValue().get(i).getOrderNo());//订单号
-					creRow.createCell(5).setCellValue(entry.getValue().get(i).getGuestName());//客人姓名
-					creRow.createCell(6).setCellValue(entry.getValue().get(i).getOrderChannel());//订单渠道
-					creRow.createCell(7).setCellValue(entry.getValue().get(i).getChannelName());//渠道名
-					creRow.createCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住日期，格式：yyyy-MM-dd,查询显示字段
-					creRow.createCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//退房日期，格式：yyyy-MM-dd,查询显示字段
-					creRow.createCell(10).setCellValue(entry.getValue().get(i).getStatusDes());//订单状态描述;
-					creRow.createCell(11).setCellValue(entry.getValue().get(i).getRoomsNumber());//已用客房数
-					creRow.createCell(12).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
-					creRow.createCell(13).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//订单总额
-					creRow.createCell(14).setCellValue(null != entry.getValue().get(i).getCurrentMonthSettlementTotalAmount() ? entry.getValue().get(i).getCurrentMonthSettlementTotalAmount().toString() : "");//本月应结算总额
-					creRow.createCell(25).setCellValue(entry.getValue().get(i).getPaymentMethod());//支付方式
-					creRow.createCell(26).setCellValue(entry.getValue().get(i).getPaymentDetails());//支付明细
-					creRow.createCell(27).setCellValue(entry.getValue().get(i).getPaymentType());//支付类型（预付/后付费）
-					creRow.createCell(30).setCellValue(entry.getValue().get(i).getOtaId());//OTA ID
-					creRow.createCell(31).setCellValue(entry.getValue().get(i).getCity());//City
-					creRow.createCell(33).setCellValue(entry.getValue().get(i).getRegion());//region
-					creRow.createCell(34).setCellValue(entry.getValue().get(i).getHotelId());//Hotels ID
-					creRow.createCell(35).setCellValue(null != entry.getValue().get(i).getCurrentMonthRate() ? entry.getValue().get(i).getCurrentMonthRate().toString() : "");//本月匹配费率
-					creRow.createCell(36).setCellValue(null != entry.getValue().get(i).getOyoShare() ? entry.getValue().get(i).getOyoShare().toString() : "");//OYO share
-					creRow.createCell(37).setCellValue(entry.getValue().get(i).getStartDateOfAccountPeriod());//本账期开始日期
-					creRow.createCell(38).setCellValue(entry.getValue().get(i).getEndDateOfAccountPeriod());//本账期结束日期
-					creRow.createCell(39).setCellValue(list.get(i).getCheckInDays());// 本期入住天数
-					creRow.createCell(40).setCellValue(null != entry.getValue().get(i).getRoomPrice() ? entry.getValue().get(i).getRoomPrice().toString() : "");// 房间价格
-					creRow.createCell(41).setCellValue(null != entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute() ? entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute().toString() : "");// 本月应结算总额（计算）,=房价*天数
-				    
-					// 此处为标题，excel首行的title，按照此格式即可，格式无需改动，但是可以增加或者减少项目。
-					String export = "OYO订单编号#orderNo,顾客名字#guestName,预定人名称#bookingGuestName,预定人名称2#bookingSecondaryGuestName,订单来源#orderChannel,"
-							      + "OYO酒店编号#oyoId,OYO酒店名称#hotelName,营业收入#orderTotalAmount,入住时间#checkInDate,离店时间#checkOutDate,间/夜#currentMonthRoomsNumber,"
-							      + "费率#currentMonthRate,顾客选择方式#paymentType,平台名称#otaName,平台订单号#otaId,城市#city,区域#region,营收核对结果#revenueCheckResults,"
-							      + "营收差异原因#reasonsForRevenueDifference,提成比例#proportions,顾客选择方式核对结果#paymentTypeCheckingResult,平台费承担方#platformFeePayableParty,"
-							      + "备注#remarks";
+					creRow.createCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
+					creRow.createCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
+					creRow.createCell(3).setCellValue(entry.getValue().get(i).getBookingSecondaryGuestName());//预定人名称2
+					creRow.createCell(4).setCellValue(entry.getValue().get(i).getOrderChannel());//订单来源
+					creRow.createCell(5).setCellValue(entry.getValue().get(i).getOyoId());//OYO酒店编号
+					creRow.createCell(6).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
+					creRow.createCell(7).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//营业收入
+					creRow.createCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
+					creRow.createCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
+					creRow.createCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
+					creRow.createCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRate() ? entry.getValue().get(i).getCurrentMonthRate().toString() : "");//费率
+					creRow.createCell(12).setCellValue(entry.getValue().get(i).getPaymentType());//顾客选择方式
+					creRow.createCell(13).setCellValue(entry.getValue().get(i).getOtaName());//平台名称
+					creRow.createCell(14).setCellValue(entry.getValue().get(i).getOtaId());//平台订单号
+					creRow.createCell(15).setCellValue(entry.getValue().get(i).getCity());//城市
+					creRow.createCell(16).setCellValue(entry.getValue().get(i).getRegion());//区域
+					creRow.createCell(17).setCellValue(entry.getValue().get(i).getRevenueCheckResults());//营收核对结果
+					creRow.createCell(18).setCellValue(entry.getValue().get(i).getReasonsForRevenueDifference());//营收差异原因
+					creRow.createCell(19).setCellValue(entry.getValue().get(i).getProportions());//提成比例
+					creRow.createCell(20).setCellValue(entry.getValue().get(i).getPaymentTypeCheckingResult());//顾客选择方式核对结果
+					creRow.createCell(21).setCellValue(entry.getValue().get(i).getPlatformFeePayableParty());//平台费承担方
+					creRow.createCell(22).setCellValue(entry.getValue().get(i).getRemarks());//备注
 				}
 				workBook.write(out);
 				fis.close();
