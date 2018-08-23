@@ -38,6 +38,9 @@
         <if test="oyoShare.batch != null and oyoShare.batch != ''">
             and batch = #{oyoShare.batch}
         </if>
+        <if test="oyoShare.city != null and oyoShare.city != ''">
+            and city = #{oyoShare.city}
+        </if>
     </select>
 
     <select id="queryBatchData" resultType="com.oyo.accouting.bean.OyoShareDto" parameterType="com.oyo.accouting.bean.OyoShareDto">
@@ -48,18 +51,109 @@
     <!-- 批量插入 -->
     <insert id ="insertOyoShareList" parameterType="java.util.List" >
         insert into oyo_share
-        (hotel_id, oyo_share, status, unique_code,oyo_id,hotel_name,city,zone_name,fixed_rate,is_test,batch)
+        (
+          hotel_id,oyo_share,status,unique_code,oyo_id,hotel_name,city,zone_name,fixed_rate,is_test,batch,testing
+         )
         values
         <foreach collection ="oyoShareList" item="oyoShare" index= "index" separator =",">
-            (
-            #{oyoShare.hotelId}, #{oyoShare.oyoShare},
-            #{oyoShare.status},#{oyoShare.uniqueCode},
-            #{oyoShare.oyoId}, #{oyoShare.hotelName},
-            #{oyoShare.city},#{oyoShare.zoneName},
-            #{oyoShare.fixedRate},
-            #{oyoShare.isTest},
-            #{oyoShare.batch}
-            )
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <choose>
+                    <when test="oyoShare.hotelId != null">
+                        #{oyoShare.hotelId},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.oyoShare != null">
+                        #{oyoShare.oyoShare},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.status != null">
+                        #{oyoShare.status},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.uniqueCode != null">
+                        #{oyoShare.uniqueCode},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.oyoId != null">
+                        #{oyoShare.oyoId},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.hotelName != null">
+                        #{oyoShare.hotelName},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.city != null">
+                        #{oyoShare.city},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.zoneName != null">
+                        #{oyoShare.zoneName},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.fixedRate != null">
+                        #{oyoShare.fixedRate},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.isTest != null">
+                        #{oyoShare.isTest},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.batch != null">
+                        #{oyoShare.batch},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.testing != null">
+                        #{oyoShare.testing},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+            </trim>
         </foreach >
     </insert >
 	
