@@ -6,7 +6,6 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.oyo.accouting.bean.QueryCrsAccountingDto;
 import com.oyo.accouting.bean.SyncCrsArAndApDto;
 import com.oyo.accouting.pojo.SyncCrsArAndAp;
 
