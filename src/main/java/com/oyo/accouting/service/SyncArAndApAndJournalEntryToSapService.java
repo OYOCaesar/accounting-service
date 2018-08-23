@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.druid.util.StringUtils;
 import com.oyo.accouting.bean.SyncCrsArAndApDto;
@@ -164,18 +163,20 @@ public class SyncArAndApAndJournalEntryToSapService {
         		        JSONArray jsonArray = new JSONArray();
         		        JSONObject obj = new JSONObject();
         		        //应收Sales Memo
-        		        obj.put("CardCode", "CH-" + hotelId);//客户代码，传递时前面加C
-        		        //obj.put("Account", AccountingCode.CODE_11220203);//科目代码
-        		        obj.put("Debit", 0);//借方金额
-        		        obj.put("Credit", syncCrsArAndAp.getArAmount());//贷方金额
+        		        //obj.put("CardCode", "CH-" + hotelId);//客户代码，传递时前面加C
+        		        obj.put("CardCode", "");//客户代码，传递时前面加C
+        		        obj.put("Account", AccountingCode.CODE_60010201.getCode());//科目代码
+        		        obj.put("Debit", syncCrsArAndAp.getArAmount());//借方金额
+        		        obj.put("Credit", 0);//贷方金额
         		        obj.put("LineMemo", "CH-" + hotelId);//行备注
         		        jsonArray.add(obj);
         		    	
         		        //应付 Cost Memo
-        		        obj.put("CardCode", "H-" + hotelId);//客户代码，传递时前面加C
-        		        //obj.put("Account", AccountingCode.CODE_22020203);//科目代码
-        		        obj.put("Debit", syncCrsArAndAp.getApAmount());//借方金额
-        		        obj.put("Credit", 0);//贷方金额
+        		        //obj.put("CardCode", "H-" + hotelId);//客户代码，传递时前面加C
+        		        obj.put("CardCode", "");//客户代码，传递时前面加C
+        		        obj.put("Account", AccountingCode.CODE_60010401.getCode());//科目代码
+        		        obj.put("Debit", 0);//借方金额
+        		        obj.put("Credit", syncCrsArAndAp.getApAmount());//贷方金额
         		        obj.put("LineMemo", "CH-" + hotelId);//行备注
         		        jsonArray.add(obj);
         		        
@@ -184,8 +185,8 @@ public class SyncArAndApAndJournalEntryToSapService {
         		        obj.put("Account", AccountingCode.CODE_60010601.getCode());//科目代码
         		        BigDecimal oyoAmount = new BigDecimal("0");
         		        oyoAmount = syncCrsArAndAp.getArAmount().subtract(syncCrsArAndAp.getApAmount());
-        		        obj.put("Debit", oyoAmount);//借方金额
-        		        obj.put("Credit", 0);//贷方金额
+        		        obj.put("Debit", 0);//借方金额
+        		        obj.put("Credit", oyoAmount);//贷方金额
         		        obj.put("LineMemo", "CH-" + hotelId);//行备注
         		        jsonArray.add(obj);
         		        
