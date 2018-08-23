@@ -106,7 +106,7 @@ public class QueryCrsAccountPeriodController {
     		Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
     			List<AccountPeriodDto> eachList = entry.getValue();
-    			String fileName = entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + System.currentTimeMillis() + ".xlsx";
+    			String fileName = eachList.get(0).getOyoId() + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + System.currentTimeMillis() + ".xlsx";
     			fis = new FileInputStream(excelModelName);
     			out = new FileOutputStream("d:/" + fileName);
     			workBook = new XSSFWorkbook(fis);
