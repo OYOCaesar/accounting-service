@@ -1,5 +1,7 @@
 package com.oyo.accouting.controller;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,16 +12,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -27,8 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageHelper;
@@ -80,6 +82,48 @@ public class QueryCrsAccountPeriodController {
 		}
     	return result;
     }
+    
+	@RequestMapping(value = "/download/zip/{userId}", method = RequestMethod.GET)
+	@ResponseBody
+	public String downloadUserContracts(@PathVariable("userId") Long userId, HttpServletResponse response) {
+		log.info("批量下载用户合同信息userId={}", userId);
+		// 根据用户id获取用户签订合同信息
+		//List<ContractSignInfo> contractSignInfoList = contractSignInfoBiz.queryContractSignInfoByUserId(userId);
+		// 遍历打包下载
+		String zipName = "contract_" + userId + ".zip";
+		response.setContentType("APPLICATION/OCTET-STREAM");
+		response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
+		// 设置压缩流：直接写入response，实现边压缩边下载
+		ZipOutputStream zipOutputStream = null;
+		DataOutputStream dataOutputStream = null;
+		try {
+			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(response.getOutputStream()));
+			// 设置压缩方式
+			zipOutputStream.setMethod(ZipOutputStream.DEFLATED);
+			// 循环将文件写入压缩流
+//			for (ContractSignInfo contractSignInfo : contractSignInfoList) {
+//				String fileName = "contract_" + contractSignInfo.getInvestsId() + ".pdf";
+//				zipOutputStream.putNextEntry(new ZipEntry(fileName));
+//				dataOutputStream = new DataOutputStream(zipOutputStream);
+//				byte[] bytes = bestSignApiManagerBiz.downloadContract(contractSignInfo.getContractId());
+//				InputStream inputStream = new ByteArrayInputStream(bytes);
+//				IOUtils.copy(inputStream, dataOutputStream);
+//			}
+
+		} catch (Exception e) {
+			log.error("批量下载用户合同信息userId=" + userId + "异常", e);
+		} finally {
+			try {
+				// 一定要flush 不然你就等着报错吧
+				dataOutputStream.flush();
+				dataOutputStream.close();
+				zipOutputStream.close();
+			} catch (Exception e) {
+				log.error("批量下载用户合同信息userId=" + userId + "异常", e);
+			}
+		}
+		return null;
+	}
     
     //商户对账单导出
 	@RequestMapping("exportMerchantAccount")
