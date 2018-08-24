@@ -18,6 +18,7 @@ public class ListUtils {
         dataList.add("x3");
         dataList.add("x4");
         dataList.add("x5");
+        dataList.add("x6");
         List<List<String>> result = partition(dataList,2);
         System.out.println(result);
     }
