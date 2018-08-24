@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,17 +29,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.oyo.accouting.bean.AccountPeriodDetailsDto;
 import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.AccountPeriodTotalDto;
-import com.oyo.accouting.bean.PageResult;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
 import com.oyo.accouting.job.SyncArAndApJob;
 import com.oyo.accouting.service.QueryCrsAccountPeriodService;
@@ -56,10 +54,18 @@ public class QueryCrsAccountPeriodController {
 
     @RequestMapping(value = "query")
     @ResponseBody
-    public PageResult query(@RequestBody QueryAccountPeriodDto queryAccountPeriodDto) {
-    	PageResult result = new PageResult();
+    public ResponseEntity<List<AccountPeriodDto>> query(HttpServletRequest request, QueryAccountPeriodDto queryAccountPeriodDto) {
+    	List<AccountPeriodDto> list = new ArrayList<AccountPeriodDto>();
     	try {
-    		PageHelper.startPage(queryAccountPeriodDto.getPageNum(), queryAccountPeriodDto.getPageSize());
+    		queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
+    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
+    		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
+    		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
+    		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
+    		queryAccountPeriodDto.setRegion(request.getParameter("region"));
+    		queryAccountPeriodDto.setCity(request.getParameter("city"));
+    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+    		
     		LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
@@ -73,25 +79,33 @@ public class QueryCrsAccountPeriodController {
         			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
         		}
     		}
-    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
-    		result.setRows(list);
-			PageInfo<AccountPeriodDto> pageInfo = new PageInfo<>(list);
-			result.setTotal(pageInfo.getTotal());
+    		list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
+    		
 		} catch (Exception e) {
 			log.error("Query crs account period throwing exception:{}", e);
 		}
-    	return result;
+    	return ResponseEntity.ok(list);
     }
     
     //商户对账单导出
 	@RequestMapping("exportMerchantAccount")
-	public void exportMerchantAccount(HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
+	public void exportMerchantAccount(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
 		XSSFWorkbook workBook = null;
 		FileInputStream fis = null;
 		// 设置压缩流：直接写入response，实现边压缩边下载
 		ZipOutputStream zipOutputStream = null;
 		DataOutputStream dataOutputStream = null;
 		try {
+			
+			queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
+    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
+    		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
+    		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
+    		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
+    		queryAccountPeriodDto.setRegion(request.getParameter("region"));
+    		queryAccountPeriodDto.setCity(request.getParameter("city"));
+    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+    		
 			LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
@@ -210,6 +224,15 @@ public class QueryCrsAccountPeriodController {
 		XSSFWorkbook workBook = null;
 		FileInputStream fis = null;
 		try {
+			queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
+    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
+    		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
+    		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
+    		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
+    		queryAccountPeriodDto.setRegion(request.getParameter("region"));
+    		queryAccountPeriodDto.setCity(request.getParameter("city"));
+    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+    		
 			LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
@@ -292,13 +315,23 @@ public class QueryCrsAccountPeriodController {
 	
 	//明细导出
 	@RequestMapping("exportDetails")
-	public void exportDetails(HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
+	public void exportDetails(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
 		XSSFWorkbook workBook = null;
 		FileInputStream fis = null;
 		// 设置压缩流：直接写入response，实现边压缩边下载
 		ZipOutputStream zipOutputStream = null;
 		DataOutputStream dataOutputStream = null;
 		try {
+			
+			queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
+    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
+    		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
+    		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
+    		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
+    		queryAccountPeriodDto.setRegion(request.getParameter("region"));
+    		queryAccountPeriodDto.setCity(request.getParameter("city"));
+    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+    		
 			LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
