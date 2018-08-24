@@ -150,33 +150,30 @@ public class QueryCrsAccountPeriodController {
     			
     			XSSFSheet sheet = workBook.getSheet("CRS明细");
     			
-    			sheet.shiftRows(3, 3 + entry.getValue().size(), 1, true, false); // 第1个参数是指要开始插入的行，第2个参数是结尾行数
 				for (int i = 0; i < entry.getValue().size(); i++) {
-					XSSFRow creRow = sheet.createRow(3 + i);
-					creRow.setRowStyle(sheet.getRow(1).getRowStyle());
-					creRow.createCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
-					creRow.createCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
-					creRow.createCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
-					creRow.createCell(3).setCellValue(entry.getValue().get(i).getBookingSecondaryGuestName());//预定人名称2
-					creRow.createCell(4).setCellValue(entry.getValue().get(i).getOrderChannel());//订单来源
-					creRow.createCell(5).setCellValue(entry.getValue().get(i).getOyoId());//OYO酒店编号
-					creRow.createCell(6).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
-					creRow.createCell(7).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//营业收入
-					creRow.createCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
-					creRow.createCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
-					creRow.createCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
-					creRow.createCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRate() ? entry.getValue().get(i).getCurrentMonthRate().toString() : "");//费率
-					creRow.createCell(12).setCellValue(entry.getValue().get(i).getPaymentType());//顾客选择方式
-					creRow.createCell(13).setCellValue(entry.getValue().get(i).getOtaName());//平台名称
-					creRow.createCell(14).setCellValue(entry.getValue().get(i).getOtaId());//平台订单号
-					creRow.createCell(15).setCellValue(entry.getValue().get(i).getCity());//城市
-					creRow.createCell(16).setCellValue(entry.getValue().get(i).getRegion());//区域
-					creRow.createCell(17).setCellValue(entry.getValue().get(i).getRevenueCheckResults());//营收核对结果
-					creRow.createCell(18).setCellValue(entry.getValue().get(i).getReasonsForRevenueDifference());//营收差异原因
-					creRow.createCell(19).setCellValue(entry.getValue().get(i).getProportions());//提成比例
-					creRow.createCell(20).setCellValue(entry.getValue().get(i).getPaymentTypeCheckingResult());//顾客选择方式核对结果
-					creRow.createCell(21).setCellValue(entry.getValue().get(i).getPlatformFeePayableParty());//平台费承担方
-					creRow.createCell(22).setCellValue(entry.getValue().get(i).getRemarks());//备注
+					sheet.getRow(3 + i).getCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
+					sheet.getRow(3 + i).getCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
+					sheet.getRow(3 + i).getCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
+					sheet.getRow(3 + i).getCell(3).setCellValue(entry.getValue().get(i).getBookingSecondaryGuestName());//预定人名称2
+					sheet.getRow(3 + i).getCell(4).setCellValue(entry.getValue().get(i).getOrderChannel());//订单来源
+					sheet.getRow(3 + i).getCell(5).setCellValue(entry.getValue().get(i).getOyoId());//OYO酒店编号
+					sheet.getRow(3 + i).getCell(6).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
+					sheet.getRow(3 + i).getCell(7).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//营业收入
+					sheet.getRow(3 + i).getCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
+					sheet.getRow(3 + i).getCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
+					sheet.getRow(3 + i).getCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
+					sheet.getRow(3 + i).getCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRate() ? entry.getValue().get(i).getCurrentMonthRate().toString() : "");//费率
+					sheet.getRow(3 + i).getCell(12).setCellValue(entry.getValue().get(i).getPaymentType());//顾客选择方式
+					sheet.getRow(3 + i).getCell(13).setCellValue(entry.getValue().get(i).getOtaName());//平台名称
+					sheet.getRow(3 + i).getCell(14).setCellValue(entry.getValue().get(i).getOtaId());//平台订单号
+					sheet.getRow(3 + i).getCell(15).setCellValue(entry.getValue().get(i).getCity());//城市
+					sheet.getRow(3 + i).getCell(16).setCellValue(entry.getValue().get(i).getRegion());//区域
+					sheet.getRow(3 + i).getCell(17).setCellValue(entry.getValue().get(i).getRevenueCheckResults());//营收核对结果
+					sheet.getRow(3 + i).getCell(18).setCellValue(entry.getValue().get(i).getReasonsForRevenueDifference());//营收差异原因
+					sheet.getRow(3 + i).getCell(19).setCellValue(entry.getValue().get(i).getProportions());//提成比例
+					sheet.getRow(3 + i).getCell(20).setCellValue(entry.getValue().get(i).getPaymentTypeCheckingResult());//顾客选择方式核对结果
+					sheet.getRow(3 + i).getCell(21).setCellValue(entry.getValue().get(i).getPlatformFeePayableParty());//平台费承担方
+					sheet.getRow(3 + i).getCell(22).setCellValue(entry.getValue().get(i).getRemarks());//备注
 				}
 				
 				ByteArrayOutputStream out = new ByteArrayOutputStream();//输出字节数组
@@ -334,7 +331,6 @@ public class QueryCrsAccountPeriodController {
 				workBook = new XSSFWorkbook(fis);
 				XSSFSheet sheet = workBook.getSheet("Sheet1");
 				
-				sheet.shiftRows(1, 1 + entry.getValue().size(), 1, true, false); // 第1个参数是指要开始插入的行，第2个参数是结尾行数
 				for (int i = 0; i < entry.getValue().size(); i++) {
 					XSSFRow creRow = sheet.createRow(1 + i);
 					creRow.setRowStyle(sheet.getRow(1).getRowStyle());
