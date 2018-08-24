@@ -28,7 +28,7 @@ public class AccountPeriodLandDto {
 	private String checkInDate;// 入住日期，格式：yyyy-MM-dd,查询显示字段
 	private String checkOutDate;// 退房日期，格式：yyyy-MM-dd,查询显示字段
 	private Integer statusCode;//订单状态code;
-    private String statusDes;//订单状态描述;
+    private String statusDesc;//订单状态描述;
 	private Integer roomsNumber;//已用客房数
     private Integer currentMonthRoomsNumber;//本月已用间夜数
     private BigDecimal orderTotalAmount;//订单总额
