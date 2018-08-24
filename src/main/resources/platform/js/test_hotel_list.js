@@ -5,7 +5,7 @@ var importReportData = function () {
   // basic demo
   var dataTable_report = "";
   var import_ReportData = function () {
-    var url ='http://localhost:8001/oyoShare/oyoShareList?isTest=t&hotelName='+hotelName+"&city="+city+"&status="+status;
+    var url ='http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8001/oyoShare/oyoShareList?isTest=t&hotelName='+hotelName+"&city="+city+"&status="+status;
     dataTable_report = $('#m_datatable_data').mDatatable({
       // datasource definition
       data: {

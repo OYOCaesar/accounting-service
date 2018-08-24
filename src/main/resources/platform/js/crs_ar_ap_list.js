@@ -13,7 +13,7 @@ var Datatable_expRemoteAjaxDemo = function () {
           read: {
             // sample GET method
             method: 'GET',
-            url: 'http://localhost:8001/queryCrsArAp/query?checkInDateStart=' + checkInDateStart+"&checkInDateEnd="+checkInDateEnd+"&checkOutDateStart="+checkOutDateStart+"&checkOutDateEnd="+checkOutDateEnd+"&hotelName="+hotelName+"&status="+status+"&page=1&rows=10",
+            url: 'http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8001/queryCrsArAp/query?checkInDateStart=' + checkInDateStart+"&checkInDateEnd="+checkInDateEnd+"&checkOutDateStart="+checkOutDateStart+"&checkOutDateEnd="+checkOutDateEnd+"&hotelName="+hotelName+"&status="+status+"&page=1&rows=10",
             map: function (raw) {
               var dataSet = raw.rows;
               return dataSet;
