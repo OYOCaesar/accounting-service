@@ -22,6 +22,7 @@ public class AccountPeriodLandDto {
 	private String guestName;// 客人姓名
 	private String bookingGuestName;//预定人名称
 	private String bookingSecondaryGuestName;//预定人名称2
+	private Integer orderChannelCode;//订单渠道code
 	private String orderChannel;// 订单渠道
 	private String channelName;// 渠道名
 	private String checkInDate;// 入住日期，格式：yyyy-MM-dd,查询显示字段
