@@ -146,14 +146,14 @@ public class SyncMunshiOrderService {
     				    	        });
     				    			
     				    			BigDecimal owerShare = getOwerShare(list,arAmount);
-    				    			syncCrsArAndAp.setRate(owerShare.intValue());//汇率
+    				    			syncCrsArAndAp.setRate(owerShare);//汇率
     				    			apAmount = owerShare.multiply(arAmount).divide(new BigDecimal("100"),6,BigDecimal.ROUND_HALF_UP);
     				    		}
     			    			
     			    		} else {
     			    			JSONObject jsonObj = JSONObject.fromObject(ownerShareJson);
     			    			Integer owerShare = Integer.valueOf(jsonObj.get("0").toString());
-    			    			syncCrsArAndAp.setRate(owerShare.intValue());//汇率
+    			    			syncCrsArAndAp.setRate(new BigDecimal(owerShare));//汇率
     			    			apAmount = new BigDecimal(owerShare).multiply(arAmount).divide(new BigDecimal("100"),6,BigDecimal.ROUND_HALF_UP);
     			    		}
     		    		}

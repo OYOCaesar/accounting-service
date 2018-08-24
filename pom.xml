@@ -5,7 +5,7 @@
 
 	<groupId>com.oyo</groupId>
 	<artifactId>accounting-service</artifactId>
-	<version>0.0.8-SNAPSHOT</version>
+	<version>0.0.9-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>accounting-service</name>
@@ -45,6 +45,10 @@
         <dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-freemarker</artifactId>
 		</dependency>
         <dependency>
             <groupId>mysql</groupId>

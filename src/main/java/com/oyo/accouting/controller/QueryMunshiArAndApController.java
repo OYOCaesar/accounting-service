@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.oyo.accouting.bean.PageResult;
-import com.oyo.accouting.bean.QueryCrsAccountingDto;
 import com.oyo.accouting.bean.SyncCrsArAndApDto;
 import com.oyo.accouting.job.SyncArAndApJob;
 import com.oyo.accouting.service.QueryMunshiArAndApService;

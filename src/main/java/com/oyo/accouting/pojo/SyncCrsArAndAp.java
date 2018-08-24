@@ -20,7 +20,7 @@ public class SyncCrsArAndAp {
   private String hotelName;
   private BigDecimal arAmount;
   private BigDecimal apAmount;
-  private Integer rate;
+  private BigDecimal rate;
   private java.sql.Timestamp createTime;
   private Boolean isSync;
   private Boolean isDel;

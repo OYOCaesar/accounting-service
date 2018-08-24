@@ -41,9 +41,7 @@ public class FileUploadController {
 	}
 
     @RequestMapping(value = "upload")
-    public ModelAndView fileUpload(HttpServletRequest request, @RequestParam("file") MultipartFile file,@RequestParam("isTest")String isTest) throws IOException {
-
-	    ModelAndView view = new ModelAndView("file_upload");
+    public String fileUpload(HttpServletRequest request, @RequestParam("file") MultipartFile file,String isTest) throws IOException {
 
         if(!file.isEmpty()) {
 
@@ -85,13 +83,15 @@ public class FileUploadController {
                 }
                 oyoShareList.add(oyoShare);
             }
-            this.oyoShareService.insertOyoShareList(oyoShareList);
-            view.addObject("data","success!");
+            try {
+                this.oyoShareService.insertOyoShareList(oyoShareList);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return "t".equals(isTest)?"redirect:http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8081/syncSap/testHotelList":"redirect:http://localhost:8081/syncSap/rate";
         } else {
-        	view.addObject("data","error!");
+            return "redirect:http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8081/syncSap/error";
         }
-        
-        return view;
     }
 
 

@@ -38,12 +38,12 @@ public class WebserviceUtil {
         return service;
 	}
 	
-	public static void main(String[] args) {
-		JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();  
-		jwpfb.setServiceClass(SAPWebServiceSoap.class);  
-		jwpfb.setAddress("http://localhost:8080/SAPWebService.asmx");  
-		SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
-		String result = s.businessPartners("{}");
-		System.out.println(result);
-	}	
+//	public static void main(String[] args) {
+//		JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();  
+//		jwpfb.setServiceClass(SAPWebServiceSoap.class);  
+//		jwpfb.setAddress("http://localhost:8080/SAPWebService.asmx");  
+//		SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
+//		String result = s.businessPartners("{}");
+//		System.out.println(result);
+//	}	
 }
