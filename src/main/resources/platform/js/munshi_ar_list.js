@@ -13,7 +13,7 @@ var Datatable_expRemoteAjaxDemo = function () {
           read: {
             // sample GET method
             method: 'GET',
-            url: 'http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8001/queryMunshiArAp/query?yearMonth=' + yearMonth+"&hotelName="+hotelName+"&isSync="+isSync+"&page=1&rows=5000",
+            url: '../queryMunshiArAp/query?yearMonth=' + yearMonth+"&hotelName="+hotelName+"&isSync="+isSync+"&page=1&rows=5000",
             map: function (raw) {
               var dataSet = raw.rows;
               return dataSet;

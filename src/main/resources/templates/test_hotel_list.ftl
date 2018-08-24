@@ -85,7 +85,7 @@
                   </span>
                   </button>
                   &nbsp;&nbsp;
-                  <button class="btn btn-outline-danger m-btn--icon" id="m_reset">
+                  <button type="button" class="btn btn-outline-danger m-btn--icon" id="m_reset">
                     <span>
                         <i class="la la-close"></i>
                         <span>删除</span>
@@ -121,7 +121,7 @@
                               </button>
                           </div>
                           <div class="modal-body">
-                              <form id="uploadFileForm" action="http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8001/fileUpload/upload" method="post" enctype="multipart/form-data">
+                              <form id="uploadFileForm" action="../fileUpload/upload" method="post" enctype="multipart/form-data">
                                   <div class="form-group">
                                       <label for="recipient-name" class="form-control-label">
                                           选择文件:

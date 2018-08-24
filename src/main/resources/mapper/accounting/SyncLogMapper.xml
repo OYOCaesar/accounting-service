@@ -36,6 +36,7 @@
             and sl.batch =#{syncLog.batch}
         </if>
         order by sl.id desc
+        limit 100
     </select>
 	
 </mapper>

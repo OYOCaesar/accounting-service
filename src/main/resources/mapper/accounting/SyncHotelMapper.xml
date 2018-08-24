@@ -34,6 +34,7 @@
         <if test="syncHotel.batch != null and syncHotel.batch != ''">
             and batch = #{syncHotel.batch}
         </if>
+        limit 100
     </select>
 	
 </mapper>

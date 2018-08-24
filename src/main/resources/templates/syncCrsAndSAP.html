@@ -3,9 +3,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>同步CRS和SAP接口</title>
-    <link rel="stylesheet" type="text/css" href="./laydate/theme/default/laydate.css">
-    <script type="text/javascript" src="./../js/jquery-1.7.2.js"></script>
-    <script type="text/javascript" src="./../laydate/laydate.js"></script>
+    <link rel="stylesheet" type="text/css" href="/laydate/theme/default/laydate.css">
+    <script type="text/javascript" src="/js/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="/laydate/laydate.js"></script>
     <style>
     body {
         font-size:12px;
@@ -250,7 +250,7 @@
         //同步hotel to SAP
         $('#syncHotelBtn').click(function(){
             $.ajax({
-                url:'syncHotel/syncHotelToSap',
+                url:'../syncHotel/syncHotelToSap',
                 type:'POST', //GET
                 async:true,    //或false,是否异步
                 data:{
