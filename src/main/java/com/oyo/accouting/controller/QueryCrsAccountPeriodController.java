@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,17 +29,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.oyo.accouting.bean.AccountPeriodDetailsDto;
 import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.AccountPeriodTotalDto;
-import com.oyo.accouting.bean.PageResult;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
 import com.oyo.accouting.job.SyncArAndApJob;
 import com.oyo.accouting.service.QueryCrsAccountPeriodService;
@@ -56,10 +54,18 @@ public class QueryCrsAccountPeriodController {
 
     @RequestMapping(value = "query")
     @ResponseBody
-    public PageResult query(@RequestBody QueryAccountPeriodDto queryAccountPeriodDto) {
-    	PageResult result = new PageResult();
+    public ResponseEntity<List<AccountPeriodDto>> query(HttpServletRequest request, QueryAccountPeriodDto queryAccountPeriodDto) {
+    	List<AccountPeriodDto> list = new ArrayList<AccountPeriodDto>();
     	try {
-    		PageHelper.startPage(queryAccountPeriodDto.getPageNum(), queryAccountPeriodDto.getPageSize());
+    		queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
+    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
+    		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
+    		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
+    		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
+    		queryAccountPeriodDto.setRegion(request.getParameter("region"));
+    		queryAccountPeriodDto.setCity(request.getParameter("city"));
+    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+    		
     		LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
@@ -73,25 +79,33 @@ public class QueryCrsAccountPeriodController {
         			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
         		}
     		}
-    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
-    		result.setRows(list);
-			PageInfo<AccountPeriodDto> pageInfo = new PageInfo<>(list);
-			result.setTotal(pageInfo.getTotal());
+    		list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
+    		
 		} catch (Exception e) {
 			log.error("Query crs account period throwing exception:{}", e);
 		}
-    	return result;
+    	return ResponseEntity.ok(list);
     }
     
     //商户对账单导出
 	@RequestMapping("exportMerchantAccount")
-	public void exportMerchantAccount(HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
+	public void exportMerchantAccount(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
 		XSSFWorkbook workBook = null;
 		FileInputStream fis = null;
 		// 设置压缩流：直接写入response，实现边压缩边下载
 		ZipOutputStream zipOutputStream = null;
 		DataOutputStream dataOutputStream = null;
 		try {
+			
+			queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
+    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
+    		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
+    		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
+    		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
+    		queryAccountPeriodDto.setRegion(request.getParameter("region"));
+    		queryAccountPeriodDto.setCity(request.getParameter("city"));
+    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+    		
 			LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
@@ -150,33 +164,30 @@ public class QueryCrsAccountPeriodController {
     			
     			XSSFSheet sheet = workBook.getSheet("CRS明细");
     			
-    			sheet.shiftRows(3, 3 + entry.getValue().size(), 1, true, false); // 第1个参数是指要开始插入的行，第2个参数是结尾行数
 				for (int i = 0; i < entry.getValue().size(); i++) {
-					XSSFRow creRow = sheet.createRow(3 + i);
-					creRow.setRowStyle(sheet.getRow(1).getRowStyle());
-					creRow.createCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
-					creRow.createCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
-					creRow.createCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
-					creRow.createCell(3).setCellValue(entry.getValue().get(i).getBookingSecondaryGuestName());//预定人名称2
-					creRow.createCell(4).setCellValue(entry.getValue().get(i).getOrderChannel());//订单来源
-					creRow.createCell(5).setCellValue(entry.getValue().get(i).getOyoId());//OYO酒店编号
-					creRow.createCell(6).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
-					creRow.createCell(7).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//营业收入
-					creRow.createCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
-					creRow.createCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
-					creRow.createCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
-					creRow.createCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRate() ? entry.getValue().get(i).getCurrentMonthRate().toString() : "");//费率
-					creRow.createCell(12).setCellValue(entry.getValue().get(i).getPaymentType());//顾客选择方式
-					creRow.createCell(13).setCellValue(entry.getValue().get(i).getOtaName());//平台名称
-					creRow.createCell(14).setCellValue(entry.getValue().get(i).getOtaId());//平台订单号
-					creRow.createCell(15).setCellValue(entry.getValue().get(i).getCity());//城市
-					creRow.createCell(16).setCellValue(entry.getValue().get(i).getRegion());//区域
-					creRow.createCell(17).setCellValue(entry.getValue().get(i).getRevenueCheckResults());//营收核对结果
-					creRow.createCell(18).setCellValue(entry.getValue().get(i).getReasonsForRevenueDifference());//营收差异原因
-					creRow.createCell(19).setCellValue(entry.getValue().get(i).getProportions());//提成比例
-					creRow.createCell(20).setCellValue(entry.getValue().get(i).getPaymentTypeCheckingResult());//顾客选择方式核对结果
-					creRow.createCell(21).setCellValue(entry.getValue().get(i).getPlatformFeePayableParty());//平台费承担方
-					creRow.createCell(22).setCellValue(entry.getValue().get(i).getRemarks());//备注
+					sheet.getRow(3 + i).getCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
+					sheet.getRow(3 + i).getCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
+					sheet.getRow(3 + i).getCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
+					sheet.getRow(3 + i).getCell(3).setCellValue(entry.getValue().get(i).getBookingSecondaryGuestName());//预定人名称2
+					sheet.getRow(3 + i).getCell(4).setCellValue(entry.getValue().get(i).getOrderChannel());//订单来源
+					sheet.getRow(3 + i).getCell(5).setCellValue(entry.getValue().get(i).getOyoId());//OYO酒店编号
+					sheet.getRow(3 + i).getCell(6).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
+					sheet.getRow(3 + i).getCell(7).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//营业收入
+					sheet.getRow(3 + i).getCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
+					sheet.getRow(3 + i).getCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
+					sheet.getRow(3 + i).getCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
+					sheet.getRow(3 + i).getCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRate() ? entry.getValue().get(i).getCurrentMonthRate().toString() : "");//费率
+					sheet.getRow(3 + i).getCell(12).setCellValue(entry.getValue().get(i).getPaymentType());//顾客选择方式
+					sheet.getRow(3 + i).getCell(13).setCellValue(entry.getValue().get(i).getOtaName());//平台名称
+					sheet.getRow(3 + i).getCell(14).setCellValue(entry.getValue().get(i).getOtaId());//平台订单号
+					sheet.getRow(3 + i).getCell(15).setCellValue(entry.getValue().get(i).getCity());//城市
+					sheet.getRow(3 + i).getCell(16).setCellValue(entry.getValue().get(i).getRegion());//区域
+					sheet.getRow(3 + i).getCell(17).setCellValue(entry.getValue().get(i).getRevenueCheckResults());//营收核对结果
+					sheet.getRow(3 + i).getCell(18).setCellValue(entry.getValue().get(i).getReasonsForRevenueDifference());//营收差异原因
+					sheet.getRow(3 + i).getCell(19).setCellValue(entry.getValue().get(i).getProportions());//提成比例
+					sheet.getRow(3 + i).getCell(20).setCellValue(entry.getValue().get(i).getPaymentTypeCheckingResult());//顾客选择方式核对结果
+					sheet.getRow(3 + i).getCell(21).setCellValue(entry.getValue().get(i).getPlatformFeePayableParty());//平台费承担方
+					sheet.getRow(3 + i).getCell(22).setCellValue(entry.getValue().get(i).getRemarks());//备注
 				}
 				
 				ByteArrayOutputStream out = new ByteArrayOutputStream();//输出字节数组
@@ -213,6 +224,15 @@ public class QueryCrsAccountPeriodController {
 		XSSFWorkbook workBook = null;
 		FileInputStream fis = null;
 		try {
+			queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
+    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
+    		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
+    		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
+    		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
+    		queryAccountPeriodDto.setRegion(request.getParameter("region"));
+    		queryAccountPeriodDto.setCity(request.getParameter("city"));
+    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+    		
 			LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
@@ -295,13 +315,23 @@ public class QueryCrsAccountPeriodController {
 	
 	//明细导出
 	@RequestMapping("exportDetails")
-	public void exportDetails(HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
+	public void exportDetails(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
 		XSSFWorkbook workBook = null;
 		FileInputStream fis = null;
 		// 设置压缩流：直接写入response，实现边压缩边下载
 		ZipOutputStream zipOutputStream = null;
 		DataOutputStream dataOutputStream = null;
 		try {
+			
+			queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
+    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
+    		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
+    		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
+    		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
+    		queryAccountPeriodDto.setRegion(request.getParameter("region"));
+    		queryAccountPeriodDto.setCity(request.getParameter("city"));
+    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+    		
 			LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
@@ -334,7 +364,6 @@ public class QueryCrsAccountPeriodController {
 				workBook = new XSSFWorkbook(fis);
 				XSSFSheet sheet = workBook.getSheet("Sheet1");
 				
-				sheet.shiftRows(1, 1 + entry.getValue().size(), 1, true, false); // 第1个参数是指要开始插入的行，第2个参数是结尾行数
 				for (int i = 0; i < entry.getValue().size(); i++) {
 					XSSFRow creRow = sheet.createRow(1 + i);
 					creRow.setRowStyle(sheet.getRow(1).getRowStyle());
