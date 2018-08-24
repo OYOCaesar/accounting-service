@@ -88,9 +88,9 @@ public class FileUploadController {
             }catch (Exception e){
                 e.printStackTrace();
             }
-            return "t".equals(isTest)?"redirect:http://localhost:8081/syncSap/testHotelList":"redirect:http://localhost:8081/syncSap/rate";
+            return "t".equals(isTest)?"redirect:http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8081/syncSap/testHotelList":"redirect:http://localhost:8081/syncSap/rate";
         } else {
-            return "redirect:http://localhost:8081/syncSap/error";
+            return "redirect:http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8081/syncSap/error";
         }
     }
 

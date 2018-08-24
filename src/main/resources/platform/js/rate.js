@@ -5,7 +5,7 @@ var Datatable_expRemoteAjaxDemo = function () {
   //== Private functions
   var demo_exp = function () {
 
-    var url = 'http://localhost:8001/oyoShare/oyoShareList?city=' + city+"&status="+status+"&hotelName="+hotelName+"&batch="+batch;
+    var url = 'http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8001/oyoShare/oyoShareList?city=' + city+"&status="+status+"&hotelName="+hotelName+"&batch="+batch;
     datatable_exp = $('.m_datatable_exception').mDatatable({
       // datasource definition
       data: {

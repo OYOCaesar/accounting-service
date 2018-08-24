@@ -13,7 +13,7 @@ var Datatable_expRemoteAjaxDemo = function () {
           read: {
             // sample GET method
             method: 'GET',
-            url: 'http://localhost:8001/syncLog/querySyncLoglist?batch=' + batch_inp+"&sourceId="+sourceId_inp+"&type="+type_inp+"&status="+status_inp,
+            url: 'http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8001/syncLog/querySyncLoglist?batch=' + batch_inp+"&sourceId="+sourceId_inp+"&type="+type_inp+"&status="+status_inp,
             map: function (raw) {
               return raw;
             },

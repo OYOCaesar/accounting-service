@@ -121,7 +121,7 @@
                               </button>
                           </div>
                           <div class="modal-body">
-                              <form id="uploadFileForm" action="http://localhost:8001/fileUpload/upload" method="post" enctype="multipart/form-data">
+                              <form id="uploadFileForm" action="http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8001/fileUpload/upload" method="post" enctype="multipart/form-data">
                                   <div class="form-group">
                                       <label for="recipient-name" class="form-control-label">
                                           选择文件:
