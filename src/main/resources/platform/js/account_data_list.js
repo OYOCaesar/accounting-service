@@ -115,41 +115,50 @@ var Datatable_expRemoteAjaxDemo = function () {
   
   //汇总下载
   $("#m_summary_statistics_btn").on("click", function (t) {
-    t.preventDefault();
-    datatable_exp.destroy();
-    
-    setParamValues();
-    
-    location.href = '/queryCrsAccountPeriod/exportSummaryStatistics?startYearAndMonthQuery=' + startYearAndMonthQuery+'&endYearAndMonthQuery='+endYearAndMonthQuery
-					+'&checkInDate='+checkInDate+'&checkOutDate='+checkOutDate+'&orderNo='+orderNo+'&region='+region
-					+'&city='+city+'&hotelName='+hotelName;
-    demo_exp();
+	  t.preventDefault();
+
+	  setParamValues();
+
+	  location.href = '/queryCrsAccountPeriod/exportSummaryStatistics?startYearAndMonthQuery=' + startYearAndMonthQuery
+				    + '&endYearAndMonthQuery=' + endYearAndMonthQuery
+					+ '&checkInDate=' + checkInDate
+					+ '&checkOutDate=' + checkOutDate
+					+ '&orderNo=' + orderNo
+					+ '&region=' + region
+					+ '&city=' + city 
+					+ '&hotelName=' + hotelName;
   });
   
   //商户对账单下载
   $("#m_merchant_account_download_btn").on("click", function (t) {
-    t.preventDefault();
-    datatable_exp.destroy();
-    
-    setParamValues();
-    
-    location.href = '/queryCrsAccountPeriod/exportMerchantAccount?startYearAndMonthQuery=' + startYearAndMonthQuery+'&endYearAndMonthQuery='+endYearAndMonthQuery
-				   +'&checkInDate='+checkInDate+'&checkOutDate='+checkOutDate+'&orderNo='+orderNo+'&region='+region
-				   +'&city='+city+'&hotelName='+hotelName;
-    demo_exp();
+	  t.preventDefault();
+
+	  setParamValues();
+
+	  location.href = '/queryCrsAccountPeriod/exportMerchantAccount?startYearAndMonthQuery=' + startYearAndMonthQuery
+					+ '&endYearAndMonthQuery=' + endYearAndMonthQuery
+					+ '&checkInDate=' + checkInDate
+					+ '&checkOutDate=' + checkOutDate
+					+ '&orderNo=' + orderNo
+					+ '&region=' + region
+					+ '&city=' + city 
+					+ '&hotelName=' + hotelName;
   });
   
   //明细下载
   $("#m_detail_download_btn").on("click", function (t) {
-    t.preventDefault();
-    datatable_exp.destroy();
-    
-    setParamValues();
-    
-    location.href = '/queryCrsAccountPeriod/exportDetails?startYearAndMonthQuery=' + startYearAndMonthQuery+'&endYearAndMonthQuery='+endYearAndMonthQuery
-                   +'&checkInDate='+checkInDate+'&checkOutDate='+checkOutDate+'&orderNo='+orderNo+'&region='+region
-	               +'&city='+city+'&hotelName='+hotelName;
-    demo_exp();
+	  t.preventDefault();
+		
+	  setParamValues();
+		
+	  location.href = '/queryCrsAccountPeriod/exportDetails?startYearAndMonthQuery=' + startYearAndMonthQuery
+				    + '&endYearAndMonthQuery=' + endYearAndMonthQuery
+					+ '&checkInDate=' + checkInDate
+					+ '&checkOutDate=' + checkOutDate
+					+ '&orderNo=' + orderNo
+					+ '&region=' + region
+					+ '&city=' + city 
+					+ '&hotelName=' + hotelName;
   });
 
   return {
