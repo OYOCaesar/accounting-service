@@ -11,6 +11,17 @@ import java.util.List;
  */
 public class ListUtils {
 
+    public static void main(String []a){
+        List<String> dataList = new ArrayList<String>();
+        dataList.add("x1");
+        dataList.add("x2");
+        dataList.add("x3");
+        dataList.add("x4");
+        dataList.add("x5");
+        List<List<String>> result = partition(dataList,2);
+        System.out.println(result);
+    }
+
 
     public static <T> List<List<T>> partition(List<T> dataList, int itemSize){
        if(CollectionUtils.isEmpty(dataList)) return null;
@@ -20,8 +31,8 @@ public class ListUtils {
        List<List<T>> resultList = new ArrayList<List<T>>();
        int size = dataList.size();
        for(int index = 0 ; index < partitionSize ; index ++){
-           beginIndex += index * itemSize;
-           endIndex += index * itemSize;
+           beginIndex = index * itemSize;
+           endIndex = (index+1) * itemSize;
            if(size < endIndex){
                resultList.add(dataList.subList(beginIndex, size));
            }else{
