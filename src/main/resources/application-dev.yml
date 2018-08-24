@@ -19,27 +19,45 @@ spring:
       filters: stat,wall
       driver-class-name: com.mysql.jdbc.Driver
 
-  thymeleaf:
-    # 这个是配置模板路径的，默认是templates
-    prefix: classpath:/static/
-    suffix: .html
-    # 模板的模式
-    #spring.thymeleaf.mode的默认值是HTML5，其实是一个很严格的检查，改为LEGACYHTML5可以得到一个可能更友好亲切的格式要求。
-    mode: LEGACYHTML5
-    encoding: UTF-8
-    # 这个开发配置为false，避免改了模板还要重启服务器
-    cache: false
-    content-type: text/html
-    enabled: true
-  mvc:
-    static-path-pattern: /**
+#  thymeleaf:
+#    # 这个是配置模板路径的，默认是templates
+#    prefix: classpath:/static/
+#    suffix: .html
+#    # 模板的模式
+#    #spring.thymeleaf.mode的默认值是HTML5，其实是一个很严格的检查，改为LEGACYHTML5可以得到一个可能更友好亲切的格式要求。
+#    mode: LEGACYHTML5
+#    encoding: UTF-8
+#    # 这个开发配置为false，避免改了模板还要重启服务器
+#    cache: false
+#    content-type: text/html
+#    enabled: true
+#  mvc:
+#    static-path-pattern: /**
   resources:
-    static-locations: classpath:/static/
+    static-locations: classpath:/platform/
   # 设置上传文件的最大值
   http:
     multipart:
       max-file-size: 20MB
       max-request-size: 20MB    
+      
+      
+  freemarker:
+    allow-request-override: false
+    allow-session-override: false
+    cache: false
+    charset: UTF-8
+    check-template-location: true
+    content-type: text/html; charset=utf-8
+    enabled: true
+    expose-request-attributes: false
+    expose-session-attributes: false
+    expose-spring-macro-helpers: true
+    prefer-file-system-access: true
+    suffix: .ftl
+    template-loader-path:
+    -     classpath:/templates/
+      
     
 server:
   port: 8001
