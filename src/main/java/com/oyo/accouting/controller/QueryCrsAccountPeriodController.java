@@ -1,24 +1,26 @@
 package com.oyo.accouting.controller;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -27,10 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageHelper;
@@ -83,54 +83,14 @@ public class QueryCrsAccountPeriodController {
     	return result;
     }
     
-	@RequestMapping(value = "/download/zip/{userId}", method = RequestMethod.GET)
-	@ResponseBody
-	public String downloadUserContracts(@PathVariable("userId") Long userId, HttpServletResponse response) {
-		log.info("批量下载用户合同信息userId={}", userId);
-		// 根据用户id获取用户签订合同信息
-		//List<ContractSignInfo> contractSignInfoList = contractSignInfoBiz.queryContractSignInfoByUserId(userId);
-		// 遍历打包下载
-		String zipName = "contract_" + userId + ".zip";
-		response.setContentType("APPLICATION/OCTET-STREAM");
-		response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
-		// 设置压缩流：直接写入response，实现边压缩边下载
-		ZipOutputStream zipOutputStream = null;
-		DataOutputStream dataOutputStream = null;
-		try {
-			zipOutputStream = new ZipOutputStream(new BufferedOutputStream(response.getOutputStream()));
-			// 设置压缩方式
-			zipOutputStream.setMethod(ZipOutputStream.DEFLATED);
-			// 循环将文件写入压缩流
-//			for (ContractSignInfo contractSignInfo : contractSignInfoList) {
-//				String fileName = "contract_" + contractSignInfo.getInvestsId() + ".pdf";
-//				zipOutputStream.putNextEntry(new ZipEntry(fileName));
-//				dataOutputStream = new DataOutputStream(zipOutputStream);
-//				byte[] bytes = bestSignApiManagerBiz.downloadContract(contractSignInfo.getContractId());
-//				InputStream inputStream = new ByteArrayInputStream(bytes);
-//				IOUtils.copy(inputStream, dataOutputStream);
-//			}
-
-		} catch (Exception e) {
-			log.error("批量下载用户合同信息userId=" + userId + "异常", e);
-		} finally {
-			try {
-				// 一定要flush 不然你就等着报错吧
-				dataOutputStream.flush();
-				dataOutputStream.close();
-				zipOutputStream.close();
-			} catch (Exception e) {
-				log.error("批量下载用户合同信息userId=" + userId + "异常", e);
-			}
-		}
-		return null;
-	}
-    
     //商户对账单导出
 	@RequestMapping("exportMerchantAccount")
 	public void exportMerchantAccount(HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
 		XSSFWorkbook workBook = null;
 		FileInputStream fis = null;
-		OutputStream out = null;
+		// 设置压缩流：直接写入response，实现边压缩边下载
+		ZipOutputStream zipOutputStream = null;
+		DataOutputStream dataOutputStream = null;
 		try {
 			LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
@@ -146,13 +106,22 @@ public class QueryCrsAccountPeriodController {
         		}
     		}
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
-    		String excelModelName = TEMPLATEPATH + "merchantAccount.xlsx";
+    		String excelModelName = TEMPLATEPATH + "merchantAccount.xlsx";//模板路径+文件名
+    		
+    		// 遍历打包下载
+    		String zipName = "商户对账" + System.currentTimeMillis() + ".zip";
+    		zipName = URLEncoder.encode(zipName,"UTF-8");
+    		response.setContentType("APPLICATION/OCTET-STREAM");
+    		response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
+    		zipOutputStream = new ZipOutputStream(new BufferedOutputStream(response.getOutputStream()));
+			// 设置压缩方式
+			zipOutputStream.setMethod(ZipOutputStream.DEFLATED);
+    		
     		Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
     			List<AccountPeriodDto> eachList = entry.getValue();
     			String fileName = eachList.get(0).getOyoId() + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + System.currentTimeMillis() + ".xlsx";
     			fis = new FileInputStream(excelModelName);
-    			out = new FileOutputStream("d:/" + fileName);
     			workBook = new XSSFWorkbook(fis);
     			XSSFSheet sheet1 = workBook.getSheet("月账单");
     			XSSFCell oyoIdCell = sheet1.getRow(1).getCell(2);
@@ -184,8 +153,7 @@ public class QueryCrsAccountPeriodController {
     			sheet.shiftRows(3, 3 + entry.getValue().size(), 1, true, false); // 第1个参数是指要开始插入的行，第2个参数是结尾行数
 				for (int i = 0; i < entry.getValue().size(); i++) {
 					XSSFRow creRow = sheet.createRow(3 + i);
-					CellStyle cellStyle = sheet.getRow(2).getRowStyle();
-					creRow.setRowStyle(cellStyle);
+					creRow.setRowStyle(sheet.getRow(1).getRowStyle());
 					creRow.createCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
 					creRow.createCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
 					creRow.createCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
@@ -210,14 +178,32 @@ public class QueryCrsAccountPeriodController {
 					creRow.createCell(21).setCellValue(entry.getValue().get(i).getPlatformFeePayableParty());//平台费承担方
 					creRow.createCell(22).setCellValue(entry.getValue().get(i).getRemarks());//备注
 				}
+				
+				ByteArrayOutputStream out = new ByteArrayOutputStream();//输出字节数组
 				workBook.write(out);
-				fis.close();
-				out.flush();
+				byte[] bytes = out.toByteArray();
+				
+				zipOutputStream.putNextEntry(new ZipEntry(fileName));
+				dataOutputStream = new DataOutputStream(zipOutputStream);
+				InputStream inputStream = new ByteArrayInputStream(bytes);
+				IOUtils.copy(inputStream, dataOutputStream);
+				
 				out.close();
+				inputStream.close();
+				fis.close();
 				workBook.close();
 		    }
 		} catch (Exception e) {
 			log.error("Export Merchant Account throwing exception:{}", e);
+		} finally {
+			try {
+				//flush
+				dataOutputStream.flush();
+				dataOutputStream.close();
+				zipOutputStream.close();
+			} catch (Exception e) {
+				log.error("Export Merchant Account close generate zip file stream exception：{}：{}", e);
+			}
 		}
 	}
 	
@@ -311,6 +297,10 @@ public class QueryCrsAccountPeriodController {
 	@RequestMapping("exportDetails")
 	public void exportDetails(HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
 		XSSFWorkbook workBook = null;
+		FileInputStream fis = null;
+		// 设置压缩流：直接写入response，实现边压缩边下载
+		ZipOutputStream zipOutputStream = null;
+		DataOutputStream dataOutputStream = null;
 		try {
 			LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
@@ -326,14 +316,21 @@ public class QueryCrsAccountPeriodController {
         		}
     		}
     		List<AccountPeriodDetailsDto> list = queryCrsAccountPeriodService.queryCrsDetailsAccountPeriod(queryAccountPeriodDto);
-    		String excelModelName = TEMPLATEPATH + "detais.xlsx";
-    		FileInputStream fis = null;
-    		OutputStream out = null;
+    		String excelModelName = TEMPLATEPATH + "details.xlsx";//导出的明细模板
+    		
+    		// 遍历打包下载
+    		String zipName = "对账明细" + System.currentTimeMillis() + ".zip";
+    		zipName = URLEncoder.encode(zipName,"UTF-8");
+    		response.setContentType("APPLICATION/OCTET-STREAM");
+    		response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
+    		zipOutputStream = new ZipOutputStream(new BufferedOutputStream(response.getOutputStream()));
+			// 设置压缩方式
+			zipOutputStream.setMethod(ZipOutputStream.DEFLATED);
+			
     		Map<Integer,List<AccountPeriodDetailsDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDetailsDto::getUniqueCode));
     		for (Map.Entry<Integer, List<AccountPeriodDetailsDto>> entry : hotelGroupMap.entrySet()) {
 				String fileName = entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户明细" + System.currentTimeMillis() + ".xlsx";
 				fis = new FileInputStream(excelModelName);
-	    		out = new FileOutputStream("/" + fileName);
 				workBook = new XSSFWorkbook(fis);
 				XSSFSheet sheet = workBook.getSheet("Sheet1");
 				
@@ -384,14 +381,32 @@ public class QueryCrsAccountPeriodController {
 					creRow.createCell(40).setCellValue(null != entry.getValue().get(i).getRoomPrice() ? entry.getValue().get(i).getRoomPrice().toString() : "");// 房间价格
 					creRow.createCell(41).setCellValue(null != entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute() ? entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute().toString() : "");// 本月应结算总额（计算）,=房价*天数
 				}
+				
+				ByteArrayOutputStream out = new ByteArrayOutputStream();//输出字节数组
 				workBook.write(out);
-				fis.close();
-				out.flush();
+				byte[] bytes = out.toByteArray();
+				
+				zipOutputStream.putNextEntry(new ZipEntry(fileName));
+				dataOutputStream = new DataOutputStream(zipOutputStream);
+				InputStream inputStream = new ByteArrayInputStream(bytes);
+				IOUtils.copy(inputStream, dataOutputStream);
+				
 				out.close();
+				inputStream.close();
+				fis.close();
 				workBook.close();
     		}
 		} catch (Exception e) {
 			log.error("Export Details throwing exception:{}", e);
+		} finally {
+			try {
+				//flush
+				dataOutputStream.flush();
+				dataOutputStream.close();
+				zipOutputStream.close();
+			} catch (Exception e) {
+				log.error("Export Details close generate zip file stream exception：{}", e);
+			}
 		} 
 	}
 
