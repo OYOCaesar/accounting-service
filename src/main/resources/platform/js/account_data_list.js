@@ -1,3 +1,8 @@
+/***
+ * 对账js
+ */
+//定义页面的参数变量
+var startYearAndMonthQuery = "",endYearAndMonthQuery="",checkInDate="",checkOutDate="",orderNo="",region="",city="",hotelName="";
 //== Class definition
 var Datatable_expRemoteAjaxDemo = function () {
 
@@ -5,7 +10,9 @@ var Datatable_expRemoteAjaxDemo = function () {
   //== Private functions
   var demo_exp = function () {
 
-    var url = 'http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8001/syncHotel/querySyncHotelList?cardcode=' + cardcode+"&cardname="+cardname+"&uCrsid="+uCrsid+"&batch="+batch;
+    var url = '/queryCrsAccountPeriod/query?startYearAndMonthQuery=' + startYearAndMonthQuery+"&endYearAndMonthQuery="+endYearAndMonthQuery
+             +"&checkInDate="+checkInDate+"&checkOutDate="+checkOutDate+"&orderNo="+orderNo+"&region="+region
+             +"&city="+city+"&hotelName="+hotelName;
 
     datatable_exp = $('.m_datatable_exception').mDatatable({
       // datasource definition
@@ -51,68 +58,115 @@ var Datatable_expRemoteAjaxDemo = function () {
 
         // 表列定义
         columns:[
-            {field:'id',title:'账期'},
-            {field:'cardcode',title:'酒店名称'},
-            {field:'cardname',title:'订单号'},
-            {field:'valid',title:'客人姓名'},
-            {field:'cntctPrsn',title:'订单渠道'},
-            {field:'licTradNum',title:'渠道名'},
-            {field:'ucrsid',title:'入住日期'},
-            {field:'contacts',title:'退房日期'},
-            {field:'address',title:'本期开始日期'},
-            {field:'address',title:'本期结束日期'},
-            {field:'batch',title:'本期入住天数'},
-            {field:'batch',title:'房间价格'},
-            {field:'batch',title:'本月应结算总额（计算）'},
-            {field:'batch',title:'订单状态'},
-            {field:'batch',title:'已用客房数'},
-            {field:'batch',title:'本月已用间夜数'},
-            {field:'batch',title:'订单总额'},
-            {field:'batch',title:'本月应结算总额'},
-            {field:'batch',title:'支付方式'},
-            {field:'batch',title:'支付明细'},
-            {field:'batch',title:'支付类型（预付/后付费）'},
-            {field:'batch',title:'OTA ID'},
-            {field:'batch',title:'City'},
-            {field:'batch',title:'Region'},
-            {field:'batch',title:'Hotels ID'},
-            {field:'batch',title:'本月匹配费率'},
-            {field:'batch',title:'OYO share'}
+            {field:'accountPeriod',title:'账期'},
+            {field:'hotelName',title:'酒店名称'},
+            {field:'orderNo',title:'订单号'},
+            {field:'guestName',title:'客人姓名'},
+            {field:'orderChannel',title:'订单渠道'},
+            {field:'channelName',title:'渠道名'},
+            {field:'checkInDate',title:'入住日期'},
+            {field:'checkOutDate',title:'退房日期'},
+            {field:'startDateOfAccountPeriod',title:'本期开始日期'},
+            {field:'endDateOfAccountPeriod',title:'本期结束日期'},
+            {field:'checkInDays',title:'本期入住天数'},
+            {field:'roomPrice',title:'房间价格'},
+            {field:'currentMonthSettlementTotalAmountCompute',title:'本月应结算总额（计算）'},
+            {field:'statusDes',title:'订单状态'},
+            {field:'roomsNumber',title:'已用客房数'},
+            {field:'currentMonthRoomsNumber',title:'本月已用间夜数'},
+            {field:'orderTotalAmount',title:'订单总额'},
+            {field:'currentMonthSettlementTotalAmount',title:'本月应结算总额'},
+            {field:'paymentMethod',title:'支付方式'},
+            {field:'paymentDetails',title:'支付明细'},
+            {field:'paymentType',title:'支付类型（预付/后付费）'},
+            {field:'otaId',title:'OTA ID'},
+            {field:'city',title:'City'},
+            {field:'region',title:'Region'},
+            {field:'hotelId',title:'Hotels ID'},
+            {field:'currentMonthRate',title:'本月匹配费率'},
+            {field:'oyoShare',title:'OYO share'}
 
         ],
     });
 
   };
-
+  
+  //设置参数值
+  function setParamValues() {
+	  startYearAndMonthQuery = $("#startYearAndMonthQuery").val();
+      endYearAndMonthQuery = $("#endYearAndMonthQuery").val();
+      checkInDate = $("#m_datepicker_1").val();
+      checkOutDate = $("#m_datepicker_2").val();
+      orderNo = $("#orderNo").val();
+      region = $("#region").val();
+      city = $("#city").val();
+      hotelName = $("#hotelName").val();
+  }
+ 
+  //查询
   $("#m_search_btn").on("click", function (t) {
-    t.preventDefault();
-    datatable_exp.destroy();
-    var e = {};
-
-
-    $(".m-input").each(function () {
-      var a = $(this).data("col-index");
-
-      if (a == 0) {
-        e[a] ? e[a] += "|" + $(this).val() : e[a] = $(this).val();
-          cardcode = e[a];
-      }
-      if (a == 1) {
-        e[a] ? e[a] += "|" + $(this).val() : e[a] = $(this).val();
-          cardname = e[a];
-      }
-      if (a == 2) {
-            e[a] ? e[a] += "|" + $(this).val() : e[a] = $(this).val();
-          uCrsid = e[a];
-      }
-        if (a == 3) {
-            e[a] ? e[a] += "|" + $(this).val() : e[a] = $(this).val();
-            batch = e[a];
-        }
-    });
-    demo_exp();
+      t.preventDefault();
+      datatable_exp.destroy();
+      
+      setParamValues();
+      
+      demo_exp();
   });
+  
+  //汇总下载
+  $("#m_summary_statistics_btn").on("click", function (t) {
+	  t.preventDefault();
 
+	  setParamValues();
+
+	  location.href = '/queryCrsAccountPeriod/exportSummaryStatistics?startYearAndMonthQuery=' + startYearAndMonthQuery
+				    + '&endYearAndMonthQuery=' + endYearAndMonthQuery
+					+ '&checkInDate=' + checkInDate
+					+ '&checkOutDate=' + checkOutDate
+					+ '&orderNo=' + orderNo
+					+ '&region=' + region
+					+ '&city=' + city 
+					+ '&hotelName=' + hotelName;
+  });
+  
+  //商户对账单下载
+  $("#m_merchant_account_download_btn").on("click", function (t) {
+	  t.preventDefault();
+
+	  setParamValues();
+
+	  location.href = '/queryCrsAccountPeriod/exportMerchantAccount?startYearAndMonthQuery=' + startYearAndMonthQuery
+					+ '&endYearAndMonthQuery=' + endYearAndMonthQuery
+					+ '&checkInDate=' + checkInDate
+					+ '&checkOutDate=' + checkOutDate
+					+ '&orderNo=' + orderNo
+					+ '&region=' + region
+					+ '&city=' + city 
+					+ '&hotelName=' + hotelName;
+  });
+  
+  //明细下载
+  $("#m_detail_download_btn").on("click", function (t) {
+	  t.preventDefault();
+		
+	  setParamValues();
+		
+	  location.href = '/queryCrsAccountPeriod/exportDetails?startYearAndMonthQuery=' + startYearAndMonthQuery
+				    + '&endYearAndMonthQuery=' + endYearAndMonthQuery
+					+ '&checkInDate=' + checkInDate
+					+ '&checkOutDate=' + checkOutDate
+					+ '&orderNo=' + orderNo
+					+ '&region=' + region
+					+ '&city=' + city 
+					+ '&hotelName=' + hotelName;
+  });
+  
+  //生成recon数据
+  $("#m_generate_recon_btn").on("click", function (t) {
+      t.preventDefault();
+	  alert("生成recon数据");	
+  });
+  
   return {
     // public functions
     init: function () {
@@ -121,9 +175,65 @@ var Datatable_expRemoteAjaxDemo = function () {
   };
 }();
 
-var cardcode = "",cardname="",uCrsid="",batch="";
+//填充城市下拉框
+function fillCitiesSelect() {
+    $.ajax({
+			type : "POST",
+			dataType : "json",
+			url : "/city/getCities",
+			data : "",
+			success : function(data) {
+				if (data) {
+					$('#city').attr("length", '0');
+					for (i = 0; i < data.length; i++) {
+						$("#city").append($('<option value=' + data[i].name + '>' + data[i].name + '</option>'));
+					}
+				}
+			}
+    });   
+}
+
+//填充区域下拉框
+function fillZonesSelect() {
+    $.ajax({
+			type : "POST",
+			dataType : "json",
+			url : "/city/getZones",
+			data : "",
+			success : function(data) {
+				if (data) {
+					$('#region').attr("length", '0');
+					for (i = 0; i < data.length; i++) {
+						$("#region").append($('<option value="' + data[i].name + '">' + data[i].name + '</option>'));
+					}
+				}
+			}
+    });   
+}
 
 jQuery(document).ready(function () {
-
-  Datatable_expRemoteAjaxDemo.init();
+	//填充城市下拉框
+	fillCitiesSelect();
+	//填充区域下拉框
+	fillZonesSelect();
+	
+	$('.calendar').datetimepicker({
+        format: 'yyyy-mm',
+        autoclose: true,
+        todayBtn: true,
+        startView: 'year',
+        minView:'year',
+        maxView:'decade',
+        language:'zh-CN',
+    });
+	$('.calendar2').datetimepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true,
+        todayBtn: true,
+        startView: 'month',
+        minView:'month',
+        maxView:'decade',
+        language:'zh-CN',
+    });
+    Datatable_expRemoteAjaxDemo.init();
 });

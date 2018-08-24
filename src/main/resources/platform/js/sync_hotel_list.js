@@ -13,7 +13,7 @@ var Datatable_expRemoteAjaxDemo = function () {
           read: {
             // sample GET method
             method: 'GET',
-            url: 'http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8001/syncHotel/querySyncHotelList?cardcode=' + cardcode+"&cardname="+cardname+"&uCrsid="+uCrsid+"&batch="+batch,
+            url: '../syncHotel/querySyncHotelList?cardcode=' + cardcode+"&cardname="+cardname+"&uCrsid="+uCrsid+"&batch="+batch,
             map: function (raw) {
               return raw;
             },

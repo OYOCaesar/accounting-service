@@ -5,7 +5,7 @@ var importReportData = function () {
   // basic demo
   var dataTable_report = "";
   var import_ReportData = function () {
-    var url ='http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8001/oyoShare/oyoShareList?isTest=t&hotelName='+hotelName+"&city="+city+"&status="+status;
+    var url ='../oyoShare/oyoShareList?isTest=t&hotelName='+hotelName+"&city="+city+"&status="+status;
     dataTable_report = $('#m_datatable_data').mDatatable({
       // datasource definition
       data: {
@@ -52,52 +52,52 @@ var importReportData = function () {
       columns: [
         {
           field: 'uniqueCode',
-          title: 'UNIQUE_CODE',
+          title: 'uniqueCode',
           sortable: false,
           textAlign: 'center'
         },
         {
           field: 'oyoId',
-          title: 'OYO_ID',
+          title: 'oyoId',
           sortable: false,
           selector: false,
           textAlign: 'center'
         },
         {
           field: 'hotelId',
-          title: 'HOTEL_ID',
+          title: 'hotelId',
         },
         {
           field: 'status',
-          title: 'STATUS',
+          title: 'status',
           sortable: false,
           selector: false,
           textAlign: 'center'
         },
         {
           field: 'hotelName',
-          title: 'HOTEL_NAME',
+          title: 'hotelName',
           sortable: false,
           selector: false,
           textAlign: 'center',
         },
         {
           field: 'city',
-          title: 'CITY',
+          title: 'city',
           sortable: false,
           selector: false,
           textAlign: 'center',
         },
         {
           field: 'zoneName',
-          title: 'ZONE_NAME',
+          title: 'zoneName',
           sortable: false,
           selector: false,
           textAlign: 'center'
         },
         {
           field: 'testing',
-          title: 'Testing',
+          title: 'testing',
           type: "date",
           sortable: false,
           selector: false,

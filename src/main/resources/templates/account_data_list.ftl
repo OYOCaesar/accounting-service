@@ -49,57 +49,53 @@
             <!--begin: Search Form -->
             <form class="m-form m-form--fit m--margin-bottom-20">
               <div class="row m--margin-bottom-10">
-
+                  
                   <div class="col-lg-3 m--margin-bottom-10-tablet-and-mobile">
                       <label>账期:</label>
                       <div class="input-daterange input-group" id="m_datepicker">
-                          <input type="text" class="form-control" id="m_datepicker_1" readonly=""
+                          <input type="text" class="form-control calendar" id="startYearAndMonthQuery" readonly=""
                                  placeholder="Start Time">
                           <div class="input-group-append">
                               <span class="input-group-text"><i class="la la-ellipsis-h"></i></span>
                           </div>
-                          <input type="text" class="form-control" id="m_datepicker_2" readonly=""
+                          <input type="text" class="form-control calendar" id="endYearAndMonthQuery" readonly=""
                                  placeholder="End Time">
                       </div>
                   </div>
                   <div class="col-lg-3 m--margin-bottom-10-tablet-and-mobile">
                       <label>入住日期:</label>
-                      <div class="input-daterange input-group" id="m_datepicker">
-                          <input type="text" class="form-control m-input" id="m_datepicker_1" readonly=""
+                      <div class="input-daterange input-group" id="m_datepicker2">
+                          <input type="text" class="form-control m-input calendar2" id="m_datepicker_1" readonly=""
                                  data-col-index="0">
                       </div>
                   </div>
                   <div class="col-lg-3 m--margin-bottom-10-tablet-and-mobile">
                       <label>退房日期:</label>
                       <div class="input-daterange input-group" id="m_datepicker">
-                          <input type="text" class="form-control m-input" id="m_datepicker_1" readonly=""
+                          <input type="text" class="form-control m-input calendar2" id="m_datepicker_2" readonly=""
                                  data-col-index="1">
                       </div>
                   </div>
                   <div class="col-lg-3 m--margin-bottom-10-tablet-and-mobile">
                       <label>订单号:</label>
-                      <input type="text" class="form-control m-input"
+                      <input type="text" class="form-control m-input" id="orderNo"
                              data-col-index="2">
                   </div>
                   <div class="col-lg-3 m--margin-bottom-10-tablet-and-mobile">
                       <label>区域:</label>
-                      <select class="form-control m-input" data-col-index="3">
+                      <select class="form-control m-input" data-col-index="3" id="region">
                           <option value="">Select</option>
-                          <option value="">a</option>
-                          <option value="">b</option>
                       </select>
                   </div>
                   <div class="col-lg-3 m--margin-bottom-10-tablet-and-mobile">
                       <label>城市:</label>
-                      <select class="form-control m-input" data-col-index="4">
+                      <select class="form-control m-input" data-col-index="4" id="city">
                           <option value="">Select</option>
-                          <option value="">a</option>
-                          <option value="">b</option>
                       </select>
                   </div>
                   <div class="col-lg-3 m--margin-bottom-10-tablet-and-mobile">
                       <label>酒店名称:</label>
-                      <input type="text" class="form-control m-input"
+                      <input type="text" class="form-control m-input" id="hotelName"
                              data-col-index="5">
                   </div>
               </div>
@@ -108,41 +104,41 @@
 
               <div class="row">
                 <div class="col-lg-12">
-                  <button class="btn btn-brand m-btn m-btn--icon" id="m_search_btn">
-                                        <span>
-                                            <i class="la la-search"></i>
-                                            <span>查询</span>
-                                        </span>
-                  </button>
-                  &nbsp;&nbsp;
                   <button class="btn btn-secondary m-btn m-btn--icon" id="m_reset_btn">
                                     <span>
                                         <i class="la la-close"></i>
                                         <span>重置</span>
                                     </span>
                   </button>
-                    <button class="btn btn-brand m-btn m-btn--icon">
+                  &nbsp;&nbsp;
+                  <button class="btn btn-brand m-btn m-btn--icon" id="m_search_btn">
+                                        <span>
+                                            <i class="la la-search"></i>
+                                            <span>查询</span>
+                                        </span>
+                  </button>
+                    <button class="btn btn-brand m-btn m-btn--icon" id="m_summary_statistics_btn">
                                         <span>
                                             <i class="la"></i>
                                             <span>汇总下载</span>
                                         </span>
                     </button>
                     &nbsp;&nbsp;
-                    <button class="btn btn-brand m-btn m-btn--icon">
+                    <button class="btn btn-brand m-btn m-btn--icon" id="m_merchant_account_download_btn">
                                         <span>
                                             <i class="la"></i>
                                             <span>商户对账单下载</span>
                                         </span>
                     </button>
                     &nbsp;&nbsp;
-                    <button class="btn btn-brand m-btn m-btn--icon">
+                    <button class="btn btn-brand m-btn m-btn--icon" id="m_detail_download_btn">
                                         <span>
                                             <i class="la"></i>
                                             <span>明细下载</span>
                                         </span>
                     </button>
                     &nbsp;&nbsp;
-                    <button class="btn btn-brand m-btn m-btn--icon">
+                    <button class="btn btn-brand m-btn m-btn--icon" id="m_generate_recon_btn">
                                         <span>
                                             <i class="la"></i>
                                             <span>生成recon数据</span>

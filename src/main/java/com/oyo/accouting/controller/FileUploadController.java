@@ -1,20 +1,15 @@
 package com.oyo.accouting.controller;
 
-import com.oyo.accouting.bean.OyoShareDto;
 import com.oyo.accouting.pojo.OyoShare;
 import com.oyo.accouting.service.OyoShareService;
 import com.oyo.accouting.util.ApnExcelParseTool;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -88,9 +83,9 @@ public class FileUploadController {
             }catch (Exception e){
                 e.printStackTrace();
             }
-            return "t".equals(isTest)?"redirect:http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8081/syncSap/testHotelList":"redirect:http://localhost:8081/syncSap/rate";
+            return "t".equals(isTest)?"redirect:../syncSap/testHotelList":"redirect:../syncSap/rate";
         } else {
-            return "redirect:http://accountingservicetest.cn-north-1.eb.amazonaws.com.cn:8081/syncSap/error";
+            return "redirect:../syncSap/error";
         }
     }
 

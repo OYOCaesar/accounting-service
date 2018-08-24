@@ -119,12 +119,12 @@ public class QueryCrsAccountPeriodService {
     				
     				//计算房间价格 roomPrice
     				if (q.getRoomsNumber() != null && q.getRoomsNumber().intValue() != 0 && q.getCheckInDays() != null && q.getCheckInDays().intValue() != 0) {
-    					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(q.getCheckInDays())), 6, BigDecimal.ROUND_HALF_UP));
+    					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(q.getCheckInDays())), 2, BigDecimal.ROUND_HALF_UP));
     				}
     				
     				//本月应结算总额（计算）,=房价*天数 currentMonthSettlementTotalAmountCompute
     				if (null != q.getRoomPrice() && null != q.getCheckInDays()) {
-    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(6, BigDecimal.ROUND_HALF_UP));
+    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(2, BigDecimal.ROUND_HALF_UP));
     				} else {
     					q.setCurrentMonthSettlementTotalAmountCompute(null);
     				}
@@ -238,12 +238,12 @@ public class QueryCrsAccountPeriodService {
     				
     				//计算房间价格 roomPrice
     				if (q.getRoomsNumber() != null && q.getRoomsNumber().intValue() != 0 && q.getCheckInDays() != null && q.getCheckInDays().intValue() != 0) {
-    					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(q.getCheckInDays())), 6, BigDecimal.ROUND_HALF_UP));
+    					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(q.getCheckInDays())), 2, BigDecimal.ROUND_HALF_UP));
     				}
     				
     				//本月应结算总额（计算）,=房价*天数 currentMonthSettlementTotalAmountCompute
     				if (null != q.getRoomPrice() && null != q.getCheckInDays()) {
-    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(6, BigDecimal.ROUND_HALF_UP));
+    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(2, BigDecimal.ROUND_HALF_UP));
     				} else {
     					q.setCurrentMonthSettlementTotalAmountCompute(null);
     				}
@@ -341,12 +341,12 @@ public class QueryCrsAccountPeriodService {
     				
     				//计算房间价格 roomPrice
     				if (q.getRoomsNumber() != null && q.getRoomsNumber().intValue() != 0 && q.getCheckInDays() != null && q.getCheckInDays().intValue() != 0) {
-    					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(q.getCheckInDays())), 6, BigDecimal.ROUND_HALF_UP));
+    					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(q.getCheckInDays())), 2, BigDecimal.ROUND_HALF_UP));
     				}
     				
     				//本月应结算总额（计算）,=房价*天数 currentMonthSettlementTotalAmountCompute
     				if (null != q.getRoomPrice() && null != q.getCheckInDays()) {
-    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(6, BigDecimal.ROUND_HALF_UP));
+    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(2, BigDecimal.ROUND_HALF_UP));
     				} else {
     					q.setCurrentMonthSettlementTotalAmountCompute(null);
     				}
