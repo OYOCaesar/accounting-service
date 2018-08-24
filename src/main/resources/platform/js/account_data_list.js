@@ -161,6 +161,12 @@ var Datatable_expRemoteAjaxDemo = function () {
 					+ '&hotelName=' + hotelName;
   });
   
+  //生成recon数据
+  $("#m_generate_recon_btn").on("click", function (t) {
+      t.preventDefault();
+	  alert("生成recon数据");	
+  });
+  
   return {
     // public functions
     init: function () {

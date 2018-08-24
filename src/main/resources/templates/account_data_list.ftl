@@ -104,18 +104,18 @@
 
               <div class="row">
                 <div class="col-lg-12">
-                  <button class="btn btn-brand m-btn m-btn--icon" id="m_search_btn">
-                                        <span>
-                                            <i class="la la-search"></i>
-                                            <span>查询</span>
-                                        </span>
-                  </button>
-                  &nbsp;&nbsp;
                   <button class="btn btn-secondary m-btn m-btn--icon" id="m_reset_btn">
                                     <span>
                                         <i class="la la-close"></i>
                                         <span>重置</span>
                                     </span>
+                  </button>
+                  &nbsp;&nbsp;
+                  <button class="btn btn-brand m-btn m-btn--icon" id="m_search_btn">
+                                        <span>
+                                            <i class="la la-search"></i>
+                                            <span>查询</span>
+                                        </span>
                   </button>
                     <button class="btn btn-brand m-btn m-btn--icon" id="m_summary_statistics_btn">
                                         <span>
