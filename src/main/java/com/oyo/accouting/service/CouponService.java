@@ -30,7 +30,7 @@ public class CouponService {
     @Autowired
     private CouponsMapper couponsMapper;
 
-    public final static int PAGE_SIZE = 2;
+    public final static int PAGE_SIZE = 500;
 
     public String expire() {
         // 一般情况不会一次出现太多过期的优惠券模板，暂不分页处理
