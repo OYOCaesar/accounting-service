@@ -1,5 +1,6 @@
 package com.oyo.accouting.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -93,6 +94,7 @@ public class ApnExcelParseTool {
         try {
             //根据String得到需要调用的ApnModel中的方法
             for (String str : rst) {
+                if(StringUtils.isEmpty(str)) continue;
                 methodName = "set" + regexMethodName(str);
                 //反射拿到method
                 mUsedMethod.add(
@@ -128,6 +130,7 @@ public class ApnExcelParseTool {
                m1 = p1.matcher(str);
            }
        }catch (Exception e){
+           System.out.println("==========处理错误"+str+"==========");
            e.printStackTrace();
        }
        return str;

@@ -230,8 +230,8 @@
 		<foreach collection="list" item="queryAccountPeriodDto" separator=" union all ">
 		    <!-- 1.checkin in period and checkout in period -->
 			select
-			c.oyo_id,
-			c.unique_code,
+			C.oyo_id,
+			C.unique_code,
 			C.name hotel_name,
 			#{queryAccountPeriodDto.accountPeriod} period,
 			A.oyo_rooms,
@@ -266,9 +266,10 @@
 			union all		 
 			<!-- 2.checkin not in period and checkout in period	-->	 
 			select 
-			c.oyo_id,
-			c.unique_code,
+			C.oyo_id,
+			C.unique_code,
 			C.name hotel_name,
+			#{queryAccountPeriodDto.accountPeriod} period,
 			A.oyo_rooms,
 			A.amount,
 			C.city,
@@ -301,9 +302,10 @@
 			union all
 			<!-- 3.checkin in period and checkout not in period or checkout is null-->			 
 			select 
-			c.oyo_id,
+			C.oyo_id,
 			c.unique_code,
 			C.name hotel_name,
+			#{queryAccountPeriodDto.accountPeriod} period,
 			A.oyo_rooms,
 			A.amount,
 			C.city,
@@ -335,7 +337,7 @@
 			</if>
 	    </foreach>
 		) as foo
-		ORDER BY c.oyo_id
+		ORDER BY foo.oyo_id
 	</select>
 	
 	<!-- 条件查询CRS中明细的账期信息 -->
@@ -346,8 +348,8 @@
 		<foreach collection="list" item="queryAccountPeriodDto" separator=" union all ">
 		    <!-- 1.checkin in period and checkout in period -->
 			select
-			c.unique_code,
-			c.oyo_id, 
+			C.unique_code,
+			C.oyo_id, 
 			#{queryAccountPeriodDto.accountPeriod} period,
 			C.name hotel_name,
 			A.invoice_no order_no,
@@ -393,8 +395,8 @@
 			union all		 
 			<!-- 2.checkin not in period and checkout in period	-->	 
 			select 
-			c.unique_code,
-			c.oyo_id,
+			C.unique_code,
+			C.oyo_id,
 			#{queryAccountPeriodDto.accountPeriod} period,
 			C.name hotel_name,
 			A.invoice_no order_no,
@@ -440,8 +442,8 @@
 			union all
 			<!-- 3.checkin in period and checkout not in period or checkout is null-->			 
 			select 
-			c.unique_code,
-			c.oyo_id,
+			C.unique_code,
+			C.oyo_id,
 			#{queryAccountPeriodDto.accountPeriod} period,
 			C.name hotel_name,
 			A.invoice_no order_no,
