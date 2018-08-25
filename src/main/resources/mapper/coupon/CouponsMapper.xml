@@ -56,6 +56,13 @@
       </if>
     </set>
     where 1=1
+    <if test="idList != null">
+      AND id in
+      <foreach collection="idList" index="index" item="item"
+               separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
     <if test="metadataIdList != null">
       AND metadata_id in
       <foreach collection="metadataIdList" index="index" item="item"
