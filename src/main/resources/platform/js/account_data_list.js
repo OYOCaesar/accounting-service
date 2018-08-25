@@ -164,7 +164,44 @@ var Datatable_expRemoteAjaxDemo = function () {
   //生成recon数据
   $("#m_generate_recon_btn").on("click", function (t) {
       t.preventDefault();
-	  alert("生成recon数据");	
+	  
+      $.ajax({
+		    url:'/queryCrsAccountPeriod/generateRecon',
+		    type:'POST', //GET
+		    async:true,    //或false,是否异步
+		    data:{
+		    	startYearAndMonthQuery:$("#syncCrs").val(),
+		        endYearAndMonthQuery:$("#endYearAndMonthQuery").val(),
+		        checkInDate:$("#m_datepicker_1").val(),
+		        checkOutDate:$("#m_datepicker_2").val(),
+		        orderNo:$("#orderNo").val(),
+		        region:$("#region").val(),
+		        city:$("#city").val(),
+		        hotelName:$("#hotelName").val()
+		    },
+		    timeout:3600000,    //超时时间
+		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+		    beforeSend:function(xhr){
+		        $("#m_generate_recon_btn").html("执行中...");
+		        $("#m_generate_recon_btn").attr("disabled",true);
+		    },
+		    success:function(data,textStatus,jqXHR){
+		    	$("#syncCrsResult").html(data);
+		    },
+		    error:function(xhr,textStatus){
+		        console.log(xhr)
+		        console.log(textStatus);
+		    },
+		    complete:function(data) {
+		    	$("#m_generate_recon_btn").attr("disabled",false);
+		    	$("#m_generate_recon_btn").html("生成recon数据");
+		    	if (data && data.responseJSON) {
+		    		alert(data.responseJSON.msg);
+		    	}
+		    	console.log(data);
+		    }
+		});
+      
   });
   
   return {

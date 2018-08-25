@@ -34,12 +34,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.oyo.accouting.bean.AccountPeriodDetailsDto;
 import com.oyo.accouting.bean.AccountPeriodDto;
-import com.oyo.accouting.bean.AccountPeriodTotalDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
 import com.oyo.accouting.job.SyncArAndApJob;
 import com.oyo.accouting.service.QueryCrsAccountPeriodService;
+
+import net.sf.json.JSONObject;
 
 //查询CRS中账单数据controller
 @RequestMapping("queryCrsAccountPeriod")
@@ -69,14 +69,16 @@ public class QueryCrsAccountPeriodController {
     		LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-    			queryAccountPeriodDto.setStartYearAndMonthQuery(localDate.getYear() + "-" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
-    			queryAccountPeriodDto.setEndYearAndMonthQuery(localDate.getYear() + "-" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
+    			queryAccountPeriodDto.setStartYearAndMonthQuery(localDate.getYear() + "" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
+    			queryAccountPeriodDto.setEndYearAndMonthQuery(localDate.getYear() + "" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
     		} else {
     			if (StringUtils.isNotEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery());
+        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery().replaceAll("-", ""));
+        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery().replaceAll("-", ""));
         		}
         		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isNotEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
+        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery().replaceAll("-", ""));
+        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery().replaceAll("-", ""));
         		}
     		}
     		list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
@@ -107,16 +109,18 @@ public class QueryCrsAccountPeriodController {
     		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
     		
 			LocalDate localDate = LocalDate.now();
-    		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
+			//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-    			queryAccountPeriodDto.setStartYearAndMonthQuery(localDate.getYear() + "-" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
-    			queryAccountPeriodDto.setEndYearAndMonthQuery(localDate.getYear() + "-" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
+    			queryAccountPeriodDto.setStartYearAndMonthQuery(localDate.getYear() + "" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
+    			queryAccountPeriodDto.setEndYearAndMonthQuery(localDate.getYear() + "" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
     		} else {
     			if (StringUtils.isNotEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery());
+        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery().replaceAll("-", ""));
+        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery().replaceAll("-", ""));
         		}
         		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isNotEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
+        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery().replaceAll("-", ""));
+        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery().replaceAll("-", ""));
         		}
     		}
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
@@ -234,19 +238,21 @@ public class QueryCrsAccountPeriodController {
     		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
     		
 			LocalDate localDate = LocalDate.now();
-    		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
+			//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-    			queryAccountPeriodDto.setStartYearAndMonthQuery(localDate.getYear() + "-" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
-    			queryAccountPeriodDto.setEndYearAndMonthQuery(localDate.getYear() + "-" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
+    			queryAccountPeriodDto.setStartYearAndMonthQuery(localDate.getYear() + "" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
+    			queryAccountPeriodDto.setEndYearAndMonthQuery(localDate.getYear() + "" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
     		} else {
     			if (StringUtils.isNotEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery());
+        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery().replaceAll("-", ""));
+        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery().replaceAll("-", ""));
         		}
         		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isNotEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
+        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery().replaceAll("-", ""));
+        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery().replaceAll("-", ""));
         		}
     		}
-    		List<AccountPeriodTotalDto> list = queryCrsAccountPeriodService.queryCrsTotalAccountPeriod(queryAccountPeriodDto);
+    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
 			
     		String excelModelName = TEMPLATEPATH + "summaryStatistics.xlsx";
     		String fileName = "汇总统计" + System.currentTimeMillis() + ".xlsx";
@@ -333,19 +339,21 @@ public class QueryCrsAccountPeriodController {
     		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
     		
 			LocalDate localDate = LocalDate.now();
-    		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
+			//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
     		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-    			queryAccountPeriodDto.setStartYearAndMonthQuery(localDate.getYear() + "-" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
-    			queryAccountPeriodDto.setEndYearAndMonthQuery(localDate.getYear() + "-" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
+    			queryAccountPeriodDto.setStartYearAndMonthQuery(localDate.getYear() + "" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
+    			queryAccountPeriodDto.setEndYearAndMonthQuery(localDate.getYear() + "" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
     		} else {
     			if (StringUtils.isNotEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery());
+        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery().replaceAll("-", ""));
+        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery().replaceAll("-", ""));
         		}
         		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isNotEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
-        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
+        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery().replaceAll("-", ""));
+        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery().replaceAll("-", ""));
         		}
     		}
-    		List<AccountPeriodDetailsDto> list = queryCrsAccountPeriodService.queryCrsDetailsAccountPeriod(queryAccountPeriodDto);
+    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
     		String excelModelName = TEMPLATEPATH + "details.xlsx";//导出的明细模板
     		
     		// 遍历打包下载
@@ -357,8 +365,8 @@ public class QueryCrsAccountPeriodController {
 			// 设置压缩方式
 			zipOutputStream.setMethod(ZipOutputStream.DEFLATED);
 			
-    		Map<Integer,List<AccountPeriodDetailsDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDetailsDto::getUniqueCode));
-    		for (Map.Entry<Integer, List<AccountPeriodDetailsDto>> entry : hotelGroupMap.entrySet()) {
+    		Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
+    		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
 				String fileName = entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户明细" + System.currentTimeMillis() + ".xlsx";
 				fis = new FileInputStream(excelModelName);
 				workBook = new XSSFWorkbook(fis);
@@ -377,7 +385,7 @@ public class QueryCrsAccountPeriodController {
 					creRow.createCell(7).setCellValue(entry.getValue().get(i).getChannelName());//渠道名
 					creRow.createCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住日期，格式：yyyy-MM-dd,查询显示字段
 					creRow.createCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//退房日期，格式：yyyy-MM-dd,查询显示字段
-					creRow.createCell(10).setCellValue(entry.getValue().get(i).getStatusDes());//订单状态描述;
+					creRow.createCell(10).setCellValue(entry.getValue().get(i).getStatusDesc());//订单状态描述;
 					creRow.createCell(11).setCellValue(entry.getValue().get(i).getRoomsNumber());//已用客房数
 					creRow.createCell(12).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
 					creRow.createCell(13).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//订单总额
@@ -437,6 +445,49 @@ public class QueryCrsAccountPeriodController {
 				log.error("Export Details close generate zip file stream exception：{}", e);
 			}
 		} 
+	}
+	
+	//生成recon数据
+	@RequestMapping("generateRecon")
+	@ResponseBody
+	public JSONObject generateRecon(HttpServletRequest request, QueryAccountPeriodDto queryAccountPeriodDto) {
+		JSONObject result = new JSONObject();
+		try {
+			
+			queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
+    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
+    		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
+    		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
+    		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
+    		queryAccountPeriodDto.setRegion(request.getParameter("region"));
+    		queryAccountPeriodDto.setCity(request.getParameter("city"));
+    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+    		
+			LocalDate localDate = LocalDate.now();
+    		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
+    		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
+    			queryAccountPeriodDto.setStartYearAndMonthQuery(localDate.getYear() + "-" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
+    			queryAccountPeriodDto.setEndYearAndMonthQuery(localDate.getYear() + "-" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue()));
+    		} else {
+    			if (StringUtils.isNotEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
+        			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery());
+        		}
+        		if (StringUtils.isEmpty(queryAccountPeriodDto.getStartYearAndMonthQuery()) && StringUtils.isNotEmpty(queryAccountPeriodDto.getEndYearAndMonthQuery())) {
+        			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
+        		}
+    		}
+    		String resultStr = queryCrsAccountPeriodService.generateReconData(queryAccountPeriodDto);
+    		if (StringUtils.isNotEmpty(resultStr)) {
+    			result.put("code", "-1");
+    			result.put("msg", resultStr);
+    		} else {
+    			result.put("code", "0");
+    			result.put("msg", "Generate Recon successfully.");
+    		}
+		} catch (Exception e) {
+			log.error("Generate Recon throwing exception:{}", e);
+		}
+		return result;
 	}
 
 }

@@ -18,8 +18,8 @@ public class QueryAccountPeriodDto {
 	private String nextAccountPeriodStart;// 下个账期开始日期，格式：yyyy-MM-dd
 	
 	//查询使用的
-    private String startYearAndMonthQuery;//账期开始年月，如：2018-06，此字段只作为前端传参使用，后端mybatis中用不到
-    private String endYearAndMonthQuery;//账期结束年月，如：2018-07，此字段只作为前端传参使用，后端mybatis中用不到
+    private String startYearAndMonthQuery;//账期开始年月，如：2018-06
+    private String endYearAndMonthQuery;//账期结束年月，如：2018-07
 	private String checkInDate;// 入住日期，格式：yyyy-MM-dd,查询显示字段
 	private String checkOutDate;// 退房日期，格式：yyyy-MM-dd,查询显示字段
 	private String orderNo;// 订单号
