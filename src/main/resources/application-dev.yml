@@ -33,6 +33,10 @@ spring:
 #    enabled: true
 #  mvc:
 #    static-path-pattern: /**
+
+  thymeleaf:
+    mode: LEGACYHTML5
+
   resources:
     static-locations: classpath:/platform/
   # 设置上传文件的最大值

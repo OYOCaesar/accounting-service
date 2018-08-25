@@ -125,4 +125,6 @@ public class HotelDto {
   private String toTime;
 
   private String metaData;
+  
+  private String updateRemark;
 }
