@@ -175,7 +175,7 @@ public class SyncHotelToSapService {
 
         JSONObject m1JsonArray = JSONObject.fromObject(m1);
         JSONObject m2JsonArray = JSONObject.fromObject(m2);
-        Iterator<String> keys = m1JsonArray.keys();
+        Iterator<String> keys = m2JsonArray.keys();
         while(keys.hasNext()){
             String key = keys.next();
             Object m1value = m1JsonArray.get(key) == null?"":m1JsonArray.get(key);
@@ -183,7 +183,7 @@ public class SyncHotelToSapService {
             if(m1value instanceof String){
                 if (!m1value.equals(m2value)) return false;
 
-            }else if("net.sf.json.JSONArray".equals(m1value.getClass().getName())){
+            }else {
                 if (!m1value.toString().equals(m2value.toString())) return false;
 
             }

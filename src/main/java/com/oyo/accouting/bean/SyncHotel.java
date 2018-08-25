@@ -39,7 +39,9 @@ public class SyncHotel {
         this.syncHotelMap.put("CardType",isC?"C":"V");
         this.syncHotelMap.put("DebPayAcct",isC?AccountingCode.CODE_11220203.getCode():AccountingCode.CODE_22020203.getCode());
         this.syncHotelMap.put("StartDate",hotel.getActivationDate()==null?"":hotel.getActivationDate().toString());
-        this.syncHotelMap.put("UpdateRemark", "{from_time:"+checkNull(hotel.getFromTime())+",to_time:"+checkNull(hotel.getToTime())+",meta_data:"+checkNull(hotel.getMetaData())+"}");
+        String statusTrack = hotel.getStatusTrack()==null?"":hotel.getStatusTrack();
+        this.syncHotelMap.put("UpdateRemark", "sold_out:"+hotel.getUpdateRemark()+"状态更新原因:"+statusTrack.substring(0,statusTrack.length()>100?100:statusTrack.length()));//
+
 
 
         Map<String ,Object>[] contactEmployees = new LinkedHashMap[1];
