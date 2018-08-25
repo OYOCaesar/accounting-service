@@ -187,6 +187,22 @@ public class QueryCrsAccountPeriodService {
         				
         				List<AccountPeriod> accountPeriodList = resultList.stream().filter(t->t.getAccountPeriod().equals(q.getAccountPeriod())).collect(Collectors.toList());
         				
+        				
+        				
+        				StringBuffer buff = new StringBuffer();
+        				for (AccountPeriod record : accountPeriodList) {
+        					try {
+        						this.accountPeriodMapper.insert(record);
+        					} catch (Exception e) {
+        						buff.append(record.getGuestName());
+        						buff.append("|");
+        					}
+						}
+        				System.out.println("********************************************");
+        				System.out.println("gusest_name:" + buff);
+        				System.out.println("********************************************");
+        				
+        				
     				    //每1000条批量插入一次
     	        		int len = (accountPeriodList.size() % 1000 == 0 ? accountPeriodList.size() / 1000 : ((accountPeriodList.size() / 1000) + 1));
     	        		for (int i = 0; i < len; i++) {
@@ -203,11 +219,11 @@ public class QueryCrsAccountPeriodService {
     	            			}
     	        			}
     	        			//批量插入所选账期数据
-    	        			int insertCount = this.accountPeriodMapper.insertBtach(accountPeriodList.subList(startIndex, endIndex));
+    	        			/*int insertCount = this.accountPeriodMapper.insertBtach(accountPeriodList.subList(startIndex, endIndex));
     	        			if (insertCount < 1) {
         				    	buf.append("Insert acccount period:'" + q.getAccountPeriod() + "' failed!<br/>");
         				    	throw new Exception("Insert acccount period:'" + q.getAccountPeriod() + "' failed");
-        				    }
+        				    }*/
     	        			
     	        		}
     	        		
