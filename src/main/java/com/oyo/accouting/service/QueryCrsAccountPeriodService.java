@@ -117,10 +117,7 @@ public class QueryCrsAccountPeriodService {
         			List<CrsEnumsDto> crsEnumsDtoList = crsAccountPeriodMapper.queryCrsEnumByTableName("bookings");
         			
         			resultList.forEach(q->{
-        				String regEx="[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？🌪]"; 
-        				Pattern p = Pattern.compile(regEx); 
-        				Matcher ma = p.matcher(q.getGuestName());
-        				q.setGuestName(ma.replaceAll("").trim());
+        				q.setGuestName(q.getGuestName().replaceAll("\\uD83C[\\uDF00-\\uDFFF]|\\uD83D[\\uDC00-\\uDE4F]", ""));
         				
         				//订单渠道
         				if (StringUtils.isNotEmpty(q.getOrderChannel())) {

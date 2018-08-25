@@ -493,8 +493,6 @@ public class QueryCrsAccountPeriodController {
         			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
         		}
     		}
-    		queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getStartYearAndMonthQuery().replaceAll("-", ""));
-			queryAccountPeriodDto.setEndYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery().replaceAll("-", ""));
     		String resultStr = queryCrsAccountPeriodService.generateReconData(queryAccountPeriodDto);
     		if (StringUtils.isNotEmpty(resultStr)) {
     			result.put("code", "-1");

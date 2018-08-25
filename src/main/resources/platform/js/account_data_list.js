@@ -195,7 +195,7 @@ var Datatable_expRemoteAjaxDemo = function () {
 		    complete:function(data) {
 		    	$("#m_generate_recon_btn").attr("disabled",false);
 		    	$("#m_generate_recon_btn").html("生成recon数据");
-		    	if (data && data.responseJSON) {
+		    	if (data && data.responseJSON && data.responseJSON.msg) {
 		    		alert(data.responseJSON.msg);
 		    	}
 		    	console.log(data);
