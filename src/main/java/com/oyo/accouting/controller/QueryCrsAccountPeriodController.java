@@ -124,7 +124,7 @@ public class QueryCrsAccountPeriodController {
         		}
     		}
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
-    		String excelModelName = TEMPLATEPATH + "merchantAccount.xlsx";//模板路径+文件名
+    		//String excelModelName = TEMPLATEPATH + "merchantAccount.xlsx";//模板路径+文件名
     		
     		// 遍历打包下载
     		String zipName = "商户对账" + System.currentTimeMillis() + ".zip";
@@ -139,8 +139,8 @@ public class QueryCrsAccountPeriodController {
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
     			List<AccountPeriodDto> eachList = entry.getValue();
     			String fileName = eachList.get(0).getOyoId() + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + System.currentTimeMillis() + ".xlsx";
-    			fis = new FileInputStream(excelModelName);
-    			workBook = new XSSFWorkbook(fis);
+    			InputStream inputStreamFile = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/merchantAccount.xlsx");
+    			workBook = new XSSFWorkbook(inputStreamFile);
     			XSSFSheet sheet1 = workBook.getSheet("月账单");
     			XSSFCell oyoIdCell = sheet1.getRow(1).getCell(2);
     			oyoIdCell.setCellValue(eachList.get(0).getOyoId());//oyo id
@@ -212,10 +212,14 @@ public class QueryCrsAccountPeriodController {
 			log.error("Export Merchant Account throwing exception:{}", e);
 		} finally {
 			try {
-				//flush
-				dataOutputStream.flush();
-				dataOutputStream.close();
-				zipOutputStream.close();
+				if (null != dataOutputStream) {
+					//flush
+					dataOutputStream.flush();
+					dataOutputStream.close();
+				}
+				if (null != zipOutputStream) {
+					zipOutputStream.close();
+				}
 			} catch (Exception e) {
 				log.error("Export Merchant Account close generate zip file stream exception：{}：{}", e);
 			}
@@ -253,11 +257,13 @@ public class QueryCrsAccountPeriodController {
         		}
     		}
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
-			
-    		String excelModelName = TEMPLATEPATH + "summaryStatistics.xlsx";
+    		
+    		String excelModelName = QueryCrsAccountPeriodController.class.getResource("summaryStatistics.xlsx").getPath();
     		String fileName = "汇总统计" + System.currentTimeMillis() + ".xlsx";
-    		fis = new FileInputStream(excelModelName);
-			workBook = new XSSFWorkbook(fis);
+    		/*fis = new FileInputStream(excelModelName);
+			workBook = new XSSFWorkbook(fis);*/
+			InputStream inputStreamFile = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/summaryStatistics.xlsx");
+			workBook = new XSSFWorkbook(inputStreamFile);
 			XSSFSheet sheet = workBook.getSheet("Sheet1");
 			
 			sheet.shiftRows(1, 1 + list.size(), 1, true, false); // 第1个参数是指要开始插入的行，第2个参数是结尾行数
@@ -294,6 +300,8 @@ public class QueryCrsAccountPeriodController {
 				creRow.createCell(27).setCellValue(null != list.get(i).getRoomPrice() ? list.get(i).getRoomPrice().toString() : "");// 房间价格
 				creRow.createCell(28).setCellValue(null != list.get(i).getCurrentMonthSettlementTotalAmountCompute() ? list.get(i).getCurrentMonthSettlementTotalAmountCompute().toString() : "");// 本月应结算总额（计算）,=房价*天数
 			}
+			
+			// 设置response参数，可以打开下载页面
     		response.setContentType("application/octet-stream");
     		fileName = URLEncoder.encode(fileName,"UTF-8");
             response.setHeader("Content-disposition", "attachment;filename=" + fileName);
@@ -354,7 +362,9 @@ public class QueryCrsAccountPeriodController {
         		}
     		}
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
-    		String excelModelName = TEMPLATEPATH + "details.xlsx";//导出的明细模板
+    		//String excelModelName = TEMPLATEPATH + "details.xlsx";//导出的明细模板
+    		
+    		String excelModelName = QueryCrsAccountPeriodController.class.getResource("details.xlsx").getPath();
     		
     		// 遍历打包下载
     		String zipName = "对账明细" + System.currentTimeMillis() + ".zip";
@@ -368,8 +378,11 @@ public class QueryCrsAccountPeriodController {
     		Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
 				String fileName = entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户明细" + System.currentTimeMillis() + ".xlsx";
-				fis = new FileInputStream(excelModelName);
-				workBook = new XSSFWorkbook(fis);
+				/*fis = new FileInputStream(excelModelName);
+				workBook = new XSSFWorkbook(fis);*/
+				InputStream inputStreamFile = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/summaryStatistics.xlsx");
+				workBook = new XSSFWorkbook(inputStreamFile);
+				
 				XSSFSheet sheet = workBook.getSheet("Sheet1");
 				
 				for (int i = 0; i < entry.getValue().size(); i++) {
@@ -437,10 +450,14 @@ public class QueryCrsAccountPeriodController {
 			log.error("Export Details throwing exception:{}", e);
 		} finally {
 			try {
-				//flush
-				dataOutputStream.flush();
-				dataOutputStream.close();
-				zipOutputStream.close();
+				if (null != dataOutputStream) {
+					//flush
+					dataOutputStream.flush();
+					dataOutputStream.close();
+				}
+				if (null != zipOutputStream) {
+					zipOutputStream.close();
+				}
 			} catch (Exception e) {
 				log.error("Export Details close generate zip file stream exception：{}", e);
 			}
