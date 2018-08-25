@@ -729,7 +729,7 @@
 		AND check_out_date = to_date(#{checkOutDate},'YYYY-MM-DD')
 	 </if>
      <if test="orderNo != null and orderNo != ''">
-		AND order_no like CONCAT('%' ,#{orderNo}, '%')
+		AND order_no like CONCAT(CONCAT('%',#{orderNo}),'%')
 	 </if>
 	 <if test="region != null and region != ''">
 	    AND region = #{region}
@@ -738,7 +738,7 @@
 	    AND city = #{city}
 	 </if>
 	 <if test="hotelName != null and hotelName != ''">
-	    AND hotel_name CONCAT('%' ,#{hotelName}, '%')
+	    AND hotel_name like CONCAT(CONCAT('%',#{hotelName}),'%')
 	 </if>
 	 <if test="hotelId != null and hotelId != ''">
 	    AND hotel_id = #{hotelId}
