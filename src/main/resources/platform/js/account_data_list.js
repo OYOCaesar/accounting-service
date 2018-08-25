@@ -164,11 +164,11 @@ var Datatable_expRemoteAjaxDemo = function () {
   //生成recon数据
   $("#m_generate_recon_btn").on("click", function (t) {
       t.preventDefault();
-	  
+      
       $.ajax({
 		    url:'/queryCrsAccountPeriod/generateRecon',
 		    type:'POST', //GET
-		    async:true,    //或false,是否异步
+		    async:true,  //或false,是否异步
 		    data:{
 		    	startYearAndMonthQuery:$("#syncCrs").val(),
 		        endYearAndMonthQuery:$("#endYearAndMonthQuery").val(),
@@ -191,6 +191,7 @@ var Datatable_expRemoteAjaxDemo = function () {
 		    error:function(xhr,textStatus){
 		        console.log(xhr)
 		        console.log(textStatus);
+		        alert(textStatus);
 		    },
 		    complete:function(data) {
 		    	$("#m_generate_recon_btn").attr("disabled",false);

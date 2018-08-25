@@ -189,7 +189,7 @@ public class QueryCrsAccountPeriodService {
         				
         				
         				
-        				StringBuffer buff = new StringBuffer();
+        				/*StringBuffer buff = new StringBuffer();
         				for (AccountPeriod record : accountPeriodList) {
         					try {
         						this.accountPeriodMapper.insert(record);
@@ -200,7 +200,7 @@ public class QueryCrsAccountPeriodService {
 						}
         				System.out.println("********************************************");
         				System.out.println("gusest_name:" + buff);
-        				System.out.println("********************************************");
+        				System.out.println("********************************************");*/
         				
         				
     				    //每1000条批量插入一次
@@ -219,11 +219,11 @@ public class QueryCrsAccountPeriodService {
     	            			}
     	        			}
     	        			//批量插入所选账期数据
-    	        			/*int insertCount = this.accountPeriodMapper.insertBtach(accountPeriodList.subList(startIndex, endIndex));
+    	        			int insertCount = this.accountPeriodMapper.insertBtach(accountPeriodList.subList(startIndex, endIndex));
     	        			if (insertCount < 1) {
         				    	buf.append("Insert acccount period:'" + q.getAccountPeriod() + "' failed!<br/>");
         				    	throw new Exception("Insert acccount period:'" + q.getAccountPeriod() + "' failed");
-        				    }*/
+        				    }
     	        			
     	        		}
     	        		
