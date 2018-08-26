@@ -186,7 +186,11 @@ var Datatable_expRemoteAjaxDemo = function () {
 		        $("#m_generate_recon_btn").attr("disabled",true);
 		    },
 		    success:function(data,textStatus,jqXHR){
-		    	$("#syncCrsResult").html(data);
+		    	/*if (data) {
+		    		alert(data.msg);
+		    	} else {
+		    		alert("Generate recon failed!");
+		    	}*/
 		    },
 		    error:function(xhr,textStatus){
 		        console.log(xhr)
@@ -194,11 +198,11 @@ var Datatable_expRemoteAjaxDemo = function () {
 		        alert(textStatus);
 		    },
 		    complete:function(data) {
-		    	$("#m_generate_recon_btn").attr("disabled",false);
-		    	$("#m_generate_recon_btn").html("生成recon数据");
 		    	if (data && data.responseJSON && data.responseJSON.msg) {
 		    		alert(data.responseJSON.msg);
 		    	}
+		    	$("#m_generate_recon_btn").attr("disabled",false);
+		    	$("#m_generate_recon_btn").html("生成recon数据");
 		    	console.log(data);
 		    }
 		});

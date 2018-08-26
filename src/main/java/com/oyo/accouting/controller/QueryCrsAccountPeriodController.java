@@ -429,6 +429,8 @@ public class QueryCrsAccountPeriodController {
     			result.put("msg", "Generate Recon successfully.");
     		}
 		} catch (Exception e) {
+			result.put("code", "-1");
+			result.put("msg", e.getMessage());
 			log.error("Generate Recon throwing exception:{}", e);
 		}
 		return result;

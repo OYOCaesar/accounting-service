@@ -29,7 +29,7 @@ public class QueryAccountPeriodDto {
 	private Integer hotelId;//酒店id
 	
 	private Integer pageNum = 1;//第几页，从1开始
-	private Integer pageSize = 1000;//每页记录数
+	private Integer pageSize = 10000;//每页记录数
 	
     
 }
