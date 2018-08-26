@@ -120,8 +120,8 @@ public class QueryCrsAccountPeriodService {
         				
         				//订单渠道
         				if (null != q.getOrderChannelCode()) {
-        					if (crsEnumsDtoList.stream().anyMatch(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.valueOf(q.getOrderChannelCode())))) {
-        						q.setOrderChannel(crsEnumsDtoList.stream().filter(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.valueOf(q.getOrderChannelCode()))).collect(Collectors.toList()).get(0).getEnumVal());
+        					if (crsEnumsDtoList.stream().anyMatch(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(q.getOrderChannelCode()))) {
+        						q.setOrderChannel(crsEnumsDtoList.stream().filter(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(q.getOrderChannelCode())).collect(Collectors.toList()).get(0).getEnumVal());
         					}
         				} else {
         					q.setOrderChannel("");

@@ -253,6 +253,11 @@ function fillZonesSelect() {
     });   
 }
 
+//补零函数
+function prefixInteger(num, n) {
+   return (Array(n).join(0) + num).slice(-n);
+}
+
 jQuery(document).ready(function () {
 	//填充城市下拉框
 	fillCitiesSelect();
@@ -277,5 +282,15 @@ jQuery(document).ready(function () {
         maxView:'decade',
         language:'zh-CN',
     });
+	
+	var myDate = new Date();
+	//获取当前年
+	var year=myDate.getFullYear();
+	//获取当前月
+	var month=myDate.getMonth()+1;
+	month = prefixInteger(month,2);
+	$("#startYearAndMonthQuery").val(year + "-" + month);
+	$("#endYearAndMonthQuery").val(year + "-" + month);
+	
     Datatable_expRemoteAjaxDemo.init();
 });
