@@ -243,12 +243,22 @@ public class QueryCrsAccountPeriodService {
     }
     
     //条件查询账期对账信息
-    public List<AccountPeriodDto> queryCrsAccountPeriod(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {
+    public List<AccountPeriodDto> queryAccountPeriodByCondition(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {
     	List<AccountPeriodDto> resultList = new ArrayList<AccountPeriodDto>();
     	if (null == queryAccountPeriodDto) {
     		throw new Exception("Please input the necessary parameters.");
     	}
     	resultList = this.accountPeriodMapper.queryAccountPeriodByCondition(queryAccountPeriodDto);
+        return resultList;
+    }
+    
+    //条件查询账期统计对账信息
+    public List<AccountPeriodDto> queryAccountPeriodStatisticsByCondition(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {
+    	List<AccountPeriodDto> resultList = new ArrayList<AccountPeriodDto>();
+    	if (null == queryAccountPeriodDto) {
+    		throw new Exception("Please input the necessary parameters.");
+    	}
+    	resultList = this.accountPeriodMapper.queryAccountPeriodStatisticsByCondition(queryAccountPeriodDto);
         return resultList;
     }
     
