@@ -91,7 +91,7 @@ public class QueryCrsAccountPeriodController {
 			Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
     			List<AccountPeriodDto> eachList = entry.getValue();
-    			excelFileName = eachList.get(0).getOyoId() + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + System.currentTimeMillis() + ".xlsx";
+    			excelFileName = eachList.get(0).getOyoId() + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + ".xlsx";
     			//读取模块文件
     			inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/merchantAccount.xlsx");
     			workBook = new XSSFWorkbook(inStream);
@@ -103,7 +103,7 @@ public class QueryCrsAccountPeriodController {
     			hotelNameCell.setCellValue(eachList.get(0).getHotelName());// hotel name
     			
     			XSSFCell rateCell = sheet1.getRow(4).getCell(2);
-    			rateCell.setCellValue(null != eachList.get(0).getCurrentMonthRate() ? eachList.get(0).getCurrentMonthRate().toString() : "");// rate
+    			rateCell.setCellValue(null != eachList.get(0).getCurrentMonthRatePercent() ? eachList.get(0).getCurrentMonthRatePercent().toString() : "");// rate
     			
     			XSSFCell titleCell = sheet1.getRow(6).getCell(1);
     			titleCell.setCellValue(eachList.get(0).getAccountPeriod().substring(0, 4) + "/" + eachList.get(0).getAccountPeriod().substring(4) + "账单总结");// 2018/07账单总结
@@ -296,7 +296,7 @@ public class QueryCrsAccountPeriodController {
     		Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
 				excelFileName = entry.getValue().get(0).getOyoId()
-						      + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户明细" + System.currentTimeMillis() + ".xlsx";
+						      + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户明细" + ".xlsx";
 				//读取模块文件
 				inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/details.xlsx");
 				workBook = new XSSFWorkbook(inStream);
