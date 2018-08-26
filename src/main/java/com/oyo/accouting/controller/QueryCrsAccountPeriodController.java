@@ -201,7 +201,7 @@ public class QueryCrsAccountPeriodController {
 			setReuestParams(request, queryAccountPeriodDto);
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodStatisticsByCondition(queryAccountPeriodDto);
     		
-    		String fileName = "汇总统计" + System.currentTimeMillis() + ".xlsx";
+    		String fileName = "汇总" + System.currentTimeMillis() + ".xlsx";
     		//读取模块文件
 			inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/summaryStatistics.xlsx");
 			workBook = new XSSFWorkbook(inStream);
@@ -282,7 +282,7 @@ public class QueryCrsAccountPeriodController {
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
     		
     		// 遍历打包下载
-    		String zipName = "对账明细" + System.currentTimeMillis() + ".zip";
+    		String zipName = "明细" + System.currentTimeMillis() + ".zip";
     		zipName = URLEncoder.encode(zipName,"UTF-8");
     		response.setContentType("APPLICATION/OCTET-STREAM");
     		response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
