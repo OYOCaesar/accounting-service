@@ -57,8 +57,8 @@ public class QueryCrsAccountPeriodController {
     public ResponseEntity<List<AccountPeriodDto>> query(HttpServletRequest request, QueryAccountPeriodDto queryAccountPeriodDto) {
     	List<AccountPeriodDto> list = new ArrayList<AccountPeriodDto>();
     	try {
-    		queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
-    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
+    		queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery").replaceAll("-", ""));
+    		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery").replaceAll("-", ""));
     		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
     		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
     		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
