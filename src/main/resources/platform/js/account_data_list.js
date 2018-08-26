@@ -164,11 +164,11 @@ var Datatable_expRemoteAjaxDemo = function () {
   //生成recon数据
   $("#m_generate_recon_btn").on("click", function (t) {
       t.preventDefault();
-	  
+      
       $.ajax({
 		    url:'/queryCrsAccountPeriod/generateRecon',
 		    type:'POST', //GET
-		    async:true,    //或false,是否异步
+		    async:true,  //或false,是否异步
 		    data:{
 		    	startYearAndMonthQuery:$("#syncCrs").val(),
 		        endYearAndMonthQuery:$("#endYearAndMonthQuery").val(),
@@ -186,18 +186,23 @@ var Datatable_expRemoteAjaxDemo = function () {
 		        $("#m_generate_recon_btn").attr("disabled",true);
 		    },
 		    success:function(data,textStatus,jqXHR){
-		    	$("#syncCrsResult").html(data);
+		    	/*if (data) {
+		    		alert(data.msg);
+		    	} else {
+		    		alert("Generate recon failed!");
+		    	}*/
 		    },
 		    error:function(xhr,textStatus){
 		        console.log(xhr)
 		        console.log(textStatus);
+		        alert(textStatus);
 		    },
 		    complete:function(data) {
-		    	$("#m_generate_recon_btn").attr("disabled",false);
-		    	$("#m_generate_recon_btn").html("生成recon数据");
-		    	if (data && data.responseJSON) {
+		    	if (data && data.responseJSON && data.responseJSON.msg) {
 		    		alert(data.responseJSON.msg);
 		    	}
+		    	$("#m_generate_recon_btn").attr("disabled",false);
+		    	$("#m_generate_recon_btn").html("生成recon数据");
 		    	console.log(data);
 		    }
 		});
