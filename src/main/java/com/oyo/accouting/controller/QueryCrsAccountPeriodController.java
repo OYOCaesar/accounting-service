@@ -135,7 +135,7 @@ public class QueryCrsAccountPeriodController {
 						sheet.getRow(2 + i).getCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
 						sheet.getRow(2 + i).getCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
 						sheet.getRow(2 + i).getCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
-						sheet.getRow(2 + i).getCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRate() ? entry.getValue().get(i).getCurrentMonthRate().toString() : "");//费率
+						sheet.getRow(2 + i).getCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRatePercent() ? entry.getValue().get(i).getCurrentMonthRatePercent().toString() : "");//费率
 						sheet.getRow(2 + i).getCell(12).setCellValue(entry.getValue().get(i).getPaymentType());//顾客选择方式
 						sheet.getRow(2 + i).getCell(13).setCellValue(entry.getValue().get(i).getOtaName());//平台名称
 						sheet.getRow(2 + i).getCell(14).setCellValue(entry.getValue().get(i).getOtaId());//平台订单号
@@ -235,7 +235,7 @@ public class QueryCrsAccountPeriodController {
 				creRow.createCell(21).setCellValue(list.get(i).getCityCh());//城市
 				creRow.createCell(22).setCellValue(list.get(i).getRegion());//region
 				creRow.createCell(23).setCellValue(list.get(i).getHotelId());//Hotels ID
-				creRow.createCell(24).setCellValue(null != list.get(i).getCurrentMonthRate() ? list.get(i).getCurrentMonthRate().toString() : "");//本月匹配费率
+				creRow.createCell(24).setCellValue(null != list.get(i).getCurrentMonthRatePercent() ? list.get(i).getCurrentMonthRatePercent().toString() : "");//本月匹配费率
 				creRow.createCell(25).setCellValue(null != list.get(i).getOyoShare() ? list.get(i).getOyoShare().toString() : "");//OYO share
 				creRow.createCell(26).setCellValue(list.get(i).getCheckInDays());// 本期入住天数
 				creRow.createCell(27).setCellValue(null != list.get(i).getRoomPrice() ? list.get(i).getRoomPrice().toString() : "");// 房间价格
@@ -341,7 +341,7 @@ public class QueryCrsAccountPeriodController {
 						creRow.createCell(32).setCellValue(entry.getValue().get(i).getCityCh());//城市
 						creRow.createCell(33).setCellValue(entry.getValue().get(i).getRegion());//region
 						creRow.createCell(34).setCellValue(entry.getValue().get(i).getHotelId());//Hotels ID
-						creRow.createCell(35).setCellValue(null != entry.getValue().get(i).getCurrentMonthRate() ? entry.getValue().get(i).getCurrentMonthRate().toString() : "");//本月匹配费率
+						creRow.createCell(35).setCellValue(null != entry.getValue().get(i).getCurrentMonthRatePercent() ? entry.getValue().get(i).getCurrentMonthRatePercent().toString() : "");//本月匹配费率
 						creRow.createCell(36).setCellValue(null != entry.getValue().get(i).getOyoShare() ? entry.getValue().get(i).getOyoShare().toString() : "");//OYO share
 						creRow.createCell(37).setCellValue(entry.getValue().get(i).getStartDateOfAccountPeriod());//本账期开始日期
 						creRow.createCell(38).setCellValue(entry.getValue().get(i).getEndDateOfAccountPeriod());//本账期结束日期

@@ -83,7 +83,7 @@ var Datatable_expRemoteAjaxDemo = function () {
             {field:'city',title:'City'},
             {field:'region',title:'Region'},
             {field:'hotelId',title:'Hotels ID'},
-            {field:'currentMonthRate',title:'本月匹配费率'},
+            {field:'currentMonthRatePercent',title:'本月匹配费率'},
             {field:'oyoShare',title:'OYO share'}
 
         ],

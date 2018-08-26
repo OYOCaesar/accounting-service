@@ -49,6 +49,25 @@
             and hotel_id =  #{hotelId}
         </if>
     </select>
+    
+    <!-- 获取汇率列表 -->
+    <select id="selectRateListByMap" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT id, sync_year_month, hotel_id, hotel_name, ar_amount, ap_amount, rate, create_time, is_sync, is_del
+        FROM sync_crs_ar_ap 
+        where is_del = 0
+        <if test="hotelIds != null and hotelIds != ''">
+            and hotel_id in (${hotelIds})
+        </if>
+        <if test="syncYearMonth != null and syncYearMonth != ''">
+            and sync_year_month = #{syncYearMonth}
+        </if>
+        <if test="hotelName != null and hotelName != ''">
+            and hotel_name like CONCAT(CONCAT('%',#{hotelName}),'%')
+        </if>
+        <if test="hotelId != null and hotelId != ''">
+            and hotel_id = #{hotelId}
+        </if>
+    </select>
 
     <!-- 批量插入 -->
     <insert id ="insertCrsArAndApList" parameterType="java.util.List">

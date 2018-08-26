@@ -45,6 +45,7 @@
     <result column="region" jdbcType="VARCHAR" property="region" />
     <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
     <result column="current_month_rate" jdbcType="DECIMAL" property="currentMonthRate" />
+    <result column="current_month_rate_percent" jdbcType="VARCHAR" property="currentMonthRatePercent" />
     <result column="oyo_share" jdbcType="DECIMAL" property="oyoShare" />
     <result column="start_date_of_account_period" jdbcType="VARCHAR" property="startDateOfAccountPeriod" />
     <result column="end_date_of_account_period" jdbcType="VARCHAR" property="endDateOfAccountPeriod" />
@@ -713,7 +714,18 @@
   <!-- 条件查询账期对账列表 -->
   <select id="queryAccountPeriodByCondition"  resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.QueryAccountPeriodDto">
      select
-     <include refid="Base_Column_List" />
+     id, oyo_id, unique_code, hotel_name, account_period, order_no, guest_name, booking_guest_name, 
+     booking_secondary_guest_name, order_channel_code, order_channel, channel_name, check_in_date, 
+     check_out_date, status_code, status_desc, rooms_number, current_month_rooms_number, 
+     order_total_amount, current_month_settlement_total_amount, current_month_oyo_share_amount, 
+     owner_gross_share_amount, dispute_order_amount, ota_exemption_amount, current_month_owners_net_share_amount, 
+     current_month_pay_amont, hotel_charge_amount, hotel_charge_more_amount, oyo_charge_amount, 
+     oyo_charge_more_amount, payment_method, payment_details, payment_type, ota_commission, 
+     ota_commission_tax, ota_id, ota_name, city, city_ch, region, hotel_id, current_month_rate, 
+     oyo_share, start_date_of_account_period, end_date_of_account_period, check_in_days, 
+     room_price, current_month_settlement_total_amount_compute, revenue_check_results, 
+     reasons_for_revenue_difference, proportions, payment_type_checking_result, platform_fee_payable_party, 
+     remarks, create_time,CONCAT(current_month_rate,'%') current_month_rate_percent
      from account_period
      where 1 = 1
      <if test="startYearAndMonthQuery != null and startYearAndMonthQuery != ''">
@@ -776,7 +788,8 @@
      current_month_rate, 
      sum(oyo_share) oyo_share, sum(check_in_days) check_in_days, 
      room_price, 
-     sum(current_month_settlement_total_amount_compute) current_month_settlement_total_amount_compute
+     sum(current_month_settlement_total_amount_compute) current_month_settlement_total_amount_compute,
+     CONCAT(current_month_rate,'%') current_month_rate_percent
      from account_period
      where 1 = 1
      <if test="startYearAndMonthQuery != null and startYearAndMonthQuery != ''">
