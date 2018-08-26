@@ -225,18 +225,18 @@ public class QueryCrsAccountPeriodService {
         				List<AccountPeriod> accountPeriodList = resultList.stream().filter(t->t.getAccountPeriod().equals(q.getAccountPeriod())).collect(Collectors.toList());
         				
     				    //每2000条批量插入一次
-    	        		int len = (accountPeriodList.size() % 2000 == 0 ? accountPeriodList.size() / 2000 : ((accountPeriodList.size() / 2000) + 1));
+    	        		int len = (accountPeriodList.size() % 1000 == 0 ? accountPeriodList.size() / 1000 : ((accountPeriodList.size() / 1000) + 1));
     	        		for (int i = 0; i < len; i++) {
     	        			int startIndex = 0;
     	        			int endIndex = 0;
     	        			if (len <= 1) {
     	        				endIndex = accountPeriodList.size();
     	        			} else {
-    	        				startIndex = i * 2000;
+    	        				startIndex = i * 1000;
     	        				if (i == len - 1) {
     	            				endIndex = accountPeriodList.size();
     	            			} else {
-    	            				endIndex = (i + 1) * 2000;
+    	            				endIndex = (i + 1) * 1000;
     	            			}
     	        			}
     	        			//批量插入所选账期数据
