@@ -10,8 +10,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -117,7 +115,8 @@ public class QueryCrsAccountPeriodService {
         			List<CrsEnumsDto> crsEnumsDtoList = crsAccountPeriodMapper.queryCrsEnumByTableName("bookings");
         			
         			resultList.forEach(q->{
-        				q.setGuestName(q.getGuestName().replaceAll("\\uD83C[\\uDF00-\\uDFFF]|\\uD83D[\\uDC00-\\uDE4F]", ""));
+        				//替换表情符号为空
+        				q.setGuestName(q.getGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
         				
         				//订单渠道
         				if (StringUtils.isNotEmpty(q.getOrderChannel())) {
