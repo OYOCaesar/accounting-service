@@ -55,7 +55,7 @@ public class QueryCrsAccountPeriodController {
     	List<AccountPeriodDto> list = new ArrayList<AccountPeriodDto>();
     	try {
     		setReuestParams(request, queryAccountPeriodDto);
-    		list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
+    		list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
     		
 		} catch (Exception e) {
 			log.error("Query crs account period throwing exception:{}", e);
@@ -74,7 +74,7 @@ public class QueryCrsAccountPeriodController {
 		try {
 			
 			setReuestParams(request, queryAccountPeriodDto);
-    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
+    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
     		
     		// 遍历打包下载
     		String zipName = "商户对账" + System.currentTimeMillis() + ".zip";
@@ -91,7 +91,7 @@ public class QueryCrsAccountPeriodController {
 			Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
     			List<AccountPeriodDto> eachList = entry.getValue();
-    			excelFileName = eachList.get(0).getOyoId() + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + System.currentTimeMillis() + ".xlsx";
+    			excelFileName = eachList.get(0).getOyoId() + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + ".xlsx";
     			//读取模块文件
     			inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/merchantAccount.xlsx");
     			workBook = new XSSFWorkbook(inStream);
@@ -103,7 +103,7 @@ public class QueryCrsAccountPeriodController {
     			hotelNameCell.setCellValue(eachList.get(0).getHotelName());// hotel name
     			
     			XSSFCell rateCell = sheet1.getRow(4).getCell(2);
-    			rateCell.setCellValue(null != eachList.get(0).getCurrentMonthRate() ? eachList.get(0).getCurrentMonthRate().toString() : "");// rate
+    			rateCell.setCellValue(null != eachList.get(0).getCurrentMonthRatePercent() ? eachList.get(0).getCurrentMonthRatePercent().toString() : "");// rate
     			
     			XSSFCell titleCell = sheet1.getRow(6).getCell(1);
     			titleCell.setCellValue(eachList.get(0).getAccountPeriod().substring(0, 4) + "/" + eachList.get(0).getAccountPeriod().substring(4) + "账单总结");// 2018/07账单总结
@@ -124,29 +124,29 @@ public class QueryCrsAccountPeriodController {
     			XSSFSheet sheet = workBook.getSheet("CRS明细");
     			try {
     				for (int i = 0; i < entry.getValue().size(); i++) {
-						sheet.getRow(3 + i).getCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
-						sheet.getRow(3 + i).getCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
-						sheet.getRow(3 + i).getCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
-						sheet.getRow(3 + i).getCell(3).setCellValue(entry.getValue().get(i).getBookingSecondaryGuestName());//预定人名称2
-						sheet.getRow(3 + i).getCell(4).setCellValue(entry.getValue().get(i).getOrderChannel());//订单来源
-						sheet.getRow(3 + i).getCell(5).setCellValue(entry.getValue().get(i).getOyoId());//OYO酒店编号
-						sheet.getRow(3 + i).getCell(6).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
-						sheet.getRow(3 + i).getCell(7).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//营业收入
-						sheet.getRow(3 + i).getCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
-						sheet.getRow(3 + i).getCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
-						sheet.getRow(3 + i).getCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
-						sheet.getRow(3 + i).getCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRate() ? entry.getValue().get(i).getCurrentMonthRate().toString() : "");//费率
-						sheet.getRow(3 + i).getCell(12).setCellValue(entry.getValue().get(i).getPaymentType());//顾客选择方式
-						sheet.getRow(3 + i).getCell(13).setCellValue(entry.getValue().get(i).getOtaName());//平台名称
-						sheet.getRow(3 + i).getCell(14).setCellValue(entry.getValue().get(i).getOtaId());//平台订单号
-						sheet.getRow(3 + i).getCell(15).setCellValue(entry.getValue().get(i).getCity());//城市
-						sheet.getRow(3 + i).getCell(16).setCellValue(entry.getValue().get(i).getRegion());//区域
-						sheet.getRow(3 + i).getCell(17).setCellValue(entry.getValue().get(i).getRevenueCheckResults());//营收核对结果
-						sheet.getRow(3 + i).getCell(18).setCellValue(entry.getValue().get(i).getReasonsForRevenueDifference());//营收差异原因
-						sheet.getRow(3 + i).getCell(19).setCellValue(entry.getValue().get(i).getProportions());//提成比例
-						sheet.getRow(3 + i).getCell(20).setCellValue(entry.getValue().get(i).getPaymentTypeCheckingResult());//顾客选择方式核对结果
-						sheet.getRow(3 + i).getCell(21).setCellValue(entry.getValue().get(i).getPlatformFeePayableParty());//平台费承担方
-						sheet.getRow(3 + i).getCell(22).setCellValue(entry.getValue().get(i).getRemarks());//备注
+						sheet.getRow(2 + i).getCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
+						sheet.getRow(2 + i).getCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
+						sheet.getRow(2 + i).getCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
+						sheet.getRow(2 + i).getCell(3).setCellValue(entry.getValue().get(i).getBookingSecondaryGuestName());//预定人名称2
+						sheet.getRow(2 + i).getCell(4).setCellValue(entry.getValue().get(i).getOrderChannel());//订单来源
+						sheet.getRow(2 + i).getCell(5).setCellValue(entry.getValue().get(i).getOyoId());//OYO酒店编号
+						sheet.getRow(2 + i).getCell(6).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
+						sheet.getRow(2 + i).getCell(7).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//营业收入
+						sheet.getRow(2 + i).getCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
+						sheet.getRow(2 + i).getCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
+						sheet.getRow(2 + i).getCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
+						sheet.getRow(2 + i).getCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRatePercent() ? entry.getValue().get(i).getCurrentMonthRatePercent().toString() : "");//费率
+						sheet.getRow(2 + i).getCell(12).setCellValue(entry.getValue().get(i).getPaymentType());//顾客选择方式
+						sheet.getRow(2 + i).getCell(13).setCellValue(entry.getValue().get(i).getOtaName());//平台名称
+						sheet.getRow(2 + i).getCell(14).setCellValue(entry.getValue().get(i).getOtaId());//平台订单号
+						sheet.getRow(2 + i).getCell(15).setCellValue(entry.getValue().get(i).getCity());//城市
+						sheet.getRow(2 + i).getCell(16).setCellValue(entry.getValue().get(i).getRegion());//区域
+						sheet.getRow(2 + i).getCell(17).setCellValue(entry.getValue().get(i).getRevenueCheckResults());//营收核对结果
+						sheet.getRow(2 + i).getCell(18).setCellValue(entry.getValue().get(i).getReasonsForRevenueDifference());//营收差异原因
+						sheet.getRow(2 + i).getCell(19).setCellValue(entry.getValue().get(i).getProportions());//提成比例
+						sheet.getRow(2 + i).getCell(20).setCellValue(entry.getValue().get(i).getPaymentTypeCheckingResult());//顾客选择方式核对结果
+						sheet.getRow(2 + i).getCell(21).setCellValue(entry.getValue().get(i).getPlatformFeePayableParty());//平台费承担方
+						sheet.getRow(2 + i).getCell(22).setCellValue(entry.getValue().get(i).getRemarks());//备注
 					}
 					
 					out = new ByteArrayOutputStream();//定义字节数组，为了将excel数据写入
@@ -199,7 +199,7 @@ public class QueryCrsAccountPeriodController {
 		InputStream inStream = null;
 		try {
 			setReuestParams(request, queryAccountPeriodDto);
-    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
+    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodStatisticsByCondition(queryAccountPeriodDto);
     		
     		String fileName = "汇总统计" + System.currentTimeMillis() + ".xlsx";
     		//读取模块文件
@@ -235,7 +235,7 @@ public class QueryCrsAccountPeriodController {
 				creRow.createCell(21).setCellValue(list.get(i).getCityCh());//城市
 				creRow.createCell(22).setCellValue(list.get(i).getRegion());//region
 				creRow.createCell(23).setCellValue(list.get(i).getHotelId());//Hotels ID
-				creRow.createCell(24).setCellValue(null != list.get(i).getCurrentMonthRate() ? list.get(i).getCurrentMonthRate().toString() : "");//本月匹配费率
+				creRow.createCell(24).setCellValue(null != list.get(i).getCurrentMonthRatePercent() ? list.get(i).getCurrentMonthRatePercent().toString() : "");//本月匹配费率
 				creRow.createCell(25).setCellValue(null != list.get(i).getOyoShare() ? list.get(i).getOyoShare().toString() : "");//OYO share
 				creRow.createCell(26).setCellValue(list.get(i).getCheckInDays());// 本期入住天数
 				creRow.createCell(27).setCellValue(null != list.get(i).getRoomPrice() ? list.get(i).getRoomPrice().toString() : "");// 房间价格
@@ -279,7 +279,7 @@ public class QueryCrsAccountPeriodController {
 		try {
 			
 			setReuestParams(request, queryAccountPeriodDto);
-    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryCrsAccountPeriod(queryAccountPeriodDto);
+    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
     		
     		// 遍历打包下载
     		String zipName = "对账明细" + System.currentTimeMillis() + ".zip";
@@ -295,9 +295,10 @@ public class QueryCrsAccountPeriodController {
 			String excelFileName = "";//excel文件名
     		Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
-				excelFileName = entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户明细" + System.currentTimeMillis() + ".xlsx";
+				excelFileName = entry.getValue().get(0).getOyoId()
+						      + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户明细" + ".xlsx";
 				//读取模块文件
-				inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/summaryStatistics.xlsx");
+				inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/details.xlsx");
 				workBook = new XSSFWorkbook(inStream);
 				XSSFSheet sheet = workBook.getSheet("Sheet1");
 				
@@ -340,7 +341,7 @@ public class QueryCrsAccountPeriodController {
 						creRow.createCell(32).setCellValue(entry.getValue().get(i).getCityCh());//城市
 						creRow.createCell(33).setCellValue(entry.getValue().get(i).getRegion());//region
 						creRow.createCell(34).setCellValue(entry.getValue().get(i).getHotelId());//Hotels ID
-						creRow.createCell(35).setCellValue(null != entry.getValue().get(i).getCurrentMonthRate() ? entry.getValue().get(i).getCurrentMonthRate().toString() : "");//本月匹配费率
+						creRow.createCell(35).setCellValue(null != entry.getValue().get(i).getCurrentMonthRatePercent() ? entry.getValue().get(i).getCurrentMonthRatePercent().toString() : "");//本月匹配费率
 						creRow.createCell(36).setCellValue(null != entry.getValue().get(i).getOyoShare() ? entry.getValue().get(i).getOyoShare().toString() : "");//OYO share
 						creRow.createCell(37).setCellValue(entry.getValue().get(i).getStartDateOfAccountPeriod());//本账期开始日期
 						creRow.createCell(38).setCellValue(entry.getValue().get(i).getEndDateOfAccountPeriod());//本账期结束日期

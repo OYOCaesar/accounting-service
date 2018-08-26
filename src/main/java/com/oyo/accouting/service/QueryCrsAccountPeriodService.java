@@ -9,7 +9,9 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.CrsEnumsDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
+import com.oyo.accouting.bean.SyncCrsArAndApDto;
 import com.oyo.accouting.mapper.accounting.AccountPeriodMapper;
+import com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountPeriodMapper;
 import com.oyo.accouting.pojo.AccountPeriod;
 
@@ -45,6 +49,9 @@ public class QueryCrsAccountPeriodService {
     
     @Autowired
     private AccountPeriodMapper accountPeriodMapper;
+    
+    @Autowired
+    private SyncCrsArAndApMapper syncCrsArAndApMapper;
     
     //生成recon数据
     @Transactional(value="accountingTransactionManager", rollbackFor = Exception.class)
@@ -113,15 +120,29 @@ public class QueryCrsAccountPeriodService {
         		if (null != resultList && !resultList.isEmpty()) {
         			//获取CRS中所有的bookings表的枚举类型
         			List<CrsEnumsDto> crsEnumsDtoList = crsAccountPeriodMapper.queryCrsEnumByTableName("bookings");
+        			Map<String,Object> rateMap = new HashMap<String,Object>();
+        			String hotelIds = "";
+        			List<Integer> hotelIdList = resultList.stream().map(AccountPeriod::getHotelId).distinct().collect(Collectors.toList());
+        			for (int i = 0; i < hotelIdList.size(); i++) {
+        				Integer hotelId = hotelIdList.get(i);
+						if (i != hotelIdList.size() - 1) {
+							hotelIds += hotelId + ",";
+						} else {
+							hotelIds += hotelId;
+						}
+					}
+        			rateMap.put("hotelIds", hotelIds);
+        			//获取账期的汇率列表
+        			List<SyncCrsArAndApDto> rateList = syncCrsArAndApMapper.selectRateListByMap(rateMap);
         			
         			resultList.forEach(q->{
         				//替换表情符号为空
         				q.setGuestName(q.getGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
         				
         				//订单渠道
-        				if (StringUtils.isNotEmpty(q.getOrderChannel())) {
-        					if (crsEnumsDtoList.stream().anyMatch(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.valueOf(q.getOrderChannel())))) {
-        						q.setOrderChannel(crsEnumsDtoList.stream().filter(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.valueOf(q.getOrderChannel()))).collect(Collectors.toList()).get(0).getEnumVal());
+        				if (null != q.getOrderChannelCode()) {
+        					if (crsEnumsDtoList.stream().anyMatch(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(q.getOrderChannelCode()))) {
+        						q.setOrderChannel(crsEnumsDtoList.stream().filter(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(q.getOrderChannelCode())).collect(Collectors.toList()).get(0).getEnumVal());
         					}
         				} else {
         					q.setOrderChannel("");
@@ -138,6 +159,7 @@ public class QueryCrsAccountPeriodService {
         				} else {
         					q.setCurrentMonthSettlementTotalAmountCompute(null);
         				}
+        				
         				//订单状态描述;
         				if (q.getStatusCode() != null) {
         					if (crsEnumsDtoList.stream().anyMatch(m->"status".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue())) {
@@ -146,10 +168,13 @@ public class QueryCrsAccountPeriodService {
         				} else {
         					q.setStatusDesc("");
         				}
+        				
         				//本月已用间夜数 currentMonthRoomsNumber
         				q.setCurrentMonthRoomsNumber(q.getRoomsNumber() * q.getCheckInDays());
+        				
         				//本月应结算总额 currentMonthSettlementTotalAmount
         				q.setCurrentMonthSettlementTotalAmount(null); //待定
+        				
         				//支付方式 paymentMethod
         				if (StringUtils.isNotEmpty(q.getPaymentMethod())) {
         					if (q.getPaymentMethod().startsWith("[")) {
@@ -161,16 +186,29 @@ public class QueryCrsAccountPeriodService {
             						q.setPaymentMethod(obj.getString("mode"));
             					}
         					}
-        				}    				
+        				}  
+        				
         				//支付类型（预付/后付费）paymentType
         				if (StringUtils.isNotEmpty(q.getPaymentType())) {
         					if (crsEnumsDtoList.stream().anyMatch(m->"payment_type".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.parseInt(q.getPaymentType())))) {
         						q.setPaymentType(crsEnumsDtoList.stream().filter(m->"payment_type".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.parseInt(q.getPaymentType()))).collect(Collectors.toList()).get(0).getEnumVal());
         					}
         				}
+        				
         				//本月匹配费率 currentMonthRate
+        				if (null != rateList && !rateList.isEmpty() && rateList.stream().anyMatch(m->m.getHotelId().equals(q.getHotelId()) && m.getRate() != null)) {
+        					BigDecimal rate = rateList.stream().filter(m->m.getHotelId().equals(q.getHotelId()) && m.getRate() != null).map(SyncCrsArAndApDto::getRate).collect(Collectors.toList()).get(0);
+        					q.setCurrentMonthRate(new BigDecimal("100").subtract(rate));
+        				}
         				
         				//OYO share
+        				if (q.getCurrentMonthRate() != null && q.getCurrentMonthRate().compareTo(BigDecimal.ZERO) > 0
+        					&& q.getCurrentMonthSettlementTotalAmountCompute() != null) {
+        					q.setOyoShare(q.getCurrentMonthSettlementTotalAmountCompute().multiply(q.getCurrentMonthRate()).setScale(2,BigDecimal.ROUND_HALF_UP));
+        				}
+        				
+        				//创建时间
+        				q.setCreateTime(new Date());
         				
         			});
         			
@@ -185,22 +223,6 @@ public class QueryCrsAccountPeriodService {
         				} 
         				
         				List<AccountPeriod> accountPeriodList = resultList.stream().filter(t->t.getAccountPeriod().equals(q.getAccountPeriod())).collect(Collectors.toList());
-        				
-        				
-        				
-        				/*StringBuffer buff = new StringBuffer();
-        				for (AccountPeriod record : accountPeriodList) {
-        					try {
-        						this.accountPeriodMapper.insert(record);
-        					} catch (Exception e) {
-        						buff.append(record.getGuestName());
-        						buff.append("|");
-        					}
-						}
-        				System.out.println("********************************************");
-        				System.out.println("gusest_name:" + buff);
-        				System.out.println("********************************************");*/
-        				
         				
     				    //每1000条批量插入一次
     	        		int len = (accountPeriodList.size() % 1000 == 0 ? accountPeriodList.size() / 1000 : ((accountPeriodList.size() / 1000) + 1));
@@ -240,12 +262,22 @@ public class QueryCrsAccountPeriodService {
     }
     
     //条件查询账期对账信息
-    public List<AccountPeriodDto> queryCrsAccountPeriod(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {
+    public List<AccountPeriodDto> queryAccountPeriodByCondition(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {
     	List<AccountPeriodDto> resultList = new ArrayList<AccountPeriodDto>();
     	if (null == queryAccountPeriodDto) {
     		throw new Exception("Please input the necessary parameters.");
     	}
     	resultList = this.accountPeriodMapper.queryAccountPeriodByCondition(queryAccountPeriodDto);
+        return resultList;
+    }
+    
+    //条件查询账期统计对账信息
+    public List<AccountPeriodDto> queryAccountPeriodStatisticsByCondition(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {
+    	List<AccountPeriodDto> resultList = new ArrayList<AccountPeriodDto>();
+    	if (null == queryAccountPeriodDto) {
+    		throw new Exception("Please input the necessary parameters.");
+    	}
+    	resultList = this.accountPeriodMapper.queryAccountPeriodStatisticsByCondition(queryAccountPeriodDto);
         return resultList;
     }
     

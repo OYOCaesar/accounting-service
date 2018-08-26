@@ -57,6 +57,7 @@ public class AccountPeriodDto {
     private String region;//region
     private Integer hotelId;//Hotels ID
     private BigDecimal currentMonthRate;//本月匹配费率
+    private String currentMonthRatePercent;//本月匹配费率加上%
     private BigDecimal oyoShare;//OYO share
     private String startDateOfAccountPeriod;// 本账期开始日期
 	private String endDateOfAccountPeriod;// 本账期结束日期

@@ -71,7 +71,7 @@ var Datatable_expRemoteAjaxDemo = function () {
             {field:'checkInDays',title:'本期入住天数'},
             {field:'roomPrice',title:'房间价格'},
             {field:'currentMonthSettlementTotalAmountCompute',title:'本月应结算总额（计算）'},
-            {field:'statusDes',title:'订单状态'},
+            {field:'statusDesc',title:'订单状态'},
             {field:'roomsNumber',title:'已用客房数'},
             {field:'currentMonthRoomsNumber',title:'本月已用间夜数'},
             {field:'orderTotalAmount',title:'订单总额'},
@@ -83,7 +83,7 @@ var Datatable_expRemoteAjaxDemo = function () {
             {field:'city',title:'City'},
             {field:'region',title:'Region'},
             {field:'hotelId',title:'Hotels ID'},
-            {field:'currentMonthRate',title:'本月匹配费率'},
+            {field:'currentMonthRatePercent',title:'本月匹配费率'},
             {field:'oyoShare',title:'OYO share'}
 
         ],
@@ -253,6 +253,11 @@ function fillZonesSelect() {
     });   
 }
 
+//补零函数
+function prefixInteger(num, n) {
+   return (Array(n).join(0) + num).slice(-n);
+}
+
 jQuery(document).ready(function () {
 	//填充城市下拉框
 	fillCitiesSelect();
@@ -277,5 +282,15 @@ jQuery(document).ready(function () {
         maxView:'decade',
         language:'zh-CN',
     });
+	
+	var myDate = new Date();
+	//获取当前年
+	var year=myDate.getFullYear();
+	//获取当前月
+	var month=myDate.getMonth()+1;
+	month = prefixInteger(month,2);
+	$("#startYearAndMonthQuery").val(year + "-" + month);
+	$("#endYearAndMonthQuery").val(year + "-" + month);
+	
     Datatable_expRemoteAjaxDemo.init();
 });

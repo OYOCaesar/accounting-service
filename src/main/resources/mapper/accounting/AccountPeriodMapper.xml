@@ -38,13 +38,14 @@
     <result column="payment_type" jdbcType="VARCHAR" property="paymentType" />
     <result column="ota_commission" jdbcType="DECIMAL" property="otaCommission" />
     <result column="ota_commission_tax" jdbcType="DECIMAL" property="otaCommissionTax" />
-    <result column="ota_id" jdbcType="INTEGER" property="otaId" />
+    <result column="ota_id" jdbcType="VARCHAR" property="otaId" />
     <result column="ota_name" jdbcType="VARCHAR" property="otaName" />
     <result column="city" jdbcType="VARCHAR" property="city" />
     <result column="city_ch" jdbcType="VARCHAR" property="cityCh" />
     <result column="region" jdbcType="VARCHAR" property="region" />
     <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
     <result column="current_month_rate" jdbcType="DECIMAL" property="currentMonthRate" />
+    <result column="current_month_rate_percent" jdbcType="VARCHAR" property="currentMonthRatePercent" />
     <result column="oyo_share" jdbcType="DECIMAL" property="oyoShare" />
     <result column="start_date_of_account_period" jdbcType="VARCHAR" property="startDateOfAccountPeriod" />
     <result column="end_date_of_account_period" jdbcType="VARCHAR" property="endDateOfAccountPeriod" />
@@ -126,7 +127,7 @@
       #{hotelChargeAmount,jdbcType=DECIMAL}, #{hotelChargeMoreAmount,jdbcType=DECIMAL}, 
       #{oyoChargeAmount,jdbcType=DECIMAL}, #{oyoChargeMoreAmount,jdbcType=DECIMAL}, #{paymentMethod,jdbcType=VARCHAR}, 
       #{paymentDetails,jdbcType=VARCHAR}, #{paymentType,jdbcType=VARCHAR}, #{otaCommission,jdbcType=DECIMAL}, 
-      #{otaCommissionTax,jdbcType=DECIMAL}, #{otaId,jdbcType=INTEGER}, #{otaName,jdbcType=VARCHAR}, 
+      #{otaCommissionTax,jdbcType=DECIMAL}, #{otaId,jdbcType=VARCHAR}, #{otaName,jdbcType=VARCHAR}, 
       #{city,jdbcType=VARCHAR}, #{cityCh,jdbcType=VARCHAR}, #{region,jdbcType=VARCHAR}, 
       #{hotelId,jdbcType=INTEGER}, #{currentMonthRate,jdbcType=DECIMAL}, #{oyoShare,jdbcType=DECIMAL}, 
       #{startDateOfAccountPeriod,jdbcType=VARCHAR}, #{endDateOfAccountPeriod,jdbcType=VARCHAR}, 
@@ -414,7 +415,7 @@
         #{otaCommissionTax,jdbcType=DECIMAL},
       </if>
       <if test="otaId != null">
-        #{otaId,jdbcType=INTEGER},
+        #{otaId,jdbcType=VARCHAR},
       </if>
       <if test="otaName != null">
         #{otaName,jdbcType=VARCHAR},
@@ -583,7 +584,7 @@
         ota_commission_tax = #{otaCommissionTax,jdbcType=DECIMAL},
       </if>
       <if test="otaId != null">
-        ota_id = #{otaId,jdbcType=INTEGER},
+        ota_id = #{otaId,jdbcType=VARCHAR},
       </if>
       <if test="otaName != null">
         ota_name = #{otaName,jdbcType=VARCHAR},
@@ -683,7 +684,7 @@
       payment_type = #{paymentType,jdbcType=VARCHAR},
       ota_commission = #{otaCommission,jdbcType=DECIMAL},
       ota_commission_tax = #{otaCommissionTax,jdbcType=DECIMAL},
-      ota_id = #{otaId,jdbcType=INTEGER},
+      ota_id = #{otaId,jdbcType=VARCHAR},
       ota_name = #{otaName,jdbcType=VARCHAR},
       city = #{city,jdbcType=VARCHAR},
       city_ch = #{cityCh,jdbcType=VARCHAR},
@@ -713,7 +714,18 @@
   <!-- 条件查询账期对账列表 -->
   <select id="queryAccountPeriodByCondition"  resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.QueryAccountPeriodDto">
      select
-     <include refid="Base_Column_List" />
+     id, oyo_id, unique_code, hotel_name, account_period, order_no, guest_name, booking_guest_name, 
+     booking_secondary_guest_name, order_channel_code, order_channel, channel_name, check_in_date, 
+     check_out_date, status_code, status_desc, rooms_number, current_month_rooms_number, 
+     order_total_amount, current_month_settlement_total_amount, current_month_oyo_share_amount, 
+     owner_gross_share_amount, dispute_order_amount, ota_exemption_amount, current_month_owners_net_share_amount, 
+     current_month_pay_amont, hotel_charge_amount, hotel_charge_more_amount, oyo_charge_amount, 
+     oyo_charge_more_amount, payment_method, payment_details, payment_type, ota_commission, 
+     ota_commission_tax, ota_id, ota_name, city, city_ch, region, hotel_id, current_month_rate, 
+     oyo_share, start_date_of_account_period, end_date_of_account_period, check_in_days, 
+     room_price, current_month_settlement_total_amount_compute, revenue_check_results, 
+     reasons_for_revenue_difference, proportions, payment_type_checking_result, platform_fee_payable_party, 
+     remarks, create_time,CONCAT(current_month_rate,'%') current_month_rate_percent
      from account_period
      where 1 = 1
      <if test="startYearAndMonthQuery != null and startYearAndMonthQuery != ''">
@@ -744,6 +756,71 @@
 	    AND hotel_id = #{hotelId}
 	 </if> 
 	 ORDER BY hotel_name,order_no,guest_name,check_in_date desc
+  </select>
+  
+  <!-- 条件查询账期对账统计列表 -->
+  <select id="queryAccountPeriodStatisticsByCondition"  resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.QueryAccountPeriodDto">
+     select
+     oyo_id, 
+     unique_code, 
+     hotel_name, 
+     account_period, 
+     sum(rooms_number) rooms_number, 
+     sum(current_month_rooms_number) current_month_rooms_number, 
+     sum(order_total_amount) order_total_amount, 
+     sum(current_month_settlement_total_amount) current_month_settlement_total_amount, 
+     sum(current_month_oyo_share_amount) current_month_oyo_share_amount, 
+     sum(owner_gross_share_amount) owner_gross_share_amount, 
+     sum(dispute_order_amount) dispute_order_amount, 
+     sum(ota_exemption_amount) ota_exemption_amount, 
+     sum(current_month_owners_net_share_amount) current_month_owners_net_share_amount, 
+     sum(current_month_pay_amont) current_month_pay_amont, 
+     sum(hotel_charge_amount) hotel_charge_amount, 
+     sum(hotel_charge_more_amount) hotel_charge_more_amount, 
+     sum(oyo_charge_amount) oyo_charge_amount, 
+     sum(oyo_charge_more_amount) oyo_charge_more_amount, 
+     sum(ota_commission) ota_commission, 
+     sum(ota_commission_tax) ota_commission_tax, 
+     city, 
+     city_ch, 
+     region, 
+     hotel_id, 
+     current_month_rate, 
+     sum(oyo_share) oyo_share, sum(check_in_days) check_in_days, 
+     room_price, 
+     sum(current_month_settlement_total_amount_compute) current_month_settlement_total_amount_compute,
+     CONCAT(current_month_rate,'%') current_month_rate_percent
+     from account_period
+     where 1 = 1
+     <if test="startYearAndMonthQuery != null and startYearAndMonthQuery != ''">
+		AND account_period <![CDATA[>=]]> #{startYearAndMonthQuery}
+	 </if>
+     <if test="endYearAndMonthQuery != null and endYearAndMonthQuery != ''">
+		AND account_period <![CDATA[<=]]> #{endYearAndMonthQuery}
+	 </if>
+	 <if test="checkInDate != null and checkInDate != ''">
+		AND check_in_date = to_date(#{checkInDate},'YYYY-MM-DD')
+	 </if>
+	 <if test="checkOutDate != null and checkOutDate != ''">
+		AND check_out_date = to_date(#{checkOutDate},'YYYY-MM-DD')
+	 </if>
+     <if test="orderNo != null and orderNo != ''">
+		AND order_no like CONCAT(CONCAT('%',#{orderNo}),'%')
+	 </if>
+	 <if test="region != null and region != ''">
+	    AND region = #{region}
+	 </if>
+	 <if test="city != null and city != ''">
+	    AND city = #{city}
+	 </if>
+	 <if test="hotelName != null and hotelName != ''">
+	    AND hotel_name like CONCAT(CONCAT('%',#{hotelName}),'%')
+	 </if>
+	 <if test="hotelId != null and hotelId != ''">
+	    AND hotel_id = #{hotelId}
+	 </if> 
+	 group by oyo_id,account_period
+	 ORDER BY hotel_name,account_period
   </select>
   
   <!-- 批量插入账期对账信息 -->
@@ -785,7 +862,7 @@
       #{item.hotelChargeAmount,jdbcType=DECIMAL}, #{item.hotelChargeMoreAmount,jdbcType=DECIMAL}, 
       #{item.oyoChargeAmount,jdbcType=DECIMAL}, #{item.oyoChargeMoreAmount,jdbcType=DECIMAL}, #{item.paymentMethod,jdbcType=VARCHAR}, 
       #{item.paymentDetails,jdbcType=VARCHAR}, #{item.paymentType,jdbcType=VARCHAR}, #{item.otaCommission,jdbcType=DECIMAL}, 
-      #{item.otaCommissionTax,jdbcType=DECIMAL}, #{item.otaId,jdbcType=INTEGER}, #{item.otaName,jdbcType=VARCHAR}, 
+      #{item.otaCommissionTax,jdbcType=DECIMAL}, #{item.otaId,jdbcType=VARCHAR}, #{item.otaName,jdbcType=VARCHAR}, 
       #{item.city,jdbcType=VARCHAR}, #{item.cityCh,jdbcType=VARCHAR}, #{item.region,jdbcType=VARCHAR}, 
       #{item.hotelId,jdbcType=INTEGER}, #{item.currentMonthRate,jdbcType=DECIMAL}, #{item.oyoShare,jdbcType=DECIMAL}, 
       #{item.startDateOfAccountPeriod,jdbcType=VARCHAR}, #{item.endDateOfAccountPeriod,jdbcType=VARCHAR}, 
