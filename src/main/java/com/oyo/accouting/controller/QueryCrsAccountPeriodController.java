@@ -297,7 +297,7 @@ public class QueryCrsAccountPeriodController {
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
 				excelFileName = entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户明细" + System.currentTimeMillis() + ".xlsx";
 				//读取模块文件
-				inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/summaryStatistics.xlsx");
+				inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/details.xlsx");
 				workBook = new XSSFWorkbook(inStream);
 				XSSFSheet sheet = workBook.getSheet("Sheet1");
 				

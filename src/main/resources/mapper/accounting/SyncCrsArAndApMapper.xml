@@ -24,7 +24,7 @@
             and sync_year_month = #{syncYearMonth}
         </if>
         <if test="hotelName != null and hotelName != ''">
-            and hotel_name like CONCAT('%' ,#{hotelName}, '%')
+            and hotel_name like CONCAT(CONCAT('%',#{hotelName}),'%')
         </if>
         <if test="hotelId != null and hotelId != ''">
             and hotel_id = #{hotelId}
@@ -40,10 +40,13 @@
             and sync_year_month = #{yearMonth}
         </if>
         <if test="hotelName != null and hotelName != ''">
-            and hotel_name like CONCAT('%' ,#{hotelName}, '%')
+            and hotel_name like CONCAT(CONCAT('%',#{hotelName}),'%')
         </if>
         <if test="isSync != null and isSync != ''">
             and is_sync = #{isSync}
+        </if>
+        <if test="hotelId != null and hotelId != ''">
+            and hotel_id =  #{hotelId}
         </if>
     </select>
 
