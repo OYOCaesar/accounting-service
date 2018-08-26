@@ -112,13 +112,13 @@ public class QueryCrsAccountPeriodController {
     			roomsNightCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthRoomsNumber() != null).map(AccountPeriodDto::getCurrentMonthRoomsNumber).reduce(Integer::sum).orElse(0));// 1. 本月双方确认的已售间夜数
     			
     			XSSFCell currentMonthSettlementTotalAmountCell = sheet1.getRow(8).getCell(2);
-    			currentMonthSettlementTotalAmountCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmount() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmount).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// 2. 本月双方确认的营收
+    			currentMonthSettlementTotalAmountCell.setCellValue(eachList.stream().filter(q->q.getOrderTotalAmount() != null).map(AccountPeriodDto::getOrderTotalAmount).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// 2. 本月双方确认的营收
     			
     			XSSFCell oyoShareCell = sheet1.getRow(9).getCell(2);
-    			oyoShareCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// //3. 本月双方确认的OYO的提成
+    			oyoShareCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP).toString());// //3. 本月双方确认的OYO的提成
     			
     			XSSFCell ownerPayCell = sheet1.getRow(12).getCell(2);
-    			ownerPayCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// //6. 本月业主应支付OYO金额
+    			ownerPayCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP).toString());// //6. 本月业主应支付OYO金额
     			
     			//写CRS明细数据
     			XSSFSheet sheet = workBook.getSheet("CRS明细");
@@ -201,7 +201,7 @@ public class QueryCrsAccountPeriodController {
 			setReuestParams(request, queryAccountPeriodDto);
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodStatisticsByCondition(queryAccountPeriodDto);
     		
-    		String fileName = "汇总统计" + System.currentTimeMillis() + ".xlsx";
+    		String fileName = "汇总" + System.currentTimeMillis() + ".xlsx";
     		//读取模块文件
 			inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/summaryStatistics.xlsx");
 			workBook = new XSSFWorkbook(inStream);
@@ -282,7 +282,7 @@ public class QueryCrsAccountPeriodController {
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
     		
     		// 遍历打包下载
-    		String zipName = "对账明细" + System.currentTimeMillis() + ".zip";
+    		String zipName = "明细" + System.currentTimeMillis() + ".zip";
     		zipName = URLEncoder.encode(zipName,"UTF-8");
     		response.setContentType("APPLICATION/OCTET-STREAM");
     		response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
@@ -345,7 +345,7 @@ public class QueryCrsAccountPeriodController {
 						creRow.createCell(36).setCellValue(null != entry.getValue().get(i).getOyoShare() ? entry.getValue().get(i).getOyoShare().toString() : "");//OYO share
 						creRow.createCell(37).setCellValue(entry.getValue().get(i).getStartDateOfAccountPeriod());//本账期开始日期
 						creRow.createCell(38).setCellValue(entry.getValue().get(i).getEndDateOfAccountPeriod());//本账期结束日期
-						creRow.createCell(39).setCellValue(list.get(i).getCheckInDays());// 本期入住天数
+						creRow.createCell(39).setCellValue(entry.getValue().get(i).getCheckInDays());// 本期入住天数
 						creRow.createCell(40).setCellValue(null != entry.getValue().get(i).getRoomPrice() ? entry.getValue().get(i).getRoomPrice().toString() : "");// 房间价格
 						creRow.createCell(41).setCellValue(null != entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute() ? entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute().toString() : "");// 本月应结算总额（计算）,=房价*天数
 					}
