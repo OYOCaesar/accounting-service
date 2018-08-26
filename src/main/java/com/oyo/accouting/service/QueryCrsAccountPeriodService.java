@@ -119,9 +119,9 @@ public class QueryCrsAccountPeriodService {
         				q.setGuestName(q.getGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
         				
         				//订单渠道
-        				if (StringUtils.isNotEmpty(q.getOrderChannel())) {
-        					if (crsEnumsDtoList.stream().anyMatch(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.valueOf(q.getOrderChannel())))) {
-        						q.setOrderChannel(crsEnumsDtoList.stream().filter(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.valueOf(q.getOrderChannel()))).collect(Collectors.toList()).get(0).getEnumVal());
+        				if (null != q.getOrderChannelCode()) {
+        					if (crsEnumsDtoList.stream().anyMatch(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.valueOf(q.getOrderChannelCode())))) {
+        						q.setOrderChannel(crsEnumsDtoList.stream().filter(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.valueOf(q.getOrderChannelCode()))).collect(Collectors.toList()).get(0).getEnumVal());
         					}
         				} else {
         					q.setOrderChannel("");
@@ -171,6 +171,9 @@ public class QueryCrsAccountPeriodService {
         				//本月匹配费率 currentMonthRate
         				
         				//OYO share
+        				
+        				//创建时间
+        				q.setCreateTime(new Date());
         				
         			});
         			

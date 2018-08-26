@@ -9,7 +9,7 @@
         <result column="period" property="accountPeriod" />
         <result column="order_no" property="orderNo" />
         <result column="guest_name" property="guestName" />
-        <result column="source" property="orderChannel" />
+        <result column="source" property="orderChannelCode" />
         <result column="checkin" property="checkInDate" />
         <result column="checkout" property="checkOutDate" />
         <result column="status" property="statusCode" />
