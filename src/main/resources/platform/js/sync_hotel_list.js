@@ -49,16 +49,16 @@ var Datatable_expRemoteAjaxDemo = function () {
 
         // 表列定义
         columns:[
-            {field:'id',title:'id',width:30},
-            {field:'cardcode',title:'cardcode',width:80},
-            {field:'cardname',title:'cardname',width:100},
-            {field:'valid',title:'valid',width:30},
-            {field:'cntctPrsn',title:'cntctPrsn',width:80},
-            {field:'licTradNum',title:'licTradNum',width:80},
-            {field:'ucrsid',title:'uCrsid',width:80},
-            {field:'contacts',title:'contacts',width:300},
-            {field:'address',title:'address',width:400},
-            {field:'batch',title:'批次',width:80}
+            {field:'id',title:'id'},
+            {field:'cardcode',title:'cardcode'},
+            {field:'cardname',title:'cardname'},
+            {field:'valid',title:'valid'},
+            {field:'cntctPrsn',title:'cntctPrsn'},
+            {field:'licTradNum',title:'licTradNum'},
+            {field:'ucrsid',title:'uCrsid'},
+            {field:'contacts',title:'contacts'},
+            {field:'address',title:'address'},
+            {field:'batch',title:'批次'}
         ],
     });
 

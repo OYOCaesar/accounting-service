@@ -1,5 +1,6 @@
 package com.oyo.accouting.controller;
 
+import com.oyo.accouting.bean.OyoShareDto;
 import com.oyo.accouting.pojo.OyoShare;
 import com.oyo.accouting.service.OyoShareService;
 import com.oyo.accouting.util.ApnExcelParseTool;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -36,7 +38,7 @@ public class FileUploadController {
 	}
 
     @RequestMapping(value = "upload")
-    public String fileUpload(HttpServletRequest request, @RequestParam("file") MultipartFile file,String isTest) throws IOException {
+    public String fileUpload(HttpServletRequest request, @RequestParam("file") MultipartFile file,String isTest,String validDate) throws IOException {
 
         if(!file.isEmpty()) {
 
@@ -76,6 +78,9 @@ public class FileUploadController {
                     int j = oyoShare.getUniqueCode().indexOf(".");
                     oyoShare.setUniqueCode(oyoShare.getUniqueCode().substring(0, j < 0 ? oyoShare.getUniqueCode().length() : j));
                 }
+                if(!StringUtils.isEmpty(validDate)){
+            	    oyoShare.setValidDate(validDate);
+                }
                 oyoShareList.add(oyoShare);
             }
             try {
@@ -90,7 +95,19 @@ public class FileUploadController {
     }
 
 
-    public static void main(String[] args){
+    @RequestMapping(value = "downLoadRateExcel")
+    public String downLoadRateExcel(HttpServletRequest request,HttpServletResponse response) throws IOException {
 
+	    String filePath =System.getProperty("user.dir") + "/src/main/resources/excelTemplate/rateTemplate.xlsx";
+	    String downFileName =new String("费率表".getBytes("gbk"), "iso8859-1");
+
+	    try {
+            List list = this.oyoShareService.queryOyoShare(new OyoShareDto());
+            ApnExcelParseTool.exportExcel(filePath, downFileName, response, list,OyoShareDto.class);
+        }catch(Exception e){
+	        e.printStackTrace();
+        }
+        return "";
     }
+
 }

@@ -15,6 +15,7 @@
         <result column="oyo_share" property="oyoShare" />
         <result column="is_test"  property="isTest"/>
         <result column="batch" property="batch"/>
+        <result column="valid_date" property="validDate"/>
     </resultMap>
 
     <select id="queryOyoShareList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.OyoShareDto">
@@ -41,6 +42,9 @@
         <if test="oyoShare.city != null and oyoShare.city != ''">
             and city = #{oyoShare.city}
         </if>
+        <if test="oyoShare.validDate != null and oyoShare.validDate != ''">
+            and valid_date = #{oyoShare.validDate}
+        </if>
     </select>
 
     <select id="queryBatchData" resultType="com.oyo.accouting.bean.OyoShareDto" parameterType="com.oyo.accouting.bean.OyoShareDto">
@@ -52,7 +56,7 @@
     <insert id ="insertOyoShareList" parameterType="java.util.List" >
         insert into oyo_share
         (
-          hotel_id,oyo_share,status,unique_code,oyo_id,hotel_name,city,zone_name,fixed_rate,is_test,batch,testing
+          hotel_id,oyo_share,status,unique_code,oyo_id,hotel_name,city,zone_name,fixed_rate,is_test,batch,testing,valid_date
          )
         values
         <foreach collection ="oyoShareList" item="oyoShare" index= "index" separator =",">
@@ -148,6 +152,14 @@
                 <choose>
                     <when test="oyoShare.testing != null">
                         #{oyoShare.testing},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.validDate != null">
+                        #{oyoShare.validDate},
                     </when>
                     <otherwise>
                         '',
