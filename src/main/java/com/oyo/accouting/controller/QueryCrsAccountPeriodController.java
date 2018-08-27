@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -124,29 +125,38 @@ public class QueryCrsAccountPeriodController {
     			XSSFSheet sheet = workBook.getSheet("CRS明细");
     			try {
     				for (int i = 0; i < entry.getValue().size(); i++) {
-						sheet.getRow(2 + i).getCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
-						sheet.getRow(2 + i).getCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
-						sheet.getRow(2 + i).getCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
-						sheet.getRow(2 + i).getCell(3).setCellValue(entry.getValue().get(i).getBookingSecondaryGuestName());//预定人名称2
-						sheet.getRow(2 + i).getCell(4).setCellValue(entry.getValue().get(i).getOrderChannel());//订单来源
-						sheet.getRow(2 + i).getCell(5).setCellValue(entry.getValue().get(i).getOyoId());//OYO酒店编号
-						sheet.getRow(2 + i).getCell(6).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
-						sheet.getRow(2 + i).getCell(7).setCellValue(null != entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute() ? entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute().toString() : "");//营业收入
-						sheet.getRow(2 + i).getCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
-						sheet.getRow(2 + i).getCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
-						sheet.getRow(2 + i).getCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
-						sheet.getRow(2 + i).getCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRatePercent() ? entry.getValue().get(i).getCurrentMonthRatePercent().toString() : "");//费率
-						sheet.getRow(2 + i).getCell(12).setCellValue(entry.getValue().get(i).getPaymentType());//顾客选择方式
-						sheet.getRow(2 + i).getCell(13).setCellValue(entry.getValue().get(i).getOtaName());//平台名称
-						sheet.getRow(2 + i).getCell(14).setCellValue(entry.getValue().get(i).getOtaId());//平台订单号
-						sheet.getRow(2 + i).getCell(15).setCellValue(entry.getValue().get(i).getCity());//城市
-						sheet.getRow(2 + i).getCell(16).setCellValue(entry.getValue().get(i).getRegion());//区域
-						sheet.getRow(2 + i).getCell(17).setCellValue(entry.getValue().get(i).getRevenueCheckResults());//营收核对结果
-						sheet.getRow(2 + i).getCell(18).setCellValue(entry.getValue().get(i).getReasonsForRevenueDifference());//营收差异原因
-						sheet.getRow(2 + i).getCell(19).setCellValue(entry.getValue().get(i).getProportions());//提成比例
-						sheet.getRow(2 + i).getCell(20).setCellValue(entry.getValue().get(i).getPaymentTypeCheckingResult());//顾客选择方式核对结果
-						sheet.getRow(2 + i).getCell(21).setCellValue(entry.getValue().get(i).getPlatformFeePayableParty());//平台费承担方
-						sheet.getRow(2 + i).getCell(22).setCellValue(entry.getValue().get(i).getRemarks());//备注
+    					XSSFRow row = sheet.getRow(2 + i);
+    					if (row == null) { 
+    						row = sheet.createRow(2 + i);
+    						row.setRowStyle(sheet.getRow(2).getRowStyle());
+    						for (int j = 0; j <= 22; j++) {
+    							row.createCell(j).setCellStyle(sheet.getRow(2).getCell(j).getCellStyle());
+							}
+    					}
+    					//设置数值
+    					row.getCell(0).setCellValue(entry.getValue().get(i).getOrderNo());//orderNo
+    					row.getCell(1).setCellValue(entry.getValue().get(i).getGuestName());//顾客名字
+    					row.getCell(2).setCellValue(entry.getValue().get(i).getBookingGuestName());//预定人名称
+    					row.getCell(3).setCellValue(entry.getValue().get(i).getBookingSecondaryGuestName());//预定人名称2
+    					row.getCell(4).setCellValue(entry.getValue().get(i).getOrderChannel());//订单来源
+    					row.getCell(5).setCellValue(entry.getValue().get(i).getOyoId());//OYO酒店编号
+    					row.getCell(6).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
+    					row.getCell(7).setCellValue(null != entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute() ? entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute().toString() : "");//营业收入
+    					row.getCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
+    					row.getCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
+    					row.getCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
+    					row.getCell(11).setCellValue(null != entry.getValue().get(i).getCurrentMonthRatePercent() ? entry.getValue().get(i).getCurrentMonthRatePercent().toString() : "");//费率
+    					row.getCell(12).setCellValue(entry.getValue().get(i).getPaymentType());//顾客选择方式
+    					row.getCell(13).setCellValue(entry.getValue().get(i).getOtaName());//平台名称
+    					row.getCell(14).setCellValue(entry.getValue().get(i).getOtaId());//平台订单号
+    					row.getCell(15).setCellValue(entry.getValue().get(i).getCity());//城市
+    					row.getCell(16).setCellValue(entry.getValue().get(i).getRegion());//区域
+    					row.getCell(17).setCellValue(entry.getValue().get(i).getRevenueCheckResults());//营收核对结果
+    					row.getCell(18).setCellValue(entry.getValue().get(i).getReasonsForRevenueDifference());//营收差异原因
+    					row.getCell(19).setCellValue(entry.getValue().get(i).getProportions());//提成比例
+    					row.getCell(20).setCellValue(entry.getValue().get(i).getPaymentTypeCheckingResult());//顾客选择方式核对结果
+    					row.getCell(21).setCellValue(entry.getValue().get(i).getPlatformFeePayableParty());//平台费承担方
+    					row.getCell(22).setCellValue(entry.getValue().get(i).getRemarks());//备注
 					}
 					
 					out = new ByteArrayOutputStream();//定义字节数组，为了将excel数据写入
