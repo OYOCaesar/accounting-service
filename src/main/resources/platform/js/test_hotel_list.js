@@ -54,7 +54,7 @@ var importReportData = function () {
           field: 'uniqueCode',
           title: 'uniqueCode',
           sortable: false,
-          textAlign: 'center'
+          textAlign: 'center', selector: {class: 'm-checkbox--solid m-checkbox--brand'}
         },
         {
           field: 'oyoId',
