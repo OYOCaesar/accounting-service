@@ -112,7 +112,7 @@ public class QueryCrsAccountPeriodController {
     			roomsNightCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthRoomsNumber() != null).map(AccountPeriodDto::getCurrentMonthRoomsNumber).reduce(Integer::sum).orElse(0));// 1. 本月双方确认的已售间夜数
     			
     			XSSFCell currentMonthSettlementTotalAmountCell = sheet1.getRow(8).getCell(2);
-    			currentMonthSettlementTotalAmountCell.setCellValue(eachList.stream().filter(q->q.getOrderTotalAmount() != null).map(AccountPeriodDto::getOrderTotalAmount).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// 2. 本月双方确认的营收
+    			currentMonthSettlementTotalAmountCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmountCompute() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmountCompute).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// 2. 本月双方确认的营收
     			
     			XSSFCell oyoShareCell = sheet1.getRow(9).getCell(2);
     			oyoShareCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP).toString());// //3. 本月双方确认的OYO的提成
@@ -131,7 +131,7 @@ public class QueryCrsAccountPeriodController {
 						sheet.getRow(2 + i).getCell(4).setCellValue(entry.getValue().get(i).getOrderChannel());//订单来源
 						sheet.getRow(2 + i).getCell(5).setCellValue(entry.getValue().get(i).getOyoId());//OYO酒店编号
 						sheet.getRow(2 + i).getCell(6).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
-						sheet.getRow(2 + i).getCell(7).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//营业收入
+						sheet.getRow(2 + i).getCell(7).setCellValue(null != entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute() ? entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute().toString() : "");//营业收入
 						sheet.getRow(2 + i).getCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住时间，格式：yyyy-MM-dd,查询显示字段
 						sheet.getRow(2 + i).getCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//离店时间，格式：yyyy-MM-dd,查询显示字段
 						sheet.getRow(2 + i).getCell(10).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数

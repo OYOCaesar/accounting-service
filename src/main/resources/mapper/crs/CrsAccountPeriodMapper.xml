@@ -18,6 +18,7 @@
         <result column="payments" property="paymentMethod" />
         <result column="payment_type" property="paymentType" />
         <result column="ota_id" property="otaId" />
+        <result column="ota_name" property="otaName" />
         <result column="city" property="city" />
         <result column="region" property="region" />
         <result column="hotel_id" property="hotelId" />
@@ -37,7 +38,7 @@
 	<!-- 条件查询CRS中账期信息 -->
     <select id="queryAccountPeriodByCondition"  resultMap="BaseResultMap" parameterType="java.util.List">
         select oyo_id,unique_code,hotel_name,period,order_no,guest_name,source,checkin,checkout,status,oyo_rooms,
-        amount,payments,payment_type,ota_id,city,region,hotel_id,period_start_date,period_end_date,check_in_days
+        amount,payments,payment_type,ota_id,ota_name,city,region,hotel_id,period_start_date,period_end_date,check_in_days
         from (
 		<foreach collection="list" item="queryAccountPeriodDto" separator=" union all ">
 		    <!-- 1.checkin in period and checkout in period -->
@@ -60,14 +61,16 @@
 			A.payments,
 			A.payment_type,
 			A.ota_booking_id ota_id,
+			(F.name) ota_name,
 			C.city,
 			E.name region,
 			C.id hotel_id
-			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			from bookings A,user_profiles B,hotels C,hubs D,zones E,online_travel_agents F
 			where A.guest_id = B.id
 			and A.hotel_id = C.id
 			and D.zone_id = E.id
 			and C.city = D.name
+			and F.id = A.ota_id
 			and C.country_id = 50
 			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
 			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
@@ -107,14 +110,16 @@
 			A.payments,
 			A.payment_type,
 			A.ota_booking_id ota_id,
+			(F.name) ota_name,
 			C.city,
 			E.name region,
 			C.id hotel_id
-			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			from bookings A,user_profiles B,hotels C,hubs D,zones E,online_travel_agents F
 			where A.guest_id = B.id
 			and A.hotel_id = C.id
 			and D.zone_id = E.id
 			and C.city = D.name
+			and F.id = A.ota_id
 			and C.country_id = 50
 			and (A.checkin <![CDATA[<]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
 			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
@@ -154,14 +159,16 @@
 			A.payments,
 			A.payment_type,
 			A.ota_booking_id ota_id,
+			(F.name) ota_name,
 			C.city,
 			E.name region,
 			C.id hotel_id
-			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			from bookings A,user_profiles B,hotels C,hubs D,zones E,online_travel_agents F
 			where A.guest_id = B.id
 			and A.hotel_id = C.id
 			and D.zone_id = E.id
 			and C.city = D.name
+			and F.id = A.ota_id
 			and C.country_id = 50
 			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
 			     and (A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') or A.checkout is null))
@@ -201,14 +208,16 @@
 			A.payments,
 			A.payment_type,
 			A.ota_booking_id ota_id,
+			(F.name) ota_name,
 			C.city,
 			E.name region,
 			C.id hotel_id
-			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			from bookings A,user_profiles B,hotels C,hubs D,zones E,online_travel_agents F
 			where A.guest_id = B.id
 			and A.hotel_id = C.id
 			and D.zone_id = E.id
 			and C.city = D.name
+			and F.id = A.ota_id
 			and C.country_id = 50
 			and ( A.checkin <![CDATA[<]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
 			     and (A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') ))
