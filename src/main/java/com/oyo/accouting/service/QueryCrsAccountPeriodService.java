@@ -237,7 +237,7 @@ public class QueryCrsAccountPeriodService {
         				
         				List<AccountPeriod> accountPeriodList = resultList.stream().filter(t->t.getAccountPeriod().equals(q.getAccountPeriod())).collect(Collectors.toList());
         				
-    				    //每2000条批量插入一次
+    				    //每1000条批量插入一次
     	        		int len = (accountPeriodList.size() % 1000 == 0 ? accountPeriodList.size() / 1000 : ((accountPeriodList.size() / 1000) + 1));
     	        		for (int i = 0; i < len; i++) {
     	        			int startIndex = 0;

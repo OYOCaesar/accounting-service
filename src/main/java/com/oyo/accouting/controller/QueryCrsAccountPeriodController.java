@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -37,6 +36,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
 import com.oyo.accouting.job.SyncArAndApJob;
+import com.oyo.accouting.pojo.Deductions;
+import com.oyo.accouting.service.DeductionsService;
 import com.oyo.accouting.service.QueryCrsAccountPeriodService;
 
 import net.sf.json.JSONObject;
@@ -49,6 +50,9 @@ public class QueryCrsAccountPeriodController {
 
     @Autowired
     private QueryCrsAccountPeriodService queryCrsAccountPeriodService;
+    
+    @Autowired
+    private DeductionsService deductionsService;
 
     @RequestMapping(value = "query")
     @ResponseBody
@@ -121,6 +125,37 @@ public class QueryCrsAccountPeriodController {
     			
     			XSSFCell ownerPayCell = sheet1.getRow(12).getCell(2);
     			ownerPayCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP).toString());// //6. 本月业主应支付OYO金额
+    			
+    			//如果是当前月那么就计算附表中的扣除费用
+    			LocalDate localDate = LocalDate.now();
+    			String currentYearMonth = localDate.getYear() + "" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue());
+    			if (currentYearMonth.equals(queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", ""))) {
+    				
+    				Deductions deductions = deductionsService.selectByHotelId(eachList.get(0).getHotelId());
+    				
+    				if (null != deductions) {
+    					//设置附表中的扣除费用
+            			XSSFSheet sheetAppendix = workBook.getSheet("附表");
+            			XSSFCell tempMemPromotionFeeCell = sheetAppendix.getRow(3).getCell(2);
+            			tempMemPromotionFeeCell.setCellValue(null != deductions.getTempMemPromotionFee() ? deductions.getTempMemPromotionFee().toString() : "");//tempMemPromotionFee
+            			
+            			XSSFCell praisePlatformPromotionFeeCell = sheet1.getRow(4).getCell(2);
+            			praisePlatformPromotionFeeCell.setCellValue(null != deductions.getPraisePlatformPromotionFee() ? deductions.getPraisePlatformPromotionFee().toString() : "");//praisePlatformPromotionFee
+            			
+            			XSSFCell flyingPigsPlatformPromotionFeeCell = sheet1.getRow(5).getCell(2);
+            			flyingPigsPlatformPromotionFeeCell.setCellValue(null != deductions.getFlyingPigsPlatformPromotionFee() ? deductions.getFlyingPigsPlatformPromotionFee().toString() : "");//flyingPigsPlatformPromotionFee
+            			
+            			XSSFCell newActivityACell = sheet1.getRow(6).getCell(2);
+            			newActivityACell.setCellValue(null != deductions.getNewActivityA() ? deductions.getNewActivityA().toString() : "");//newActivityA
+            			
+            			XSSFCell newActivityBCell = sheet1.getRow(7).getCell(2);
+            			newActivityBCell.setCellValue(null != deductions.getNewActivityB() ? deductions.getNewActivityB().toString() : "");//newActivityBCell
+            			
+            			XSSFCell newActivityCCell = sheet1.getRow(8).getCell(2);
+            			newActivityCCell.setCellValue(null != deductions.getNewActivityC() ? deductions.getNewActivityC().toString() : "");//newActivityCCell
+    				}
+        			
+    			}
     			
     			//写CRS明细数据
     			XSSFSheet sheet = workBook.getSheet("CRS明细");
