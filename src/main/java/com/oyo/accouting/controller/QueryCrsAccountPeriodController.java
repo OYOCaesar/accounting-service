@@ -75,6 +75,7 @@ public class QueryCrsAccountPeriodController {
 		try {
 			
 			setReuestParams(request, queryAccountPeriodDto);
+			queryAccountPeriodDto.setPageSize(null);
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
     		
     		// 遍历打包下载
@@ -209,6 +210,7 @@ public class QueryCrsAccountPeriodController {
 		InputStream inStream = null;
 		try {
 			setReuestParams(request, queryAccountPeriodDto);
+			queryAccountPeriodDto.setPageSize(null);
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodStatisticsByCondition(queryAccountPeriodDto);
     		
     		String fileName = "汇总" + System.currentTimeMillis() + ".xlsx";
@@ -289,6 +291,7 @@ public class QueryCrsAccountPeriodController {
 		try {
 			
 			setReuestParams(request, queryAccountPeriodDto);
+			queryAccountPeriodDto.setPageSize(null);
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
     		
     		// 遍历打包下载

@@ -65,15 +65,15 @@
 			C.city,
 			E.name region,
 			C.id hotel_id
-			from bookings A,user_profiles B,hotels C,hubs D,zones E,online_travel_agents F
+			from user_profiles B,hotels C,hubs D,zones E, bookings A left join online_travel_agents F on F.id = A.ota_id
 			where A.guest_id = B.id
 			and A.hotel_id = C.id
 			and D.zone_id = E.id
 			and C.city = D.name
-			and F.id = A.ota_id
 			and C.country_id = 50
+			and A.status in (1,2)<!-- status is checkin and checkout -->
 			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
-			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
+			     and A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.nextAccountPeriodStart},'YYYY-MM-DD'))
 			<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
 			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
 			</if>
@@ -114,15 +114,15 @@
 			C.city,
 			E.name region,
 			C.id hotel_id
-			from bookings A,user_profiles B,hotels C,hubs D,zones E,online_travel_agents F
+			from user_profiles B,hotels C,hubs D,zones E, bookings A left join online_travel_agents F on F.id = A.ota_id
 			where A.guest_id = B.id
 			and A.hotel_id = C.id
 			and D.zone_id = E.id
 			and C.city = D.name
-			and F.id = A.ota_id
 			and C.country_id = 50
+			and A.status in (1,2)<!-- status is checkin and checkout -->
 			and (A.checkin <![CDATA[<]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
-			     and A.checkout <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD'))
+			     and A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkout <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.nextAccountPeriodStart},'YYYY-MM-DD'))
 			<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
 			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
 			</if>
@@ -163,13 +163,13 @@
 			C.city,
 			E.name region,
 			C.id hotel_id
-			from bookings A,user_profiles B,hotels C,hubs D,zones E,online_travel_agents F
+			from user_profiles B,hotels C,hubs D,zones E, bookings A left join online_travel_agents F on F.id = A.ota_id
 			where A.guest_id = B.id
 			and A.hotel_id = C.id
 			and D.zone_id = E.id
 			and C.city = D.name
-			and F.id = A.ota_id
 			and C.country_id = 50
+			and A.status in (1,2)<!-- status is checkin and checkout -->
 			and (A.checkin <![CDATA[>=]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') and A.checkin <![CDATA[<=]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') 
 			     and (A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') or A.checkout is null))
 	    	<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
@@ -212,12 +212,11 @@
 			C.city,
 			E.name region,
 			C.id hotel_id
-			from bookings A,user_profiles B,hotels C,hubs D,zones E,online_travel_agents F
+			from user_profiles B,hotels C,hubs D,zones E, bookings A left join online_travel_agents F on F.id = A.ota_id
 			where A.guest_id = B.id
 			and A.hotel_id = C.id
 			and D.zone_id = E.id
 			and C.city = D.name
-			and F.id = A.ota_id
 			and C.country_id = 50
 			and ( A.checkin <![CDATA[<]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
 			     and (A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') ))
