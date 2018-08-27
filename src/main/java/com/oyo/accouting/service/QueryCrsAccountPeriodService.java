@@ -26,9 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.CrsEnumsDto;
+import com.oyo.accouting.bean.OyoShareDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
 import com.oyo.accouting.bean.SyncCrsArAndApDto;
 import com.oyo.accouting.mapper.accounting.AccountPeriodMapper;
+import com.oyo.accouting.mapper.accounting.AccountingOyoShareMapper;
 import com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountPeriodMapper;
 import com.oyo.accouting.pojo.AccountPeriod;
@@ -53,6 +55,9 @@ public class QueryCrsAccountPeriodService {
     
     @Autowired
     private SyncCrsArAndApMapper syncCrsArAndApMapper;
+    
+    @Autowired
+    private AccountingOyoShareMapper accountingOyoShareMapper;
     
     //生成recon数据
     @Transactional(value="accountingTransactionManager", rollbackFor = Exception.class)
@@ -136,7 +141,13 @@ public class QueryCrsAccountPeriodService {
         			//获取账期的汇率列表
         			List<SyncCrsArAndApDto> rateList = syncCrsArAndApMapper.selectRateListByMap(rateMap);
         			
+        			OyoShareDto info = new OyoShareDto();
+        			info.setIsTest("t");
+        			//过滤掉黑名单或测试酒店
+        			List<OyoShareDto> hotelExceptList = this.accountingOyoShareMapper.queryOyoShareList(info);
+        			
         			resultList.forEach(q->{
+        				
         				//替换表情符号为空
         				q.setGuestName(q.getGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
         				
