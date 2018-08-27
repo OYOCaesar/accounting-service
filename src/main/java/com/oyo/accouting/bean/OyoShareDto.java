@@ -24,5 +24,7 @@ public class OyoShareDto {
   private String batch;
 
   private String testing;
+
+  private String validDate;
   
 }

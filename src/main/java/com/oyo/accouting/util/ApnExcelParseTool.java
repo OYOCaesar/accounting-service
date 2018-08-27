@@ -1,15 +1,16 @@
 package com.oyo.accouting.util;
 
+import com.oyo.accouting.bean.OyoShareDto;
+import com.oyo.accouting.pojo.OyoShare;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
@@ -22,6 +23,10 @@ import java.util.regex.Pattern;
  * @author zfguo
  */
 public class ApnExcelParseTool {
+
+    private static String eachReg = "\\$.each\\{";
+
+    private static String fieldReg = "#\\{[a-zA-Z]+\\}";
 
     private static String mFilePath;
     
@@ -227,5 +232,108 @@ public class ApnExcelParseTool {
         return value;
     }
 
+
+    public static void exportExcel(String filePath,String downFileName, HttpServletResponse response, List<Object> list, Class cls) throws Exception{
+
+        response.setHeader("Content-disposition", downFileName);
+        response.setContentType("application/vnd.ms-excel");
+        response.setHeader("Content-disposition", "attachment;filename="+downFileName+".xlsx");
+        response.setHeader("Pragma", "No-cache");
+
+        File newFile = new File(filePath);
+        InputStream is = null;
+        OutputStream ouputStream = null;
+        XSSFWorkbook workbook = null;
+        XSSFSheet sheet = null;
+        try {
+            is = new FileInputStream(newFile);// 将excel文件转为输入流
+            workbook = new XSSFWorkbook(is);// 创建个workbook，
+            // 获取第一个sheet
+            sheet = workbook.getSheetAt(0);
+        } catch (Exception e1) {
+            throw e1;
+        }
+        if (sheet != null) {
+
+            Row row = null;
+            boolean isEach = false;
+            String[] fields = new String[30];
+
+            Iterator<Row> rows = sheet.iterator();
+
+            //遍历行
+            while(rows.hasNext()){
+                row = rows.next();
+                Iterator<Cell> iterator = row.iterator();
+                Cell cell = null;
+                //遍历列
+                while (iterator.hasNext()) {
+
+                    cell = iterator.next();
+                    //取出cell中的value
+                    String value = null;
+                    value = getCellValue(cell);
+                    Pattern p1 = Pattern.compile(eachReg);
+                    Matcher m1 = p1.matcher(value);
+                    if(isEach = m1.find()){
+                        break;
+                    }
+                    Pattern p2 = Pattern.compile(fieldReg);
+                    Matcher m2 = p2.matcher(value);
+                    if("#{status}".equals(value)){
+                        int dd =1;
+                    }
+                    if(m2.find()){
+                        String field = value.substring(2,value.length()-1);
+                        if(StringUtils.isEmpty(field)){
+                            throw new Exception("【"+value+"】表达式不正确");
+                        }
+                        fields[cell.getColumnIndex()]="get"+field.substring(0,1).toUpperCase()+field.substring(1);
+                    }
+                }
+
+            }
+            try {
+                //将数据填充到excel中
+                for (int j = 0; j < list.size(); j++) {
+
+                    Object o = list.get(j);
+                    Row r = sheet.createRow(j + 1);
+
+                    for (int i = 0; i < fields.length; ++i) {
+                        if(StringUtils.isEmpty(fields[i]))continue;
+                        Method method = cls.getDeclaredMethod(fields[i]);
+                        if(method==null)continue;
+                        String v = String.valueOf(method.invoke(o));
+                        Cell c = r.createCell(i);
+                        c.setCellValue(v);
+                    }
+                }
+                ouputStream = response.getOutputStream();
+                workbook.write(ouputStream);
+                ouputStream.flush();
+            }catch (Exception e){
+                e.printStackTrace();
+            }finally {
+                is.close();
+                ouputStream.close();
+            }
+        }
+    }
+
+    public static void main(String[] args){
+        Pattern p1 = Pattern.compile(fieldReg);
+        Matcher m1 = p1.matcher("#{status}");
+        String field ="name";
+        Class cls =OyoShare.class;
+        try {
+
+            Method m = cls.getDeclaredMethod("getStatus");
+            //System.out.println(m.invoke());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        System.out.println();
+    }
 
 }

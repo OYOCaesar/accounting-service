@@ -49,7 +49,10 @@
             <!--begin: Search Form -->
             <form class="m-form m-form--fit m--margin-bottom-20">
               <div class="row m--margin-bottom-10">
-
+                  <div class="col-lg-3 m--margin-bottom-10-tablet-and-mobile">
+                      <label>有效时间:</label>
+                      <input class="form-control m-input" type="month" id="validDate_search" data-col-index="3">
+                  </div>
                   <div class="col-lg-3 m--margin-bottom-10-tablet-and-mobile">
                       <label>状态:</label>
                       <select class="form-control m-input" data-col-index="0">
@@ -82,13 +85,14 @@
                         <span>查询</span>
                     </span>
                   </button>
-                  &nbsp;&nbsp;
+                  <!--&nbsp;&nbsp;
                   <button class="btn btn-secondary m-btn m-btn--icon" id="m_reset_btn">
                     <span>
                         <i class="la la-close"></i>
                         <span>重置</span>
                     </span>
                   </button>
+                  -->
                 &nbsp;&nbsp;
                 <button type="button" class="btn btn-secondary m-btn m-btn--icon" data-toggle="modal" data-target="#m_blockui_4_1_modal">
                     <span>
@@ -104,7 +108,7 @@
                             </span>
                 </button>
                 &nbsp;&nbsp;
-                <button type="button" class="btn btn-secondary m-btn m-btn--icon">
+                <button type="button" onclick="downFile();" class="btn btn-secondary m-btn m-btn--icon">
                             <span>
                                 <i class="la"></i>
                                 <span>下载</span>
@@ -131,8 +135,10 @@
                               </button>
                           </div>
                           <div class="modal-body">
-                              <form id="uploadFileForm" action="../fileUpload/upload" method="post" enctype="multipart/form-data">
+                              <form id="uploadFileForm" action="../fileUpload/upload" method="post" enctype="multipart/form-data" onsubmit="return check();">
                                   <div class="form-group">
+                                      <label for="recipient-name" class="form-control-label">有效时间:</label>
+                                      <input name ="validDate" class="form-control m-input" type="month" id="validDate_import">
                                       <label for="recipient-name" class="form-control-label">
                                           选择文件:
                                       </label>
@@ -165,19 +171,27 @@
 </body>
 <script>
 
-    function fileChange(){
+    function check(){
+        var validDate = $("#validDate_import").val();
+        if(validDate == null || validDate == undefined || validDate ==''){
+            alert("请选择有效日期");
+            return false;
+        }
         var ele = document.getElementById('file_input');
         if(ele.value == null || ele.value == undefined || ele.value == ''){
             alert("请选择一个文件！");
             return false;
-        }else{
-            alert(1);
-            $("#submitFileForm").click();
         }
+        return true;
     }
     function exportRateExcel(ele) {
         $("#file_input").val("");
         $("#file_input").click();
+    }
+    
+    
+    function downFile() {
+        window.location.href= "../fileUpload/downLoadRateExcel"
     }
 </script>
 <!-- end::Body -->
