@@ -1,6 +1,7 @@
 package com.oyo.accouting.service;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -148,9 +149,21 @@ public class QueryCrsAccountPeriodService {
         					q.setOrderChannel("");
         				}
         				
+        				SimpleDateFormat sdfCheck = new SimpleDateFormat("yyyy-MM-dd");
+        				Date checkInDate = null;
+        				Date checkOutDate = null;
+        				int days = 0;
+						try {
+							checkInDate = sdfCheck.parse(q.getCheckInDate());
+							checkOutDate = sdfCheck.parse(q.getCheckOutDate());
+	        				days = (int) ((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));//总共入住天数
+						} catch (ParseException e) {
+							log.error("checkInDate or checkOutDate convert exception:{}",e);
+						}
+        				
         				//计算房间价格 roomPrice
-        				if (q.getRoomsNumber() != null && q.getRoomsNumber().intValue() != 0 && q.getCheckInDays() != null && q.getCheckInDays().intValue() != 0) {
-        					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(q.getCheckInDays())), 2, BigDecimal.ROUND_HALF_UP));
+        				if (q.getRoomsNumber() != null && q.getRoomsNumber().intValue() != 0 && days != 0) {
+        					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(days)), 2, BigDecimal.ROUND_HALF_UP));
         				}
         				
         				//本月应结算总额（计算）,=房价*天数 currentMonthSettlementTotalAmountCompute

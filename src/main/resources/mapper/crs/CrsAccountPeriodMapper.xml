@@ -180,6 +180,53 @@
 			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
 			    AND C.id = #{queryAccountPeriodDto.hotelId}
 			</if>
+			union all
+			<!-- 4.checkin not in period and checkout not in period or checkout is null-->			 
+			select 
+			C.unique_code,
+			C.oyo_id,
+			#{queryAccountPeriodDto.accountPeriod} period,
+			C.name hotel_name,
+			A.invoice_no order_no,
+			CONCAT(B.last_name,B.first_name) guest_name,
+			A.source,
+			A.checkin,
+			A.checkout,
+			to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD')  period_start_date,
+			to_date(#{queryAccountPeriodDto.nextAccountPeriodStart},'YYYY-MM-DD') period_end_date,
+			(to_date(#{queryAccountPeriodDto.nextAccountPeriodStart},'YYYY-MM-DD') - to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD')) check_in_days,
+			A.status,
+			A.oyo_rooms,
+			A.amount,
+			A.payments,
+			A.payment_type,
+			A.ota_booking_id ota_id,
+			C.city,
+			E.name region,
+			C.id hotel_id
+			from bookings A,user_profiles B,hotels C,hubs D,zones E
+			where A.guest_id = B.id
+			and A.hotel_id = C.id
+			and D.zone_id = E.id
+			and C.city = D.name
+			and C.country_id = 50
+			and ( A.checkin <![CDATA[<]]> to_date(#{queryAccountPeriodDto.accountPeriodStart},'YYYY-MM-DD') 
+			     and (A.checkout <![CDATA[>]]> to_date(#{queryAccountPeriodDto.accountPeriodEnd},'YYYY-MM-DD') ))
+	    	<if test="queryAccountPeriodDto.orderNo != null and queryAccountPeriodDto.orderNo != ''">
+			    AND A.invoice_no ~* #{queryAccountPeriodDto.orderNo}
+			</if>
+			<if test="queryAccountPeriodDto.region != null and queryAccountPeriodDto.region != ''">
+			    AND E.name = #{queryAccountPeriodDto.region}
+			</if>
+			<if test="queryAccountPeriodDto.city != null and queryAccountPeriodDto.city != ''">
+			    AND C.city = #{queryAccountPeriodDto.city}
+			</if>
+			<if test="queryAccountPeriodDto.hotelName != null and queryAccountPeriodDto.hotelName != ''">
+			    AND C.name ~* #{queryAccountPeriodDto.hotelName}
+			</if>
+			<if test="queryAccountPeriodDto.hotelId != null and queryAccountPeriodDto.hotelId != ''">
+			    AND C.id = #{queryAccountPeriodDto.hotelId}
+			</if>
 	    </foreach>
 		) as foo
 		ORDER BY foo.hotel_name,foo.order_no,foo.guest_name,foo.checkin desc
