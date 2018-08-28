@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,6 @@ import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.DeductionsDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
 import com.oyo.accouting.job.SyncArAndApJob;
-import com.oyo.accouting.pojo.Deductions;
 import com.oyo.accouting.service.DeductionsService;
 import com.oyo.accouting.service.QueryCrsAccountPeriodService;
 
@@ -330,11 +330,13 @@ public class QueryCrsAccountPeriodController {
 	public void exportDetails(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
 		XSSFWorkbook workBook = null;
 		InputStream inStream = null;
+		ByteArrayOutputStream out = null;
+		InputStream inputStream = null;
 		// 设置压缩流：直接写入response，实现边压缩边下载
 		ZipOutputStream zipOutputStream = null;
 		DataOutputStream dataOutputStream = null;
 		try {
-			
+			//设置请求参数
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
@@ -348,90 +350,101 @@ public class QueryCrsAccountPeriodController {
 			// 设置压缩方式
 			zipOutputStream.setMethod(ZipOutputStream.DEFLATED);
 			
-			ByteArrayOutputStream out = null;
-			InputStream inputStream = null;
 			String excelFileName = "";//excel文件名
-    		Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
-    		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
-				excelFileName = entry.getValue().get(0).getOyoId()
-						      + "-" + entry.getKey() + "-" + entry.getValue().get(0).getAccountPeriod() + "-明细" + ".xlsx";
+			if (null != list && !list.isEmpty()) {
+				LocalDate localDate = LocalDate.now();
+				LocalTime now = LocalTime.now().withNano(0);
+				String exportExcelTime = localDate.toString() + " " + now.toString();
+				excelFileName = "明细-" +  exportExcelTime + ".xlsx";
 				//读取模块文件
 				inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/details.xlsx");
 				workBook = new XSSFWorkbook(inStream);
 				XSSFSheet sheet = workBook.getSheet("Sheet1");
 				
-				try {
-					for (int i = 0; i < entry.getValue().size(); i++) {
-						XSSFRow creRow = sheet.createRow(1 + i);
-						creRow.setRowStyle(sheet.getRow(1).getRowStyle());
-						creRow.createCell(0).setCellValue(entry.getValue().get(i).getOyoId());//oyo id
-						creRow.createCell(1).setCellValue(entry.getValue().get(i).getUniqueCode());//unique Code
-						creRow.createCell(2).setCellValue(entry.getValue().get(i).getHotelName());//酒店名称
-						creRow.createCell(3).setCellValue(entry.getValue().get(i).getAccountPeriod());//账期，如：201807
-						creRow.createCell(4).setCellValue(entry.getValue().get(i).getOrderNo());//订单号
-						creRow.createCell(5).setCellValue(entry.getValue().get(i).getGuestName());//客人姓名
-						creRow.createCell(6).setCellValue(entry.getValue().get(i).getOrderChannel());//订单渠道
-						creRow.createCell(7).setCellValue(entry.getValue().get(i).getChannelName());//渠道名
-						creRow.createCell(8).setCellValue(entry.getValue().get(i).getCheckInDate());//入住日期，格式：yyyy-MM-dd,查询显示字段
-						creRow.createCell(9).setCellValue(entry.getValue().get(i).getCheckOutDate());//退房日期，格式：yyyy-MM-dd,查询显示字段
-						creRow.createCell(10).setCellValue(entry.getValue().get(i).getStatusDesc());//订单状态描述;
-						creRow.createCell(11).setCellValue(entry.getValue().get(i).getRoomsNumber());//已用客房数
-						creRow.createCell(12).setCellValue(entry.getValue().get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
-						creRow.createCell(13).setCellValue(null != entry.getValue().get(i).getOrderTotalAmount() ? entry.getValue().get(i).getOrderTotalAmount().toString() : "");//订单总额
-						creRow.createCell(14).setCellValue(null != entry.getValue().get(i).getCurrentMonthSettlementTotalAmount() ? entry.getValue().get(i).getCurrentMonthSettlementTotalAmount().toString() : "");//本月应结算总额
-						creRow.createCell(15).setCellValue(null != entry.getValue().get(i).getCurrentMonthOyoShareAmount() ? entry.getValue().get(i).getCurrentMonthOyoShareAmount().toString() : "");//本月OYO提佣额
-						creRow.createCell(16).setCellValue(null != entry.getValue().get(i).getOwnerGrossShareAmount() ?entry.getValue().get(i).getOwnerGrossShareAmount().toString() : "");//业主毛份额(A)
-						creRow.createCell(17).setCellValue(null != entry.getValue().get(i).getDisputeOrderAmount() ? entry.getValue().get(i).getDisputeOrderAmount().toString() : "");//争议订单金额(B)
-						creRow.createCell(18).setCellValue(null != entry.getValue().get(i).getOtaExemptionAmount() ? entry.getValue().get(i).getOtaExemptionAmount().toString() : "");//OTA豁免额(C)
-						creRow.createCell(19).setCellValue(null != entry.getValue().get(i).getCurrentMonthOwnersNetShareAmount() ? entry.getValue().get(i).getCurrentMonthOwnersNetShareAmount().toString() : "");//当月业主净份额(A+B+C)
-						creRow.createCell(20).setCellValue(null != entry.getValue().get(i).getCurrentMonthPayAmont() ? entry.getValue().get(i).getCurrentMonthPayAmont().toString() : "");//当月应付
-						creRow.createCell(21).setCellValue(null != entry.getValue().get(i).getHotelChargeAmount() ? entry.getValue().get(i).getHotelChargeAmount().toString() : "");//酒店收取金额(已结算)
-						creRow.createCell(22).setCellValue(null != entry.getValue().get(i).getHotelChargeMoreAmount() ? entry.getValue().get(i).getHotelChargeMoreAmount().toString() : "");//酒店多收取金额
-						creRow.createCell(23).setCellValue(null != entry.getValue().get(i).getOyoChargeAmount() ? entry.getValue().get(i).getOyoChargeAmount().toString() : "");//OYO收取金额(已结算)
-						creRow.createCell(24).setCellValue(null != entry.getValue().get(i).getOyoChargeMoreAmount() ? entry.getValue().get(i).getOyoChargeMoreAmount().toString() : "");//OYO多收取金额
-						creRow.createCell(25).setCellValue(entry.getValue().get(i).getPaymentMethod());//支付方式
-						creRow.createCell(26).setCellValue(entry.getValue().get(i).getPaymentDetails());//支付明细
-						creRow.createCell(27).setCellValue(entry.getValue().get(i).getPaymentType());//支付类型（预付/后付费）
-						creRow.createCell(28).setCellValue(null != entry.getValue().get(i).getOtaCommission() ? entry.getValue().get(i).getOtaCommission().toString() : "");//OTA佣金
-						creRow.createCell(29).setCellValue(null != entry.getValue().get(i).getOtaCommissionTax() ? entry.getValue().get(i).getOtaCommissionTax().toString() : "");//OYO佣金税额
-						creRow.createCell(30).setCellValue(entry.getValue().get(i).getOtaId());//OTA ID
-						creRow.createCell(31).setCellValue(entry.getValue().get(i).getCity());//City
-						creRow.createCell(32).setCellValue(entry.getValue().get(i).getCityCh());//城市
-						creRow.createCell(33).setCellValue(entry.getValue().get(i).getRegion());//region
-						creRow.createCell(34).setCellValue(entry.getValue().get(i).getHotelId());//Hotels ID
-						creRow.createCell(35).setCellValue(null != entry.getValue().get(i).getCurrentMonthRatePercent() ? entry.getValue().get(i).getCurrentMonthRatePercent().toString() : "");//本月匹配费率
-						creRow.createCell(36).setCellValue(null != entry.getValue().get(i).getOyoShare() ? entry.getValue().get(i).getOyoShare().toString() : "");//OYO share
-						creRow.createCell(37).setCellValue(entry.getValue().get(i).getStartDateOfAccountPeriod());//本账期开始日期
-						creRow.createCell(38).setCellValue(entry.getValue().get(i).getEndDateOfAccountPeriod());//本账期结束日期
-						creRow.createCell(39).setCellValue(entry.getValue().get(i).getCheckInDays());// 本期入住天数
-						creRow.createCell(40).setCellValue(null != entry.getValue().get(i).getRoomPrice() ? entry.getValue().get(i).getRoomPrice().toString() : "");// 房间价格
-						creRow.createCell(41).setCellValue(null != entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute() ? entry.getValue().get(i).getCurrentMonthSettlementTotalAmountCompute().toString() : "");// 本月应结算总额（计算）,=房价*天数
-					}
-					
-					out = new ByteArrayOutputStream();//定义字节数组，为了将excel数据写入
-					workBook.write(out);
-					byte[] bytes = out.toByteArray();//将excel数据变成byte[]
-					inputStream = new ByteArrayInputStream(bytes);//excel stream文件
-					
-					zipOutputStream.putNextEntry(new ZipEntry(excelFileName));
-					dataOutputStream = new DataOutputStream(zipOutputStream);
-					IOUtils.copy(inputStream, dataOutputStream);//将excel放入zip文件中
-				} finally {
-					if (null != out) {
-						out.close();
-					}
-					if (null != inputStream) {
-						inputStream.close();
-					}
-					if (null != workBook) {
-						workBook.close();
-					}
+				AccountPeriodDto accountPeriodDto = null;
+				for (int i = 0;i<list.size();i++) {
+					accountPeriodDto = list.get(i);
+					XSSFRow creRow = sheet.createRow(1 + i);
+					creRow.setRowStyle(sheet.getRow(1).getRowStyle());
+					creRow.createCell(0).setCellValue(accountPeriodDto.getOyoId());//oyo id
+					creRow.createCell(1).setCellValue(accountPeriodDto.getUniqueCode());//unique Code
+					creRow.createCell(2).setCellValue(accountPeriodDto.getHotelName());//酒店名称
+					creRow.createCell(3).setCellValue(accountPeriodDto.getAccountPeriod());//账期，如：201807
+					creRow.createCell(4).setCellValue(accountPeriodDto.getOrderNo());//订单号
+					creRow.createCell(5).setCellValue(accountPeriodDto.getGuestName());//客人姓名
+					creRow.createCell(6).setCellValue(accountPeriodDto.getOrderChannel());//订单渠道
+					creRow.createCell(7).setCellValue(accountPeriodDto.getChannelName());//渠道名
+					creRow.createCell(8).setCellValue(accountPeriodDto.getCheckInDate());//入住日期，格式：yyyy-MM-dd,查询显示字段
+					creRow.createCell(9).setCellValue(accountPeriodDto.getCheckOutDate());//退房日期，格式：yyyy-MM-dd,查询显示字段
+					creRow.createCell(10).setCellValue(accountPeriodDto.getStatusDesc());//订单状态描述;
+					creRow.createCell(11).setCellValue(accountPeriodDto.getRoomsNumber());//已用客房数
+					creRow.createCell(12).setCellValue(accountPeriodDto.getCurrentMonthRoomsNumber());//本月已用间夜数
+					creRow.createCell(13).setCellValue(null != accountPeriodDto.getOrderTotalAmount() ? accountPeriodDto.getOrderTotalAmount().toString() : "");//订单总额
+					creRow.createCell(14).setCellValue(null != accountPeriodDto.getCurrentMonthSettlementTotalAmount() ? accountPeriodDto.getCurrentMonthSettlementTotalAmount().toString() : "");//本月应结算总额
+					creRow.createCell(15).setCellValue(null != accountPeriodDto.getCurrentMonthOyoShareAmount() ? accountPeriodDto.getCurrentMonthOyoShareAmount().toString() : "");//本月OYO提佣额
+					creRow.createCell(16).setCellValue(null != accountPeriodDto.getOwnerGrossShareAmount() ?accountPeriodDto.getOwnerGrossShareAmount().toString() : "");//业主毛份额(A)
+					creRow.createCell(17).setCellValue(null != accountPeriodDto.getDisputeOrderAmount() ? accountPeriodDto.getDisputeOrderAmount().toString() : "");//争议订单金额(B)
+					creRow.createCell(18).setCellValue(null != accountPeriodDto.getOtaExemptionAmount() ? accountPeriodDto.getOtaExemptionAmount().toString() : "");//OTA豁免额(C)
+					creRow.createCell(19).setCellValue(null != accountPeriodDto.getCurrentMonthOwnersNetShareAmount() ? accountPeriodDto.getCurrentMonthOwnersNetShareAmount().toString() : "");//当月业主净份额(A+B+C)
+					creRow.createCell(20).setCellValue(null != accountPeriodDto.getCurrentMonthPayAmont() ? accountPeriodDto.getCurrentMonthPayAmont().toString() : "");//当月应付
+					creRow.createCell(21).setCellValue(null != accountPeriodDto.getHotelChargeAmount() ? accountPeriodDto.getHotelChargeAmount().toString() : "");//酒店收取金额(已结算)
+					creRow.createCell(22).setCellValue(null != accountPeriodDto.getHotelChargeMoreAmount() ? accountPeriodDto.getHotelChargeMoreAmount().toString() : "");//酒店多收取金额
+					creRow.createCell(23).setCellValue(null != accountPeriodDto.getOyoChargeAmount() ? accountPeriodDto.getOyoChargeAmount().toString() : "");//OYO收取金额(已结算)
+					creRow.createCell(24).setCellValue(null != accountPeriodDto.getOyoChargeMoreAmount() ? accountPeriodDto.getOyoChargeMoreAmount().toString() : "");//OYO多收取金额
+					creRow.createCell(25).setCellValue(accountPeriodDto.getPaymentMethod());//支付方式
+					creRow.createCell(26).setCellValue(accountPeriodDto.getPaymentDetails());//支付明细
+					creRow.createCell(27).setCellValue(accountPeriodDto.getPaymentType());//支付类型（预付/后付费）
+					creRow.createCell(28).setCellValue(null != accountPeriodDto.getOtaCommission() ? accountPeriodDto.getOtaCommission().toString() : "");//OTA佣金
+					creRow.createCell(29).setCellValue(null != accountPeriodDto.getOtaCommissionTax() ? accountPeriodDto.getOtaCommissionTax().toString() : "");//OYO佣金税额
+					creRow.createCell(30).setCellValue(accountPeriodDto.getOtaId());//OTA ID
+					creRow.createCell(31).setCellValue(accountPeriodDto.getCity());//City
+					creRow.createCell(32).setCellValue(accountPeriodDto.getCityCh());//城市
+					creRow.createCell(33).setCellValue(accountPeriodDto.getRegion());//region
+					creRow.createCell(34).setCellValue(accountPeriodDto.getHotelId());//Hotels ID
+					creRow.createCell(35).setCellValue(null != accountPeriodDto.getCurrentMonthRatePercent() ? accountPeriodDto.getCurrentMonthRatePercent().toString() : "");//本月匹配费率
+					creRow.createCell(36).setCellValue(null != accountPeriodDto.getOyoShare() ? accountPeriodDto.getOyoShare().toString() : "");//OYO share
+					creRow.createCell(37).setCellValue(accountPeriodDto.getStartDateOfAccountPeriod());//本账期开始日期
+					creRow.createCell(38).setCellValue(accountPeriodDto.getEndDateOfAccountPeriod());//本账期结束日期
+					creRow.createCell(39).setCellValue(accountPeriodDto.getCheckInDays());// 本期入住天数
+					creRow.createCell(40).setCellValue(null != accountPeriodDto.getRoomPrice() ? accountPeriodDto.getRoomPrice().toString() : "");// 房间价格
+					creRow.createCell(41).setCellValue(null != accountPeriodDto.getCurrentMonthSettlementTotalAmountCompute() ? accountPeriodDto.getCurrentMonthSettlementTotalAmountCompute().toString() : "");// 本月应结算总额（计算）,=房价*天数*已用房间
 				}
 				
-    		}
+				out = new ByteArrayOutputStream();//定义字节数组，为了将excel数据写入
+				workBook.write(out);
+				byte[] bytes = out.toByteArray();//将excel数据变成byte[]
+				inputStream = new ByteArrayInputStream(bytes);//excel stream文件
+				
+				zipOutputStream.putNextEntry(new ZipEntry(excelFileName));
+				dataOutputStream = new DataOutputStream(zipOutputStream);
+				IOUtils.copy(inputStream, dataOutputStream);//将excel放入zip文件中
+				
+			}
+			
 		} catch (Exception e) {
 			log.error("Export Details throwing exception:{}", e);
 		} finally {
+			if (null != out) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					log.error("Export Details close out throwing exception:{}", e);
+				}
+			}
+			if (null != inputStream) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					log.error("Export Details close inputStream throwing exception:{}", e);
+				}
+			}
+			if (null != workBook) {
+				try {
+					workBook.close();
+				} catch (IOException e) {
+					log.error("Export Details close workBook throwing exception:{}", e);
+				}
+			}
 			try {
 				if (null != inStream) {
 					inStream.close();
