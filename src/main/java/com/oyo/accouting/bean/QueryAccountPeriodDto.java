@@ -14,6 +14,7 @@ public class QueryAccountPeriodDto {
   
 	private String accountPeriod;// 账期，如：201807
 	private String accountPeriodStart;// 账期开始日期，格式：yyyy-MM-dd
+	private String accountPeriodSecondStart;// 账期开始第二天日期，格式：yyyy-MM-dd
 	private String accountPeriodEnd;// 账期结束日期，格式：yyyy-MM-dd
 	private String nextAccountPeriodStart;// 下个账期开始日期，格式：yyyy-MM-dd
 	

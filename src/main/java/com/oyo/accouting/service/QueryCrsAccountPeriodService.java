@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,209 +73,205 @@ public class QueryCrsAccountPeriodService {
         	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         	List<QueryAccountPeriodDto> list = new ArrayList<QueryAccountPeriodDto>();
         	String startYearAndMonthQuery = queryAccountPeriodDto.getStartYearAndMonthQuery();//开始账期
-        	String endYearAndMonthQuery = queryAccountPeriodDto.getEndYearAndMonthQuery();//结束账期
         	String[] startYearMonthArray = startYearAndMonthQuery.split("-");
-        	String[] endYearAndMonthArray = endYearAndMonthQuery.split("-");
         	LocalDate start = LocalDate.of(Integer.valueOf(startYearMonthArray[0]), Integer.valueOf(startYearMonthArray[1]), 1);
-        	LocalDate end = LocalDate.of(Integer.valueOf(endYearAndMonthArray[0]), Integer.valueOf(endYearAndMonthArray[1]), 1);
         	
-        	if (startYearAndMonthQuery.equals(endYearAndMonthQuery)) {
-        		queryAccountPeriodDto.setAccountPeriod(startYearMonthArray[0] + (startYearMonthArray[1].length() == 1 ? "0" + startYearMonthArray[1] : startYearMonthArray[1]));
-        		queryAccountPeriodDto.setAccountPeriodStart(startYearMonthArray[0] + "-" + (startYearMonthArray[1].length() == 1 ? "0" + startYearMonthArray[1] : startYearMonthArray[1]) + "-01");
-        		
-        		LocalDate lastDayOfCurrentMonth = start.with(TemporalAdjusters.lastDayOfMonth()); 
-    	        ZonedDateTime zdt = lastDayOfCurrentMonth.atStartOfDay(zoneId);
-    	        Date lastDayOfCurrentMonthDate = Date.from(zdt.toInstant());//同步年月的最后一天
-    	        
-    	        LocalDate firstDayOfNextMonth = start.plusMonths(1L).with(TemporalAdjusters.firstDayOfMonth()); 
-    	        ZonedDateTime zdt1 = firstDayOfNextMonth.atStartOfDay(zoneId);
-    	        Date firstDayOfNextMonthDate = Date.from(zdt1.toInstant());//同步年月的最后一天
-    	        
-        		queryAccountPeriodDto.setAccountPeriodEnd(sdf.format(lastDayOfCurrentMonthDate));
-        		queryAccountPeriodDto.setNextAccountPeriodStart(sdf.format(firstDayOfNextMonthDate));
-        		list.add(queryAccountPeriodDto);
-        	} else {
-        		QueryAccountPeriodDto insertDto = null;
-            	List<String> yearMonthArray = getBetweenYearMonth(start,end);
-                for (String str : yearMonthArray) {
-                	insertDto = new QueryAccountPeriodDto();
-                	BeanUtils.copyProperties(queryAccountPeriodDto, insertDto);
-                	String[] array = str.split("-");
-                	LocalDate startDate = LocalDate.of(Integer.valueOf(array[0]), Integer.valueOf(array[1]), 1);
-                	insertDto.setAccountPeriod(array[0] + (array[1].length() == 1 ? "0" + array[1] : array[1]));
-                	insertDto.setAccountPeriodStart(array[0] + "-" + (array[1].length() == 1 ? "0" + array[1] : array[1]) + "-01");
-            		
-            		LocalDate lastDayOfCurrentMonth = startDate.with(TemporalAdjusters.lastDayOfMonth()); 
-        	        ZonedDateTime zdt = lastDayOfCurrentMonth.atStartOfDay(zoneId);
-        	        Date lastDayOfCurrentMonthDate = Date.from(zdt.toInstant());//同步年月的最后一天
-        	        
-        	        LocalDate firstDayOfNextMonth = startDate.plusMonths(1L).with(TemporalAdjusters.firstDayOfMonth()); 
-        	        ZonedDateTime zdt1 = firstDayOfNextMonth.atStartOfDay(zoneId);
-        	        Date firstDayOfNextMonthDate = Date.from(zdt1.toInstant());//同步年月的最后一天
-        	        
-        	        insertDto.setAccountPeriodEnd(sdf.format(lastDayOfCurrentMonthDate));
-        	        insertDto.setNextAccountPeriodStart(sdf.format(firstDayOfNextMonthDate));
-            		list.add(insertDto);
+        	queryAccountPeriodDto.setAccountPeriod(startYearMonthArray[0] + (startYearMonthArray[1].length() == 1 ? "0" + startYearMonthArray[1] : startYearMonthArray[1]));
+    		queryAccountPeriodDto.setAccountPeriodStart(startYearMonthArray[0] + "-" + (startYearMonthArray[1].length() == 1 ? "0" + startYearMonthArray[1] : startYearMonthArray[1]) + "-01");
+    		queryAccountPeriodDto.setAccountPeriodSecondStart(startYearMonthArray[0] + "-" + (startYearMonthArray[1].length() == 1 ? "0" + startYearMonthArray[1] : startYearMonthArray[1]) + "-02");
+    		
+    		LocalDate lastDayOfCurrentMonth = start.with(TemporalAdjusters.lastDayOfMonth()); 
+	        ZonedDateTime zdt = lastDayOfCurrentMonth.atStartOfDay(zoneId);
+	        Date lastDayOfCurrentMonthDate = Date.from(zdt.toInstant());//同步年月的最后一天
+	        
+	        LocalDate firstDayOfNextMonth = start.plusMonths(1L).with(TemporalAdjusters.firstDayOfMonth()); 
+	        ZonedDateTime zdt1 = firstDayOfNextMonth.atStartOfDay(zoneId);
+	        Date firstDayOfNextMonthDate = Date.from(zdt1.toInstant());//同步年月的最后一天
+	        
+    		queryAccountPeriodDto.setAccountPeriodEnd(sdf.format(lastDayOfCurrentMonthDate));
+    		queryAccountPeriodDto.setNextAccountPeriodStart(sdf.format(firstDayOfNextMonthDate));
+        	
+    		queryAccountPeriodDto.setPageSize(null);
+    		resultList = crsAccountPeriodMapper.queryAccountPeriodByCondition(queryAccountPeriodDto);
+    		
+    		if (null != resultList && !resultList.isEmpty()) {
+    			//获取CRS中所有的bookings表的枚举类型
+    			List<CrsEnumsDto> crsEnumsDtoList = crsAccountPeriodMapper.queryCrsEnumByTableName("bookings");
+    			Map<String,Object> rateMap = new HashMap<String,Object>();
+    			String hotelIds = "";
+    			List<Integer> hotelIdList = resultList.stream().map(AccountPeriod::getHotelId).distinct().collect(Collectors.toList());
+    			for (int i = 0; i < hotelIdList.size(); i++) {
+    				Integer hotelId = hotelIdList.get(i);
+					if (i != hotelIdList.size() - 1) {
+						hotelIds += hotelId + ",";
+					} else {
+						hotelIds += hotelId;
+					}
+				}
+    			rateMap.put("hotelIds", hotelIds);
+    			//获取账期的汇率列表
+    			List<SyncCrsArAndApDto> rateList = syncCrsArAndApMapper.selectRateListByMap(rateMap);
+    			
+    			OyoShareDto info = new OyoShareDto();
+    			info.setIsTest("t");
+    			//过滤掉黑名单或测试酒店
+    			List<OyoShareDto> hotelExceptList = this.accountingOyoShareMapper.queryOyoShareList(info);
+    			if (null != hotelExceptList && !hotelExceptList.isEmpty()) {
+    				List<String> hotelIdHeiList = hotelExceptList.stream().map(OyoShareDto::getHotelId).collect(Collectors.toList());
+    				resultList = resultList.stream().filter(q->!hotelIdHeiList.contains(q.getHotelId().toString())).collect(Collectors.toList());
     			}
-        	}
-        	
-        	if (null != list && !list.isEmpty()) {
-        		resultList = crsAccountPeriodMapper.queryAccountPeriodByCondition(list);
-        		
-        		if (null != resultList && !resultList.isEmpty()) {
-        			//获取CRS中所有的bookings表的枚举类型
-        			List<CrsEnumsDto> crsEnumsDtoList = crsAccountPeriodMapper.queryCrsEnumByTableName("bookings");
-        			Map<String,Object> rateMap = new HashMap<String,Object>();
-        			String hotelIds = "";
-        			List<Integer> hotelIdList = resultList.stream().map(AccountPeriod::getHotelId).distinct().collect(Collectors.toList());
-        			for (int i = 0; i < hotelIdList.size(); i++) {
-        				Integer hotelId = hotelIdList.get(i);
-						if (i != hotelIdList.size() - 1) {
-							hotelIds += hotelId + ",";
+    			
+    			SimpleDateFormat sdfCheck = new SimpleDateFormat("yyyy-MM-dd");
+    			resultList.forEach(q->{
+    			    
+    			    Date checkInDate = null;
+    				Date checkOutDate = null;
+    				int days = 0;//总入住天数
+    				Date startDateOfAccountPeriodDate = null;
+    				Date endDateOfAccountPeriodDate = null;
+    				Integer checkInDays = 0;// 本期入住天数
+					try {
+						checkInDate = sdfCheck.parse(q.getCheckInDate());
+						checkOutDate = sdfCheck.parse(q.getCheckOutDate());
+        				days = (int) ((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));//总共入住天数
+						
+						startDateOfAccountPeriodDate = sdfCheck.parse(queryAccountPeriodDto.getAccountPeriodStart());
+						endDateOfAccountPeriodDate = sdfCheck.parse(queryAccountPeriodDto.getAccountPeriodEnd());
+						
+						//本账期开始日期
+						if (checkInDate.compareTo(startDateOfAccountPeriodDate) < 0) {
+	        			    q.setStartDateOfAccountPeriod(queryAccountPeriodDto.getAccountPeriodStart());
 						} else {
-							hotelIds += hotelId;
+	        			    q.setStartDateOfAccountPeriod(queryAccountPeriodDto.getCheckInDate());
 						}
-					}
-        			rateMap.put("hotelIds", hotelIds);
-        			//获取账期的汇率列表
-        			List<SyncCrsArAndApDto> rateList = syncCrsArAndApMapper.selectRateListByMap(rateMap);
-        			
-        			OyoShareDto info = new OyoShareDto();
-        			info.setIsTest("t");
-        			//过滤掉黑名单或测试酒店
-        			List<OyoShareDto> hotelExceptList = this.accountingOyoShareMapper.queryOyoShareList(info);
-        			
-        			resultList.forEach(q->{
-        				
-        				//替换表情符号为空
-        				q.setGuestName(q.getGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
-        				
-        				//订单渠道
-        				if (null != q.getOrderChannelCode()) {
-        					if (crsEnumsDtoList.stream().anyMatch(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(q.getOrderChannelCode()))) {
-        						q.setOrderChannel(crsEnumsDtoList.stream().filter(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(q.getOrderChannelCode())).collect(Collectors.toList()).get(0).getEnumVal());
-        					}
-        				} else {
-        					q.setOrderChannel("");
-        				}
-        				
-        				SimpleDateFormat sdfCheck = new SimpleDateFormat("yyyy-MM-dd");
-        				Date checkInDate = null;
-        				Date checkOutDate = null;
-        				int days = 0;
-						try {
-							checkInDate = sdfCheck.parse(q.getCheckInDate());
-							checkOutDate = sdfCheck.parse(q.getCheckOutDate());
-	        				days = (int) ((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));//总共入住天数
-						} catch (ParseException e) {
-							log.error("checkInDate or checkOutDate convert exception:{}",e);
+						
+						//本账期结束日期
+						if (checkOutDate.compareTo(endDateOfAccountPeriodDate) <= 0) {
+	        			    q.setEndDateOfAccountPeriod(queryAccountPeriodDto.getCheckOutDate());
+						} else {
+	        			    q.setEndDateOfAccountPeriod(queryAccountPeriodDto.getNextAccountPeriodStart());
 						}
-        				
-        				//计算房间价格 roomPrice
-        				if (q.getRoomsNumber() != null && q.getRoomsNumber().intValue() != 0 && days != 0) {
-        					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(days)), 2, BigDecimal.ROUND_HALF_UP));
-        				}
-        				
-        				//本月应结算总额（计算）,=房价*天数 currentMonthSettlementTotalAmountCompute
-        				if (null != q.getRoomPrice() && null != q.getCheckInDays()) {
-        					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(2, BigDecimal.ROUND_HALF_UP));
-        				} else {
-        					q.setCurrentMonthSettlementTotalAmountCompute(null);
-        				}
-        				
-        				//订单状态描述;
-        				if (q.getStatusCode() != null) {
-        					if (crsEnumsDtoList.stream().anyMatch(m->"status".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue())) {
-        						q.setStatusDesc(crsEnumsDtoList.stream().filter(m->"status".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue()).collect(Collectors.toList()).get(0).getEnumVal());
-        					}
-        				} else {
-        					q.setStatusDesc("");
-        				}
-        				
-        				//本月已用间夜数 currentMonthRoomsNumber
-        				q.setCurrentMonthRoomsNumber(q.getRoomsNumber() * q.getCheckInDays());
-        				
-        				//本月应结算总额 currentMonthSettlementTotalAmount
-        				q.setCurrentMonthSettlementTotalAmount(null); //待定
-        				
-        				//支付方式 paymentMethod
-        				if (StringUtils.isNotEmpty(q.getPaymentMethod())) {
-        					if (q.getPaymentMethod().startsWith("[")) {
-        						JSONArray arr = JSONArray.fromObject(q.getPaymentMethod());
-        						q.setPaymentMethod(arr.getJSONObject(0).getString("mode"));
-        					} else {
-        						JSONObject obj = JSONObject.fromObject(q.getPaymentMethod());
-            					if (null != obj) {
-            						q.setPaymentMethod(obj.getString("mode"));
-            					}
-        					}
-        				}  
-        				
-        				//支付类型（预付/后付费）paymentType
-        				if (StringUtils.isNotEmpty(q.getPaymentType())) {
-        					if (crsEnumsDtoList.stream().anyMatch(m->"payment_type".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.parseInt(q.getPaymentType())))) {
-        						q.setPaymentType(crsEnumsDtoList.stream().filter(m->"payment_type".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.parseInt(q.getPaymentType()))).collect(Collectors.toList()).get(0).getEnumVal());
-        					}
-        				}
-        				
-        				//本月匹配费率 currentMonthRate
-        				if (null != rateList && !rateList.isEmpty() && rateList.stream().anyMatch(m->m.getHotelId().equals(q.getHotelId()) && m.getRate() != null)) {
-        					BigDecimal rate = rateList.stream().filter(m->m.getHotelId().equals(q.getHotelId()) && m.getRate() != null).map(SyncCrsArAndApDto::getRate).collect(Collectors.toList()).get(0);
-        					q.setCurrentMonthRate(new BigDecimal("100").subtract(rate));
-        				}
-        				
-        				//OYO share
-        				if (q.getCurrentMonthRate() != null && q.getCurrentMonthRate().compareTo(BigDecimal.ZERO) > 0
-        					&& q.getCurrentMonthSettlementTotalAmountCompute() != null) {
-        					q.setOyoShare(q.getCurrentMonthSettlementTotalAmountCompute().multiply(q.getCurrentMonthRate()).setScale(2,BigDecimal.ROUND_HALF_UP));
-        				}
-        				
-        				//创建时间
-        				q.setCreateTime(new Date());
-        				
-        			});
-        			
-        			//先删除所选账期的数据,然后再插入所选账期数据
-        			for (QueryAccountPeriodDto q : list) {
-        				if (this.accountPeriodMapper.selectByAccountPeriod(q.getAccountPeriod()) > 0) {
-        					int deleteCount = this.accountPeriodMapper.deleteByAccountPeriod(q.getAccountPeriod());
-            				if (deleteCount < 1) {
-            					buf.append("Delete acccount period:'" + q.getAccountPeriod() + "' failed!<br/>");
-            					throw new Exception("Delete acccount period:'" + q.getAccountPeriod() + "' failed!");
-            				}
-        				} 
-        				
-        				List<AccountPeriod> accountPeriodList = resultList.stream().filter(t->t.getAccountPeriod().equals(q.getAccountPeriod())).collect(Collectors.toList());
-        				
-    				    //每1000条批量插入一次
-    	        		int len = (accountPeriodList.size() % 1000 == 0 ? accountPeriodList.size() / 1000 : ((accountPeriodList.size() / 1000) + 1));
-    	        		for (int i = 0; i < len; i++) {
-    	        			int startIndex = 0;
-    	        			int endIndex = 0;
-    	        			if (len <= 1) {
-    	        				endIndex = accountPeriodList.size();
-    	        			} else {
-    	        				startIndex = i * 1000;
-    	        				if (i == len - 1) {
-    	            				endIndex = accountPeriodList.size();
-    	            			} else {
-    	            				endIndex = (i + 1) * 1000;
-    	            			}
-    	        			}
-    	        			//批量插入所选账期数据
-    	        			int insertCount = this.accountPeriodMapper.insertBtach(accountPeriodList.subList(startIndex, endIndex));
-    	        			if (insertCount < 1) {
-        				    	buf.append("Insert acccount period:'" + q.getAccountPeriod() + "' failed!<br/>");
-        				    	throw new Exception("Insert acccount period:'" + q.getAccountPeriod() + "' failed");
-        				    }
-    	        			
-    	        		}
-    	        		
+        			    
+						// 本期入住天数
+						checkInDays = (int) ((endDateOfAccountPeriodDate.getTime() - startDateOfAccountPeriodDate.getTime()) / (1000 * 3600 * 24));//本期入住天数
+						
+        			    // 本期入住天数
+        			    q.setCheckInDays(checkInDays);
+						
+					} catch (ParseException e) {
+						log.error("Date convert exception:{}",e);
 					}
+    			    
+    				//替换表情符号为空
+    				q.setGuestName(q.getGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
+    				
+    				//订单渠道
+    				if (null != q.getOrderChannelCode()) {
+    					if (crsEnumsDtoList.stream().anyMatch(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(q.getOrderChannelCode()))) {
+    						q.setOrderChannel(crsEnumsDtoList.stream().filter(m->"source".equals(m.getColumnName()) && m.getEnumKey().equals(q.getOrderChannelCode())).collect(Collectors.toList()).get(0).getEnumVal());
+    					}
+    				} else {
+    					q.setOrderChannel("");
+    				}
+    				
+    				//计算房间价格 roomPrice
+    				if (q.getRoomsNumber() != null && q.getRoomsNumber().intValue() != 0 && days != 0) {
+    					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(days)), 2, BigDecimal.ROUND_HALF_UP));
+    				}
+    				
+    				//本月应结算总额（计算）,=房价*天数 currentMonthSettlementTotalAmountCompute
+    				if (null != q.getRoomPrice() && null != q.getCheckInDays()) {
+    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(2, BigDecimal.ROUND_HALF_UP));
+    				} else {
+    					q.setCurrentMonthSettlementTotalAmountCompute(null);
+    				}
+    				
+    				//订单状态描述;
+    				if (q.getStatusCode() != null) {
+    					if (crsEnumsDtoList.stream().anyMatch(m->"status".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue())) {
+    						q.setStatusDesc(crsEnumsDtoList.stream().filter(m->"status".equals(m.getColumnName()) && m.getEnumKey().intValue() == q.getStatusCode().intValue()).collect(Collectors.toList()).get(0).getEnumVal());
+    					}
+    				} else {
+    					q.setStatusDesc("");
+    				}
+    				
+    				//本月已用间夜数 currentMonthRoomsNumber
+    				q.setCurrentMonthRoomsNumber(q.getRoomsNumber() * q.getCheckInDays());
+    				
+    				//本月应结算总额 currentMonthSettlementTotalAmount
+    				q.setCurrentMonthSettlementTotalAmount(null); //待定
+    				
+    				//支付方式 paymentMethod
+    				if (StringUtils.isNotEmpty(q.getPaymentMethod())) {
+    					if (q.getPaymentMethod().startsWith("[")) {
+    						JSONArray arr = JSONArray.fromObject(q.getPaymentMethod());
+    						q.setPaymentMethod(arr.getJSONObject(0).getString("mode"));
+    					} else {
+    						JSONObject obj = JSONObject.fromObject(q.getPaymentMethod());
+        					if (null != obj) {
+        						q.setPaymentMethod(obj.getString("mode"));
+        					}
+    					}
+    				}  
+    				
+    				//支付类型（预付/后付费）paymentType
+    				if (StringUtils.isNotEmpty(q.getPaymentType())) {
+    					if (crsEnumsDtoList.stream().anyMatch(m->"payment_type".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.parseInt(q.getPaymentType())))) {
+    						q.setPaymentType(crsEnumsDtoList.stream().filter(m->"payment_type".equals(m.getColumnName()) && m.getEnumKey().equals(Integer.parseInt(q.getPaymentType()))).collect(Collectors.toList()).get(0).getEnumVal());
+    					}
+    				}
+    				
+    				//本月匹配费率 currentMonthRate
+    				if (null != rateList && !rateList.isEmpty() && rateList.stream().anyMatch(m->m.getHotelId().equals(q.getHotelId()) && m.getRate() != null)) {
+    					BigDecimal rate = rateList.stream().filter(m->m.getHotelId().equals(q.getHotelId()) && m.getRate() != null).map(SyncCrsArAndApDto::getRate).collect(Collectors.toList()).get(0);
+    					q.setCurrentMonthRate(new BigDecimal("100").subtract(rate));
+    				}
+    				
+    				//OYO share
+    				if (q.getCurrentMonthRate() != null && q.getCurrentMonthRate().compareTo(BigDecimal.ZERO) > 0
+    					&& q.getCurrentMonthSettlementTotalAmountCompute() != null) {
+    					q.setOyoShare(q.getCurrentMonthSettlementTotalAmountCompute().multiply(q.getCurrentMonthRate()).setScale(2,BigDecimal.ROUND_HALF_UP));
+    				}
+    				
+    				//创建时间
+    				q.setCreateTime(new Date());
+    				
+    			});
+    			
+    			if (this.accountPeriodMapper.selectByAccountPeriod(queryAccountPeriodDto.getAccountPeriod()) > 0) {
+    				//先删除所选账期的数据,然后再插入所选账期数据
+        			int deleteCount = this.accountPeriodMapper.deleteByAccountPeriod(queryAccountPeriodDto.getAccountPeriod());
+    				if (deleteCount < 1) {
+    					buf.append("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!<br/>");
+    					throw new Exception("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!");
+    				}
+    			}
+				
+			    //每1000条批量插入一次
+        		int len = (resultList.size() % 1000 == 0 ? resultList.size() / 1000 : ((resultList.size() / 1000) + 1));
+        		for (int i = 0; i < len; i++) {
+        			int startIndex = 0;
+        			int endIndex = 0;
+        			if (len <= 1) {
+        				endIndex = resultList.size();
+        			} else {
+        				startIndex = i * 1000;
+        				if (i == len - 1) {
+            				endIndex = resultList.size();
+            			} else {
+            				endIndex = (i + 1) * 1000;
+            			}
+        			}
+        			//批量插入所选账期数据
+        			int insertCount = this.accountPeriodMapper.insertBtach(resultList.subList(startIndex, endIndex));
+        			if (insertCount < 1) {
+				    	buf.append("Insert acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!<br/>");
+				    	throw new Exception("Insert acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed");
+				    }
         			
         		}
-        		
-        	}
+    			
+    		}
     	} catch (Exception e) {
     		log.info("Generate recon data throw exception:{}", e);
     		throw e;

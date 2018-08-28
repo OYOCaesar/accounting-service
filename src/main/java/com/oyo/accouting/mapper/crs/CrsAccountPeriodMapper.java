@@ -13,7 +13,7 @@ import com.oyo.accouting.pojo.AccountPeriod;
 public interface CrsAccountPeriodMapper {
 	
 	//条件查询CRS中账期信息
-	public List<AccountPeriod> queryAccountPeriodByCondition(@Param("list") List<QueryAccountPeriodDto> list);
+	public List<AccountPeriod> queryAccountPeriodByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
 	
 	//条件查询crs枚举类型
 	public List<CrsEnumsDto> queryCrsEnumByTableName(@Param("tableName") String tableName);
