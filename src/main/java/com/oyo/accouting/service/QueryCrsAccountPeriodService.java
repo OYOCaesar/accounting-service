@@ -182,9 +182,9 @@ public class QueryCrsAccountPeriodService {
     					q.setRoomPrice(q.getOrderTotalAmount().divide(new BigDecimal(q.getRoomsNumber()).multiply(new BigDecimal(days)), 2, BigDecimal.ROUND_HALF_UP));
     				}
     				
-    				//本月应结算总额（计算）,=房价*天数 currentMonthSettlementTotalAmountCompute
+    				//本月应结算总额（计算）,=房价*天数*客房数 currentMonthSettlementTotalAmountCompute
     				if (null != q.getRoomPrice() && null != q.getCheckInDays()) {
-    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getCheckInDays())).setScale(2, BigDecimal.ROUND_HALF_UP));
+    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getRoomsNumber())).multiply(new BigDecimal(q.getCheckInDays())).setScale(2, BigDecimal.ROUND_HALF_UP));
     				} else {
     					q.setCurrentMonthSettlementTotalAmountCompute(null);
     				}
@@ -233,7 +233,7 @@ public class QueryCrsAccountPeriodService {
     				//OYO share
     				if (q.getCurrentMonthRate() != null && q.getCurrentMonthRate().compareTo(BigDecimal.ZERO) > 0
     					&& q.getCurrentMonthSettlementTotalAmountCompute() != null) {
-    					q.setOyoShare(q.getCurrentMonthSettlementTotalAmountCompute().multiply(q.getCurrentMonthRate()).setScale(2,BigDecimal.ROUND_HALF_UP));
+    					q.setOyoShare(q.getCurrentMonthSettlementTotalAmountCompute().multiply(q.getCurrentMonthRate()).multiply(new BigDecimal("0.01")).setScale(2,BigDecimal.ROUND_HALF_UP));
     				}
     				
     				//创建时间
