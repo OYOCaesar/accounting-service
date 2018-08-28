@@ -33,7 +33,6 @@ import com.oyo.accouting.mapper.accounting.AccountingOyoShareMapper;
 import com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountPeriodMapper;
 import com.oyo.accouting.pojo.AccountPeriod;
-import com.oyo.accouting.pojo.OyoShare;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -72,7 +71,6 @@ public class QueryCrsAccountPeriodService {
         	
         	ZoneId zoneId = ZoneId.systemDefault();
         	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        	List<QueryAccountPeriodDto> list = new ArrayList<QueryAccountPeriodDto>();
         	String startYearAndMonthQuery = queryAccountPeriodDto.getStartYearAndMonthQuery();//开始账期
         	String[] startYearMonthArray = startYearAndMonthQuery.split("-");
         	LocalDate start = LocalDate.of(Integer.valueOf(startYearMonthArray[0]), Integer.valueOf(startYearMonthArray[1]), 1);

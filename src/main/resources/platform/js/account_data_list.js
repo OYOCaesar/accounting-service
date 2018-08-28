@@ -21,7 +21,7 @@ var Datatable_expRemoteAjaxDemo = function () {
         source: {
           read: {
             // sample GET method
-            method: 'GET',
+            method: 'GET',//
             url: url,
             map: function (raw) {
               return raw;
@@ -101,6 +101,14 @@ var Datatable_expRemoteAjaxDemo = function () {
       region = $("#region").val();
       city = $("#city").val();
       hotelName = $("#hotelName").val();
+      if (!startYearAndMonthQuery) {
+		  alert("请选择开始账期！");
+		  return;
+	  }
+	  if (!endYearAndMonthQuery) {
+		  alert("请选择结束账期！");
+		  return;
+	  }
   }
  
   //查询
@@ -118,6 +126,11 @@ var Datatable_expRemoteAjaxDemo = function () {
 	  t.preventDefault();
 
 	  setParamValues();
+	  
+	  if (startYearAndMonthQuery != endYearAndMonthQuery) {
+		  alert("请选择相同账期！");
+		  return;
+	  }
 
 	  location.href = '/queryCrsAccountPeriod/exportSummaryStatistics?startYearAndMonthQuery=' + startYearAndMonthQuery
 				    + '&endYearAndMonthQuery=' + endYearAndMonthQuery
@@ -134,6 +147,11 @@ var Datatable_expRemoteAjaxDemo = function () {
 	  t.preventDefault();
 
 	  setParamValues();
+	  
+	  if (startYearAndMonthQuery != endYearAndMonthQuery) {
+		  alert("请选择相同账期！");
+		  return;
+	  }
 
 	  location.href = '/queryCrsAccountPeriod/exportMerchantAccount?startYearAndMonthQuery=' + startYearAndMonthQuery
 					+ '&endYearAndMonthQuery=' + endYearAndMonthQuery
@@ -150,6 +168,11 @@ var Datatable_expRemoteAjaxDemo = function () {
 	  t.preventDefault();
 		
 	  setParamValues();
+	  
+	  if (startYearAndMonthQuery != endYearAndMonthQuery) {
+		  alert("请选择相同账期！");
+		  return;
+	  }
 		
 	  location.href = '/queryCrsAccountPeriod/exportDetails?startYearAndMonthQuery=' + startYearAndMonthQuery
 				    + '&endYearAndMonthQuery=' + endYearAndMonthQuery
@@ -164,6 +187,13 @@ var Datatable_expRemoteAjaxDemo = function () {
   //生成recon数据
   $("#m_generate_recon_btn").on("click", function (t) {
       t.preventDefault();
+      
+      setParamValues();
+	  
+	  if (startYearAndMonthQuery != endYearAndMonthQuery) {
+		  alert("请选择相同账期！");
+		  return;
+	  }
       
       $.ajax({
 		    url:'/queryCrsAccountPeriod/generateRecon',
