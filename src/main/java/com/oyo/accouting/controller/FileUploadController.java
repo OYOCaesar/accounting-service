@@ -102,7 +102,9 @@ public class FileUploadController {
 	    String downFileName =new String("费率表".getBytes("gbk"), "iso8859-1");
 
 	    try {
-            List list = this.oyoShareService.queryOyoShare(new OyoShareDto());
+            OyoShareDto osd = new OyoShareDto();
+            osd.setIsTest("f");
+            List list = this.oyoShareService.queryOyoShare(osd);
             ApnExcelParseTool.exportExcel(filePath, downFileName, response, list,OyoShareDto.class);
         }catch(Exception e){
 	        e.printStackTrace();
