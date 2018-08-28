@@ -134,26 +134,29 @@ public class QueryCrsAccountPeriodService {
 						checkInDate = sdfCheck.parse(q.getCheckInDate());
 						checkOutDate = sdfCheck.parse(q.getCheckOutDate());
         				days = (int) ((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));//总共入住天数
-						
-						startDateOfAccountPeriodDate = sdfCheck.parse(queryAccountPeriodDto.getAccountPeriodStart());
-						endDateOfAccountPeriodDate = sdfCheck.parse(queryAccountPeriodDto.getAccountPeriodEnd());
+        				
+						startDateOfAccountPeriodDate = sdfCheck.parse(queryAccountPeriodDto.getAccountPeriodStart());//账期查询开始日期（日期类型）
+						endDateOfAccountPeriodDate = sdfCheck.parse(queryAccountPeriodDto.getAccountPeriodEnd());//账期查询结束日期（日期类型）
 						
 						//本账期开始日期
 						if (checkInDate.compareTo(startDateOfAccountPeriodDate) < 0) {
 	        			    q.setStartDateOfAccountPeriod(queryAccountPeriodDto.getAccountPeriodStart());
 						} else {
-	        			    q.setStartDateOfAccountPeriod(queryAccountPeriodDto.getCheckInDate());
+	        			    q.setStartDateOfAccountPeriod(q.getCheckInDate());
 						}
 						
 						//本账期结束日期
 						if (checkOutDate.compareTo(endDateOfAccountPeriodDate) <= 0) {
-	        			    q.setEndDateOfAccountPeriod(queryAccountPeriodDto.getCheckOutDate());
+	        			    q.setEndDateOfAccountPeriod(q.getCheckOutDate());
 						} else {
 	        			    q.setEndDateOfAccountPeriod(queryAccountPeriodDto.getNextAccountPeriodStart());
 						}
         			    
+						Date startDateOfAccountPeriodDateComputer = sdfCheck.parse(q.getStartDateOfAccountPeriod());//账期开始日期（日期类型）
+						Date endDateOfAccountPeriodDateComputer = sdfCheck.parse(q.getEndDateOfAccountPeriod());//账期结束日期（日期类型）
+						
 						// 本期入住天数
-						checkInDays = (int) ((endDateOfAccountPeriodDate.getTime() - startDateOfAccountPeriodDate.getTime()) / (1000 * 3600 * 24));//本期入住天数
+						checkInDays = (int) ((endDateOfAccountPeriodDateComputer.getTime() - startDateOfAccountPeriodDateComputer.getTime()) / (1000 * 3600 * 24));//本期入住天数
 						
         			    // 本期入住天数
         			    q.setCheckInDays(checkInDays);
