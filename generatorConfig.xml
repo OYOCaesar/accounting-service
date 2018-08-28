@@ -16,7 +16,7 @@
  
 			<!-- 数据库链接URL、用户名、密码 -->
 			<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-				connectionURL="jdbc:mysql://accounting-service.ckdb8i72sy2s.rds.cn-north-1.amazonaws.com.cn:3306/accounting" userId="root" password="welcome1">
+				connectionURL="jdbc:mysql://accounting-service.cy8was0ngyna.rds.cn-north-1.amazonaws.com.cn:3306/accounting" userId="root" password="accountdb">
 			</jdbcConnection>
  
 			<!-- 默认false，把JDBC DECIMAL 和 NUMERIC 类型解析为 Integer true，把JDBC DECIMAL 
@@ -49,7 +49,7 @@
  
  
 			<!-- 列出要生成代码的所有表，这里配置的是不生成Example文件 -->
-			<table tableName="account_period" domainObjectName="AccountPeriod"
+			<table tableName="deductions" domainObjectName="Deductions"
 				enableCountByExample="false" enableUpdateByExample="false"
 				enableDeleteByExample="false" enableSelectByExample="false"
 				selectByExampleQueryId="false">

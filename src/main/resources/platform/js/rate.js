@@ -5,7 +5,7 @@ var Datatable_expRemoteAjaxDemo = function () {
   //== Private functions
   var demo_exp = function () {
 
-    var url = '../oyoShare/oyoShareList?city=' + city+"&status="+status+"&hotelName="+hotelName+"&batch="+batch;
+    var url = '../oyoShare/oyoShareList?city=' + city+"&status="+status+"&hotelName="+hotelName+"&batch="+batch+"&validDate="+validDate;
     datatable_exp = $('.m_datatable_exception').mDatatable({
       // datasource definition
       data: {
@@ -51,14 +51,15 @@ var Datatable_expRemoteAjaxDemo = function () {
         // 表列定义
         columns:[
             {field:'id',title:'id'},
+            {field:'validDate',title:'有效时间'},
             {field:'hotelId',title:'hotelId'},
             {field:'uniqueCode',title:'uniqueCode'},
             {field:'oyoId',title:'oyoId'},
             {field:'hotelName',title:'hotelName'},
             {field:'city',title:'city'},
-            {field:'zoneName',title:'zoneName'},
+            {field:'zoneName',title:'区域'},
             {field:'fixedRate',title:'fixedRate'},
-            {field:'status',title:'status'},
+            {field:'status',title:'状态'},
             {field:'oyoShare',title:'oyoShare'}
         ],
     });
@@ -86,10 +87,10 @@ var Datatable_expRemoteAjaxDemo = function () {
           e[a] ? e[a] += "|" + $(this).val() : e[a] = $(this).val();
           hotelName = e[a];
       }
-      /**if (a == 3) {
+      if (a == 3) {
           e[a] ? e[a] += "|" + $(this).val() : e[a] = $(this).val();
-          batch = e[a];
-      }*/
+          validDate = e[a];
+      }
     });
     demo_exp();
   });
@@ -102,7 +103,7 @@ var Datatable_expRemoteAjaxDemo = function () {
   };
 }();
 
-var status="",city = "",hotelName="",batch="";
+var status="",city = "",hotelName="",batch="",validDate="";
 
 jQuery(document).ready(function () {
 

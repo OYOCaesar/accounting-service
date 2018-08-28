@@ -71,4 +71,12 @@ public class OyoBmsController {
 
         return "test_hotel_list";
     }
+
+    @RequestMapping("/jobManager")
+    String jobManager() {
+
+        return "JobManager";
+    }
+
+
 }

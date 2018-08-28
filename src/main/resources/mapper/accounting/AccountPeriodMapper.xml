@@ -735,10 +735,10 @@
 		AND account_period <![CDATA[<=]]> #{endYearAndMonthQuery}
 	 </if>
 	 <if test="checkInDate != null and checkInDate != ''">
-		AND check_in_date = to_date(#{checkInDate},'YYYY-MM-DD')
+		AND check_in_date = str_to_date(#{checkInDate}, '%Y-%m-%d')
 	 </if>
 	 <if test="checkOutDate != null and checkOutDate != ''">
-		AND check_out_date = to_date(#{checkOutDate},'YYYY-MM-DD')
+		AND check_out_date = str_to_date(#{checkOutDate}, '%Y-%m-%d')
 	 </if>
      <if test="orderNo != null and orderNo != ''">
 		AND order_no like CONCAT(CONCAT('%',#{orderNo}),'%')
@@ -799,10 +799,10 @@
 		AND account_period <![CDATA[<=]]> #{endYearAndMonthQuery}
 	 </if>
 	 <if test="checkInDate != null and checkInDate != ''">
-		AND check_in_date = to_date(#{checkInDate},'YYYY-MM-DD')
+		AND check_in_date = str_to_date(#{checkInDate}, '%Y-%m-%d')
 	 </if>
 	 <if test="checkOutDate != null and checkOutDate != ''">
-		AND check_out_date = to_date(#{checkOutDate},'YYYY-MM-DD')
+		AND check_out_date = str_to_date(#{checkOutDate}, '%Y-%m-%d')
 	 </if>
      <if test="orderNo != null and orderNo != ''">
 		AND order_no like CONCAT(CONCAT('%',#{orderNo}),'%')

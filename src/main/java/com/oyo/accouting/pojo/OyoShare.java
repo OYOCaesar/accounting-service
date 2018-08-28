@@ -2,7 +2,6 @@ package com.oyo.accouting.pojo;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.Table;
 
@@ -27,5 +26,7 @@ public class OyoShare {
   private String batch;
 
   private String testing;
+
+  private String validDate;
 
 }

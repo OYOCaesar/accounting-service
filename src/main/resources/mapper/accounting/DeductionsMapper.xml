@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oyo.accouting.mapper.accounting.DeductionsMapper">
+  <resultMap id="BaseResultMap" type="com.oyo.accouting.bean.DeductionsDto">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+    <result column="account_period" jdbcType="VARCHAR" property="accountPeriod" />
+    <result column="temp_mem_promotion_fee" jdbcType="DECIMAL" property="tempMemPromotionFee" />
+    <result column="praise_platform_promotion_fee" jdbcType="DECIMAL" property="praisePlatformPromotionFee" />
+    <result column="flying_pigs_platform_promotion_fee" jdbcType="DECIMAL" property="flyingPigsPlatformPromotionFee" />
+    <result column="new_activity_a" jdbcType="DECIMAL" property="newActivityA" />
+    <result column="new_activity_b" jdbcType="DECIMAL" property="newActivityB" />
+    <result column="new_activity_c" jdbcType="DECIMAL" property="newActivityC" />
+    <result column="current_month_received_oyo_commission" jdbcType="DECIMAL" property="currentMonthReceivedOyoCommission" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    id, hotel_id, account_period, temp_mem_promotion_fee, praise_platform_promotion_fee, flying_pigs_platform_promotion_fee, 
+    new_activity_a, new_activity_b, new_activity_c, current_month_received_oyo_commission, 
+    create_time
+  </sql>
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from deductions
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from deductions
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.oyo.accouting.pojo.Deductions">
+    insert into deductions (id, hotel_id, account_period,temp_mem_promotion_fee, 
+      praise_platform_promotion_fee, flying_pigs_platform_promotion_fee, 
+      new_activity_a, new_activity_b, new_activity_c, 
+      current_month_received_oyo_commission, create_time
+      )
+    values (#{id,jdbcType=INTEGER}, #{hotelId,jdbcType=INTEGER}, #{accountPeriod,jdbcType=VARCHAR}, #{tempMemPromotionFee,jdbcType=DECIMAL}, 
+      #{praisePlatformPromotionFee,jdbcType=DECIMAL}, #{flyingPigsPlatformPromotionFee,jdbcType=DECIMAL}, 
+      #{newActivityA,jdbcType=DECIMAL}, #{newActivityB,jdbcType=DECIMAL}, #{newActivityC,jdbcType=DECIMAL}, 
+      #{currentMonthReceivedOyoCommission,jdbcType=DECIMAL}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.oyo.accouting.pojo.Deductions">
+    insert into deductions
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="hotelId != null">
+        hotel_id,
+      </if>
+      <if test="accountPeriod != null">
+        account_period,
+      </if>
+      <if test="tempMemPromotionFee != null">
+        temp_mem_promotion_fee,
+      </if>
+      <if test="praisePlatformPromotionFee != null">
+        praise_platform_promotion_fee,
+      </if>
+      <if test="flyingPigsPlatformPromotionFee != null">
+        flying_pigs_platform_promotion_fee,
+      </if>
+      <if test="newActivityA != null">
+        new_activity_a,
+      </if>
+      <if test="newActivityB != null">
+        new_activity_b,
+      </if>
+      <if test="newActivityC != null">
+        new_activity_c,
+      </if>
+      <if test="currentMonthReceivedOyoCommission != null">
+        current_month_received_oyo_commission,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="hotelId != null">
+        #{hotelId,jdbcType=INTEGER},
+      </if>
+      <if test="accountPeriod != null">
+        #{accountPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="tempMemPromotionFee != null">
+        #{tempMemPromotionFee,jdbcType=DECIMAL},
+      </if>
+      <if test="praisePlatformPromotionFee != null">
+        #{praisePlatformPromotionFee,jdbcType=DECIMAL},
+      </if>
+      <if test="flyingPigsPlatformPromotionFee != null">
+        #{flyingPigsPlatformPromotionFee,jdbcType=DECIMAL},
+      </if>
+      <if test="newActivityA != null">
+        #{newActivityA,jdbcType=DECIMAL},
+      </if>
+      <if test="newActivityB != null">
+        #{newActivityB,jdbcType=DECIMAL},
+      </if>
+      <if test="newActivityC != null">
+        #{newActivityC,jdbcType=DECIMAL},
+      </if>
+      <if test="currentMonthReceivedOyoCommission != null">
+        #{currentMonthReceivedOyoCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.oyo.accouting.pojo.Deductions">
+    update deductions
+    <set>
+      <if test="hotelId != null">
+        hotel_id = #{hotelId,jdbcType=INTEGER},
+      </if>
+      <if test="accountPeriod != null">
+        account_period = #{accountPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="tempMemPromotionFee != null">
+        temp_mem_promotion_fee = #{tempMemPromotionFee,jdbcType=DECIMAL},
+      </if>
+      <if test="praisePlatformPromotionFee != null">
+        praise_platform_promotion_fee = #{praisePlatformPromotionFee,jdbcType=DECIMAL},
+      </if>
+      <if test="flyingPigsPlatformPromotionFee != null">
+        flying_pigs_platform_promotion_fee = #{flyingPigsPlatformPromotionFee,jdbcType=DECIMAL},
+      </if>
+      <if test="newActivityA != null">
+        new_activity_a = #{newActivityA,jdbcType=DECIMAL},
+      </if>
+      <if test="newActivityB != null">
+        new_activity_b = #{newActivityB,jdbcType=DECIMAL},
+      </if>
+      <if test="newActivityC != null">
+        new_activity_c = #{newActivityC,jdbcType=DECIMAL},
+      </if>
+      <if test="currentMonthReceivedOyoCommission != null">
+        current_month_received_oyo_commission = #{currentMonthReceivedOyoCommission,jdbcType=DECIMAL},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.oyo.accouting.pojo.Deductions">
+    update deductions
+    set hotel_id = #{hotelId,jdbcType=INTEGER},
+      account_period = #{accountPeriod,jdbcType=VARCHAR},
+      temp_mem_promotion_fee = #{tempMemPromotionFee,jdbcType=DECIMAL},
+      praise_platform_promotion_fee = #{praisePlatformPromotionFee,jdbcType=DECIMAL},
+      flying_pigs_platform_promotion_fee = #{flyingPigsPlatformPromotionFee,jdbcType=DECIMAL},
+      new_activity_a = #{newActivityA,jdbcType=DECIMAL},
+      new_activity_b = #{newActivityB,jdbcType=DECIMAL},
+      new_activity_c = #{newActivityC,jdbcType=DECIMAL},
+      current_month_received_oyo_commission = #{currentMonthReceivedOyoCommission,jdbcType=DECIMAL},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 手工添加的 -->
+  <!-- 根据hotel_id查询相关扣除费用 -->
+  <select id="selectByHotelId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from deductions
+    <where>
+        <if test="hotelId != null">
+            and hotel_id = #{hotelId,jdbcType=INTEGER}
+        </if>
+        <if test="accountPeriod != null and accountPeriod != ''">
+            and account_period = #{accountPeriod,jdbcType=VARCHAR}
+        </if>
+    </where>
+  </select>
+  
+  <!-- 根据账期查询扣除费用列表 -->
+  <select id="selectListByAccountPeriod" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from deductions
+    <where>
+        <if test="accountPeriod != null and accountPeriod != ''">
+            and account_period = #{accountPeriod,jdbcType=VARCHAR}
+        </if>
+    </where>
+  </select>
+  
+</mapper>

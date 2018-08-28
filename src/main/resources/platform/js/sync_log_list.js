@@ -52,7 +52,13 @@ var Datatable_expRemoteAjaxDemo = function () {
             {field:'id', title:'id'},
             {field:'sourceId',title:'sourceId'},
             {field:'type',title:'同步数据类型'},
-            {field:'status',title:'同步状态'},
+            {field:'status',title:'同步状态',template: function (row) {
+                    var status = {
+                        '0': {'title': '同步状态', 'status': '成功'},
+                        '-1': {'title': '同步状态', 'status': '失败'}
+                    };
+                    return  '<span class="m-badge m-badge--dot"></span>&nbsp;<span class="m--font-bold">' + status[row.status].status + '</span>';
+                }},
             {field:'message',title:'同步结果'},
             {field:'batch',title:'同步批次'},
             {field:'jsonData',title:'同步的数据',width:500}

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author zfguo
@@ -62,12 +63,19 @@ public class SyncHotelToSapService {
         searchHotel.setCountry("China");
         List<HotelDto> hotelList = this.crsHotelMapper.queryHotelList(searchHotel);
 
+        OyoShareDto oyoShareDto = new OyoShareDto();
+        oyoShareDto.setIsTest("t");
+        List<OyoShareDto> testHotelList = accountingOyoShareMapper.queryOyoShareList(oyoShareDto);
+        Set<String> testHotelSet = testHotelList.stream().map(OyoShareDto::getHotelId).collect(Collectors.toSet());
+
         JaxWsProxyFactoryBean jwpfb = new JaxWsProxyFactoryBean();
         jwpfb.setServiceClass(SAPWebServiceSoap.class);
         jwpfb.setAddress("http://52.80.99.224:8080/SAPWebService.asmx");
         SAPWebServiceSoap s = (SAPWebServiceSoap) jwpfb.create();
 
         for (HotelDto h : hotelList) {
+
+            if(testHotelSet.contains(h.getId()))continue;
 
             //1 准备数据
             //查询AccountDetails
