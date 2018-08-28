@@ -1,6 +1,5 @@
 package com.oyo.accouting.util;
 
-import com.oyo.accouting.bean.OyoShareDto;
 import com.oyo.accouting.pojo.OyoShare;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
@@ -119,6 +118,7 @@ public class ApnExcelParseTool {
    private static String regexMethodName(String str){
 
        try {
+           str = str.replaceAll("(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Oct|Nov|Dec)","").trim();
            Pattern p = Pattern.compile("[^a-zA-Z_ ]");
            Matcher m = p.matcher(str);
            boolean hasInvalid = m.find();
@@ -280,9 +280,6 @@ public class ApnExcelParseTool {
                     }
                     Pattern p2 = Pattern.compile(fieldReg);
                     Matcher m2 = p2.matcher(value);
-                    if("#{status}".equals(value)){
-                        int dd =1;
-                    }
                     if(m2.find()){
                         String field = value.substring(2,value.length()-1);
                         if(StringUtils.isEmpty(field)){
@@ -333,7 +330,7 @@ public class ApnExcelParseTool {
         }catch (Exception e){
             e.printStackTrace();
         }
-        System.out.println();
+        System.out.println("Jun OYO".replaceAll("(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Oct|Nov|Dec)","").trim());
     }
 
 }

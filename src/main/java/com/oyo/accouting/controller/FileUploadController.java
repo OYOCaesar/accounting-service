@@ -66,6 +66,7 @@ public class FileUploadController {
             	OyoShare oyoShare = (OyoShare) o;
                 oyoShare.setIsTest(isTest);
                 oyoShare.setBatch(batch);
+                oyoShare.setZoneName(oyoShare.getZone());
             	if(!StringUtils.isEmpty(oyoShare.getOyoShare())){
             	    double d = Double.valueOf(oyoShare.getOyoShare());
             	    oyoShare.setOyoShare(String.format("%.2f",d));

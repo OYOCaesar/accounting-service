@@ -26,5 +26,16 @@ public class OyoShareDto {
   private String testing;
 
   private String validDate;
+
+
+  private String zone;
+
+  private String le;
+
+  private String propertyId;
+
+  private String rateType;
+
+  private String rateRemarks;
   
 }
