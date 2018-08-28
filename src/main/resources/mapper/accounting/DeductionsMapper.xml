@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.oyo.accouting.pojo.Deductions">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="hotel_id" jdbcType="INTEGER" property="hotelId" />
+    <result column="account_period" jdbcType="VARCHAR" property="accountPeriod" />
     <result column="temp_mem_promotion_fee" jdbcType="DECIMAL" property="tempMemPromotionFee" />
     <result column="praise_platform_promotion_fee" jdbcType="DECIMAL" property="praisePlatformPromotionFee" />
     <result column="flying_pigs_platform_promotion_fee" jdbcType="DECIMAL" property="flyingPigsPlatformPromotionFee" />
@@ -15,7 +16,7 @@
   </resultMap>
   
   <sql id="Base_Column_List">
-    id, hotel_id, temp_mem_promotion_fee, praise_platform_promotion_fee, flying_pigs_platform_promotion_fee, 
+    id, hotel_id, account_period, temp_mem_promotion_fee, praise_platform_promotion_fee, flying_pigs_platform_promotion_fee, 
     new_activity_a, new_activity_b, new_activity_c, current_month_received_oyo_commission, 
     create_time
   </sql>
@@ -33,12 +34,12 @@
   </delete>
   
   <insert id="insert" parameterType="com.oyo.accouting.pojo.Deductions">
-    insert into deductions (id, hotel_id, temp_mem_promotion_fee, 
+    insert into deductions (id, hotel_id, account_period,temp_mem_promotion_fee, 
       praise_platform_promotion_fee, flying_pigs_platform_promotion_fee, 
       new_activity_a, new_activity_b, new_activity_c, 
       current_month_received_oyo_commission, create_time
       )
-    values (#{id,jdbcType=INTEGER}, #{hotelId,jdbcType=INTEGER}, #{tempMemPromotionFee,jdbcType=DECIMAL}, 
+    values (#{id,jdbcType=INTEGER}, #{hotelId,jdbcType=INTEGER}, #{accountPeriod,jdbcType=VARCHAR}, #{tempMemPromotionFee,jdbcType=DECIMAL}, 
       #{praisePlatformPromotionFee,jdbcType=DECIMAL}, #{flyingPigsPlatformPromotionFee,jdbcType=DECIMAL}, 
       #{newActivityA,jdbcType=DECIMAL}, #{newActivityB,jdbcType=DECIMAL}, #{newActivityC,jdbcType=DECIMAL}, 
       #{currentMonthReceivedOyoCommission,jdbcType=DECIMAL}, #{createTime,jdbcType=TIMESTAMP}
@@ -53,6 +54,9 @@
       </if>
       <if test="hotelId != null">
         hotel_id,
+      </if>
+      <if test="accountPeriod != null">
+        account_period,
       </if>
       <if test="tempMemPromotionFee != null">
         temp_mem_promotion_fee,
@@ -85,6 +89,9 @@
       </if>
       <if test="hotelId != null">
         #{hotelId,jdbcType=INTEGER},
+      </if>
+      <if test="accountPeriod != null">
+        #{accountPeriod,jdbcType=VARCHAR},
       </if>
       <if test="tempMemPromotionFee != null">
         #{tempMemPromotionFee,jdbcType=DECIMAL},
@@ -119,6 +126,9 @@
       <if test="hotelId != null">
         hotel_id = #{hotelId,jdbcType=INTEGER},
       </if>
+      <if test="accountPeriod != null">
+        account_period = #{accountPeriod,jdbcType=VARCHAR},
+      </if>
       <if test="tempMemPromotionFee != null">
         temp_mem_promotion_fee = #{tempMemPromotionFee,jdbcType=DECIMAL},
       </if>
@@ -150,6 +160,7 @@
   <update id="updateByPrimaryKey" parameterType="com.oyo.accouting.pojo.Deductions">
     update deductions
     set hotel_id = #{hotelId,jdbcType=INTEGER},
+      account_period = #{accountPeriod,jdbcType=VARCHAR},
       temp_mem_promotion_fee = #{tempMemPromotionFee,jdbcType=DECIMAL},
       praise_platform_promotion_fee = #{praisePlatformPromotionFee,jdbcType=DECIMAL},
       flying_pigs_platform_promotion_fee = #{flyingPigsPlatformPromotionFee,jdbcType=DECIMAL},
@@ -167,7 +178,14 @@
     select 
     <include refid="Base_Column_List" />
     from deductions
-    where hotel_id = #{hotelId,jdbcType=INTEGER}
+    <where>
+        <if test="hotelId != null">
+            and hotel_id = #{hotelId,jdbcType=INTEGER}
+        </if>
+        <if test="accountPeriod != null and accountPeriod != ''">
+            and account_period = #{accountPeriod,jdbcType=VARCHAR}
+        </if>
+    </where>
   </select>  
   
 </mapper>
