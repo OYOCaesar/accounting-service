@@ -20,8 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.oyo.accouting.bean.AccountPeriodDto;
+import com.oyo.accouting.bean.DeductionsDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
 import com.oyo.accouting.job.SyncArAndApJob;
 import com.oyo.accouting.pojo.Deductions;
@@ -94,6 +97,8 @@ public class QueryCrsAccountPeriodController {
 			ByteArrayOutputStream out = null;
 			InputStream inputStream = null;
 			String excelFileName = "";//excel文件名
+			//查询指定账期的扣除费用列表
+			List<DeductionsDto> deductionsList = deductionsService.selectListByAccountPeriod(queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", ""));
 			Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
     			List<AccountPeriodDto> eachList = entry.getValue();
@@ -126,35 +131,40 @@ public class QueryCrsAccountPeriodController {
     			XSSFCell ownerPayCell = sheet1.getRow(12).getCell(2);
     			ownerPayCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP).toString());// //6. 本月业主应支付OYO金额
     			
-    			//如果是当前月那么就计算附表中的扣除费用
-    			LocalDate localDate = LocalDate.now();
-    			String currentYearMonth = localDate.getYear() + "" + (localDate.getMonthValue() < 10 ? "0" + localDate.getMonthValue() : localDate.getMonthValue());
-    			if (currentYearMonth.equals(queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", ""))) {
-    				
-    				Deductions deductions = deductionsService.selectByHotelId(eachList.get(0).getHotelId());
-    				
+    			if (null != deductionsList && !deductionsList.isEmpty() && 
+    					deductionsList.stream().anyMatch(q->q.getHotelId().equals(eachList.get(0).getHotelId()))) {
+    				DeductionsDto deductions = deductionsList.stream().filter(q->q.getHotelId().equals(eachList.get(0).getHotelId())).collect(Collectors.toList()).get(0);
     				if (null != deductions) {
     					//设置附表中的扣除费用
             			XSSFSheet sheetAppendix = workBook.getSheet("附表");
+            			
+            			XSSFCellStyle cellStyle = workBook.createCellStyle();
+                        cellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("0.00"));
+                        
             			XSSFCell tempMemPromotionFeeCell = sheetAppendix.getRow(3).getCell(2);
             			tempMemPromotionFeeCell.setCellValue(null != deductions.getTempMemPromotionFee() ? deductions.getTempMemPromotionFee().toString() : "");//tempMemPromotionFee
+            			//tempMemPromotionFeeCell.setCellStyle(cellStyle);
             			
             			XSSFCell praisePlatformPromotionFeeCell = sheet1.getRow(4).getCell(2);
             			praisePlatformPromotionFeeCell.setCellValue(null != deductions.getPraisePlatformPromotionFee() ? deductions.getPraisePlatformPromotionFee().toString() : "");//praisePlatformPromotionFee
+            			//praisePlatformPromotionFeeCell.setCellStyle(cellStyle);
             			
             			XSSFCell flyingPigsPlatformPromotionFeeCell = sheet1.getRow(5).getCell(2);
             			flyingPigsPlatformPromotionFeeCell.setCellValue(null != deductions.getFlyingPigsPlatformPromotionFee() ? deductions.getFlyingPigsPlatformPromotionFee().toString() : "");//flyingPigsPlatformPromotionFee
+            			flyingPigsPlatformPromotionFeeCell.setCellStyle(cellStyle);
             			
             			XSSFCell newActivityACell = sheet1.getRow(6).getCell(2);
             			newActivityACell.setCellValue(null != deductions.getNewActivityA() ? deductions.getNewActivityA().toString() : "");//newActivityA
+            			//newActivityACell.setCellStyle(cellStyle);
             			
             			XSSFCell newActivityBCell = sheet1.getRow(7).getCell(2);
             			newActivityBCell.setCellValue(null != deductions.getNewActivityB() ? deductions.getNewActivityB().toString() : "");//newActivityBCell
+            			//newActivityBCell.setCellStyle(cellStyle);
             			
             			XSSFCell newActivityCCell = sheet1.getRow(8).getCell(2);
             			newActivityCCell.setCellValue(null != deductions.getNewActivityC() ? deductions.getNewActivityC().toString() : "");//newActivityCCell
+            			//newActivityCCell.setCellStyle(cellStyle);
     				}
-        			
     			}
     			
     			//写CRS明细数据
