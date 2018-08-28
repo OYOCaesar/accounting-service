@@ -25,6 +25,8 @@
         <result column="period_start_date" property="startDateOfAccountPeriod" />
         <result column="period_end_date" property="endDateOfAccountPeriod" />
         <result column="check_in_days" property="checkInDays" />
+        <result column="booking_guest_name" property="bookingGuestName" /><!-- 预定人名称 -->
+        <result column="booking_secondary_guest_name" property="bookingSecondaryGuestName" /><!-- /预定人名称2 -->
     </resultMap>
     
     <resultMap id="BaseResultMapCrsEnum" type="com.oyo.accouting.bean.CrsEnumsDto" >
@@ -44,6 +46,8 @@
 		h.name hotel_name,
 		A.invoice_no order_no,
 		(select CONCAT(B.last_name,B.first_name) from user_profiles b where A.guest_id = B.id) guest_name,
+		(select CONCAT(B.last_name,B.first_name) from user_profiles b where A.booked_by_id = B.id) booking_guest_name,
+		(select CONCAT(B.last_name,B.first_name) from user_profiles b where A.ota_booking_id = B.id) booking_secondary_guest_name,
 		A.source,
 		A.checkin,
 		A.checkout,

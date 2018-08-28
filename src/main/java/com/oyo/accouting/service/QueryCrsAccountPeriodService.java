@@ -33,6 +33,7 @@ import com.oyo.accouting.mapper.accounting.AccountingOyoShareMapper;
 import com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountPeriodMapper;
 import com.oyo.accouting.pojo.AccountPeriod;
+import com.oyo.accouting.pojo.OyoShare;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -121,9 +122,20 @@ public class QueryCrsAccountPeriodService {
     				resultList = resultList.stream().filter(q->!hotelIdHeiList.contains(q.getHotelId().toString())).collect(Collectors.toList());
     			}
     			
+    			//查询汇率表，以便获取CRS中城市没有维护的区域
+    			OyoShareDto oyoShare = new OyoShareDto();
+    			oyoShare.setValidDate(startYearMonthArray[0] + "-" + (startYearMonthArray[1].length() == 1 ? "0" + startYearMonthArray[1] : startYearMonthArray[1]));
+    			List<OyoShareDto> oyoShareDtoList = accountingOyoShareMapper.queryOyoShareList(oyoShare);
+    			
     			SimpleDateFormat sdfCheck = new SimpleDateFormat("yyyy-MM-dd");
     			resultList.forEach(q->{
-    			    
+    			    //设置区域
+    				if (StringUtils.isEmpty(q.getRegion()) && null != oyoShareDtoList && !oyoShareDtoList.isEmpty() &&
+    						oyoShareDtoList.stream().anyMatch(m->m.getHotelId().equals(m.getHotelId()))) {
+    					String region = oyoShareDtoList.stream().filter(m->m.getHotelId().equals(m.getHotelId())).map(OyoShareDto::getZoneName).collect(Collectors.toList()).get(0);
+    					q.setRegion(region);
+    				}
+    				
     			    Date checkInDate = null;
     				Date checkOutDate = null;
     				int days = 0;//总入住天数

@@ -125,9 +125,6 @@ public class QueryCrsAccountPeriodController {
     			XSSFCell currentMonthSettlementTotalAmountCell = sheet1.getRow(8).getCell(2);
     			currentMonthSettlementTotalAmountCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmountCompute() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmountCompute).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// 2. 本月双方确认的营收
     			
-    			XSSFCell oyoShareCell = sheet1.getRow(9).getCell(2);
-    			oyoShareCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP).toString());// //3. 本月双方确认的OYO的提成
-    			
     			XSSFCell ownerPayCell = sheet1.getRow(12).getCell(2);
     			ownerPayCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP).toString());// //6. 本月业主应支付OYO金额
     			
@@ -145,25 +142,29 @@ public class QueryCrsAccountPeriodController {
             			tempMemPromotionFeeCell.setCellValue(null != deductions.getTempMemPromotionFee() ? deductions.getTempMemPromotionFee().toString() : "");//tempMemPromotionFee
             			//tempMemPromotionFeeCell.setCellStyle(cellStyle);
             			
-            			XSSFCell praisePlatformPromotionFeeCell = sheet1.getRow(4).getCell(2);
+            			XSSFCell praisePlatformPromotionFeeCell = sheetAppendix.getRow(4).getCell(2);
             			praisePlatformPromotionFeeCell.setCellValue(null != deductions.getPraisePlatformPromotionFee() ? deductions.getPraisePlatformPromotionFee().toString() : "");//praisePlatformPromotionFee
             			//praisePlatformPromotionFeeCell.setCellStyle(cellStyle);
             			
-            			XSSFCell flyingPigsPlatformPromotionFeeCell = sheet1.getRow(5).getCell(2);
+            			XSSFCell flyingPigsPlatformPromotionFeeCell = sheetAppendix.getRow(5).getCell(2);
             			flyingPigsPlatformPromotionFeeCell.setCellValue(null != deductions.getFlyingPigsPlatformPromotionFee() ? deductions.getFlyingPigsPlatformPromotionFee().toString() : "");//flyingPigsPlatformPromotionFee
             			flyingPigsPlatformPromotionFeeCell.setCellStyle(cellStyle);
             			
-            			XSSFCell newActivityACell = sheet1.getRow(6).getCell(2);
+            			XSSFCell newActivityACell = sheetAppendix.getRow(6).getCell(2);
             			newActivityACell.setCellValue(null != deductions.getNewActivityA() ? deductions.getNewActivityA().toString() : "");//newActivityA
             			//newActivityACell.setCellStyle(cellStyle);
             			
-            			XSSFCell newActivityBCell = sheet1.getRow(7).getCell(2);
+            			XSSFCell newActivityBCell = sheetAppendix.getRow(7).getCell(2);
             			newActivityBCell.setCellValue(null != deductions.getNewActivityB() ? deductions.getNewActivityB().toString() : "");//newActivityBCell
             			//newActivityBCell.setCellStyle(cellStyle);
             			
-            			XSSFCell newActivityCCell = sheet1.getRow(8).getCell(2);
+            			XSSFCell newActivityCCell = sheetAppendix.getRow(8).getCell(2);
             			newActivityCCell.setCellValue(null != deductions.getNewActivityC() ? deductions.getNewActivityC().toString() : "");//newActivityCCell
             			//newActivityCCell.setCellStyle(cellStyle);
+            			
+            			//这个是月账单sheet
+            			XSSFCell oyoShareCell = sheet1.getRow(9).getCell(2);
+            			oyoShareCell.setCellValue(deductions.getCurrentMonthReceivedOyoCommission().toString());// //3. 本月双方确认的OYO的提成
     				}
     			}
     			
@@ -256,48 +257,68 @@ public class QueryCrsAccountPeriodController {
 		try {
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
-    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodStatisticsByCondition(queryAccountPeriodDto);
+    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
     		
-    		String fileName = "汇总" + System.currentTimeMillis() + ".xlsx";
+    		String fileName = "汇总" + queryAccountPeriodDto.getStartYearAndMonthQuery() + ".xlsx";
     		//读取模块文件
 			inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/summaryStatistics.xlsx");
 			workBook = new XSSFWorkbook(inStream);
 			XSSFSheet sheet = workBook.getSheet("Sheet1");
 			
-			sheet.shiftRows(1, 1 + list.size(), 1, true, false); // 第1个参数是指要开始插入的行，第2个参数是结尾行数
-			for (int i = 0; i < list.size(); i++) {
-				XSSFRow creRow = sheet.createRow(1 + i);
+			Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
+			sheet.shiftRows(1, 1 + hotelGroupMap.size(), 1, true, false); // 第1个参数是指要开始插入的行，第2个参数是结尾行数
+			int count = 0;
+    		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
+    			Integer uniqueCode = entry.getKey();//uniqueCode
+    			List<AccountPeriodDto> eachList = entry.getValue();//每家酒店订单列表
+    			
+    			//已用客房数
+    			Integer roomsNumberSum = eachList.stream().filter(q->q.getRoomsNumber() != null).map(AccountPeriodDto::getRoomsNumber).reduce(Integer::sum).orElse(0);
+    			//本月已用间夜数统计
+    			Integer currentMonthRoomsNumberSum = eachList.stream().filter(q->q.getCurrentMonthRoomsNumber() != null).map(AccountPeriodDto::getCurrentMonthRoomsNumber).reduce(Integer::sum).orElse(0);
+    			//订单总额
+    			BigDecimal orderTotalAmountSum = eachList.stream().filter(q->q.getOrderTotalAmount() != null).map(AccountPeriodDto::getOrderTotalAmount).reduce(BigDecimal.ZERO,BigDecimal::add);
+    			//本期入住天数统计
+    			Integer checkInDaysSum = eachList.stream().filter(q->q.getCheckInDays() != null).map(AccountPeriodDto::getCheckInDays).reduce(Integer::sum).orElse(0);
+    			// 本月应结算总额（计算）,=房价*天数
+    			BigDecimal currentMonthSettlementTotalAmountComputeSum = eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmountCompute() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmountCompute).reduce(BigDecimal.ZERO,BigDecimal::add);
+    			BigDecimal currentMonthRoomPriceSum = currentMonthSettlementTotalAmountComputeSum.divide(new BigDecimal(checkInDaysSum),2,BigDecimal.ROUND_HALF_UP);
+    			//本月OYO提佣额
+    			BigDecimal currentMonthOyoShareAmountSum = eachList.stream().filter(q->q.getCurrentMonthOyoShareAmount() != null).map(AccountPeriodDto::getCurrentMonthOyoShareAmount).reduce(BigDecimal.ZERO,BigDecimal::add);
+    			//OYO share
+    			BigDecimal oyoShareSum = eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO,BigDecimal::add);
+    			
+    			XSSFRow creRow = sheet.createRow(1 + count);
 				creRow.setRowStyle(sheet.getRow(1).getRowStyle());
-				creRow.createCell(0).setCellValue(list.get(i).getOyoId());//oyo id
-				creRow.createCell(1).setCellValue(list.get(i).getUniqueCode());//unique Code
-				creRow.createCell(2).setCellValue(list.get(i).getHotelName());//酒店名称
-				creRow.createCell(3).setCellValue(list.get(i).getAccountPeriod());//账期，如：201807
-				creRow.createCell(4).setCellValue(list.get(i).getRoomsNumber());//已用客房数
-				creRow.createCell(5).setCellValue(list.get(i).getCurrentMonthRoomsNumber());//本月已用间夜数
-				creRow.createCell(6).setCellValue(null != list.get(i).getOrderTotalAmount() ? list.get(i).getOrderTotalAmount().toString() : "");//订单总额
-				creRow.createCell(7).setCellValue(null != list.get(i).getCurrentMonthSettlementTotalAmount() ? list.get(i).getCurrentMonthSettlementTotalAmount().toString() : "");//本月应结算总额
-				creRow.createCell(8).setCellValue(null != list.get(i).getCurrentMonthOyoShareAmount() ? list.get(i).getCurrentMonthOyoShareAmount().toString() : "");//本月OYO提佣额
-				creRow.createCell(9).setCellValue(null != list.get(i).getOwnerGrossShareAmount() ?list.get(i).getOwnerGrossShareAmount().toString() : "");//业主毛份额(A)
-				creRow.createCell(10).setCellValue(null != list.get(i).getDisputeOrderAmount() ? list.get(i).getDisputeOrderAmount().toString() : "");//争议订单金额(B)
-				creRow.createCell(11).setCellValue(null != list.get(i).getOtaExemptionAmount() ? list.get(i).getOtaExemptionAmount().toString() : "");//OTA豁免额(C)
-				creRow.createCell(12).setCellValue(null != list.get(i).getCurrentMonthOwnersNetShareAmount() ? list.get(i).getCurrentMonthOwnersNetShareAmount().toString() : "");//当月业主净份额(A+B+C)
-				creRow.createCell(13).setCellValue(null != list.get(i).getCurrentMonthPayAmont() ? list.get(i).getCurrentMonthPayAmont().toString() : "");//当月应付
-				creRow.createCell(14).setCellValue(null != list.get(i).getHotelChargeAmount() ? list.get(i).getHotelChargeAmount().toString() : "");//酒店收取金额(已结算)
-				creRow.createCell(15).setCellValue(null != list.get(i).getHotelChargeMoreAmount() ? list.get(i).getHotelChargeMoreAmount().toString() : "");//酒店多收取金额
-				creRow.createCell(16).setCellValue(null != list.get(i).getOyoChargeAmount() ? list.get(i).getOyoChargeAmount().toString() : "");//OYO收取金额(已结算)
-				creRow.createCell(17).setCellValue(null != list.get(i).getOyoChargeMoreAmount() ? list.get(i).getOyoChargeMoreAmount().toString() : "");//OYO多收取金额
-				creRow.createCell(18).setCellValue(null != list.get(i).getOtaCommission() ? list.get(i).getOtaCommission().toString() : "");//OTA佣金
-				creRow.createCell(19).setCellValue(null != list.get(i).getOtaCommissionTax() ? list.get(i).getOtaCommissionTax().toString() : "");//OYO佣金税额
-				creRow.createCell(20).setCellValue(list.get(i).getCity());//City
-				creRow.createCell(21).setCellValue(list.get(i).getCityCh());//城市
-				creRow.createCell(22).setCellValue(list.get(i).getRegion());//region
-				creRow.createCell(23).setCellValue(list.get(i).getHotelId());//Hotels ID
-				creRow.createCell(24).setCellValue(null != list.get(i).getCurrentMonthRatePercent() ? list.get(i).getCurrentMonthRatePercent().toString() : "");//本月匹配费率
-				creRow.createCell(25).setCellValue(null != list.get(i).getOyoShare() ? list.get(i).getOyoShare().toString() : "");//OYO share
-				creRow.createCell(26).setCellValue(list.get(i).getCheckInDays());// 本期入住天数
-				creRow.createCell(27).setCellValue(null != list.get(i).getRoomPrice() ? list.get(i).getRoomPrice().toString() : "");// 房间价格
-				creRow.createCell(28).setCellValue(null != list.get(i).getCurrentMonthSettlementTotalAmountCompute() ? list.get(i).getCurrentMonthSettlementTotalAmountCompute().toString() : "");// 本月应结算总额（计算）,=房价*天数
-			}
+				creRow.createCell(0).setCellValue(eachList.get(0).getOyoId());//oyo id
+				creRow.createCell(1).setCellValue(uniqueCode);//unique Code
+				creRow.createCell(2).setCellValue(eachList.get(0).getHotelName());//酒店名称
+				creRow.createCell(3).setCellValue(eachList.get(0).getCity());//City
+				creRow.createCell(4).setCellValue(eachList.get(0).getRegion());//region
+				creRow.createCell(5).setCellValue(eachList.get(0).getHotelId());//Hotels ID
+				creRow.createCell(6).setCellValue(eachList.get(0).getAccountPeriod());//账期，如：201807
+				creRow.createCell(7).setCellValue(roomsNumberSum);//已用客房数
+				creRow.createCell(8).setCellValue(currentMonthRoomsNumberSum);//本月已用间夜数
+				creRow.createCell(9).setCellValue(orderTotalAmountSum.toString());//订单总额
+				creRow.createCell(10).setCellValue(checkInDaysSum);// 本期入住天数
+				creRow.createCell(11).setCellValue(currentMonthRoomPriceSum.toString());// 本月房间价格
+				creRow.createCell(12).setCellValue(currentMonthSettlementTotalAmountComputeSum.toString());// 本月应结算总额（计算）,=房价*天数
+				creRow.createCell(13).setCellValue(currentMonthOyoShareAmountSum.toString());//本月OYO提佣额
+				creRow.createCell(14).setCellValue(null != eachList.get(0).getCurrentMonthRatePercent() ? eachList.get(0).getCurrentMonthRatePercent().toString() : "");//本月匹配费率
+				creRow.createCell(15).setCellValue(oyoShareSum.toString());//OYO share
+				creRow.createCell(16).setCellValue(null != eachList.get(0).getOwnerGrossShareAmount() ?eachList.get(0).getOwnerGrossShareAmount().toString() : "");//业主毛份额(A)
+				creRow.createCell(17).setCellValue(null != eachList.get(0).getDisputeOrderAmount() ? eachList.get(0).getDisputeOrderAmount().toString() : "");//争议订单金额(B)
+				creRow.createCell(18).setCellValue(null != eachList.get(0).getOtaExemptionAmount() ? eachList.get(0).getOtaExemptionAmount().toString() : "");//OTA豁免额(C)
+				creRow.createCell(19).setCellValue(null != eachList.get(0).getCurrentMonthOwnersNetShareAmount() ? eachList.get(0).getCurrentMonthOwnersNetShareAmount().toString() : "");//当月业主净份额(A+B+C)
+				creRow.createCell(20).setCellValue(null != eachList.get(0).getCurrentMonthPayAmont() ? eachList.get(0).getCurrentMonthPayAmont().toString() : "");//当月应付
+				creRow.createCell(21).setCellValue(null != eachList.get(0).getHotelChargeAmount() ? eachList.get(0).getHotelChargeAmount().toString() : "");//酒店收取金额(已结算)
+				creRow.createCell(22).setCellValue(null != eachList.get(0).getHotelChargeMoreAmount() ? eachList.get(0).getHotelChargeMoreAmount().toString() : "");//酒店多收取金额
+				creRow.createCell(23).setCellValue(null != eachList.get(0).getOyoChargeAmount() ? eachList.get(0).getOyoChargeAmount().toString() : "");//OYO收取金额(已结算)
+				creRow.createCell(24).setCellValue(null != eachList.get(0).getOyoChargeMoreAmount() ? eachList.get(0).getOyoChargeMoreAmount().toString() : "");//OYO多收取金额
+				creRow.createCell(25).setCellValue(null != eachList.get(0).getOtaCommission() ? eachList.get(0).getOtaCommission().toString() : "");//OTA佣金
+				creRow.createCell(26).setCellValue(null != eachList.get(0).getOtaCommissionTax() ? eachList.get(0).getOtaCommissionTax().toString() : "");//OYO佣金税额
+				count ++;
+    		}
 			
 			// 设置response参数，可以打开下载页面
     		response.setContentType("application/octet-stream");
