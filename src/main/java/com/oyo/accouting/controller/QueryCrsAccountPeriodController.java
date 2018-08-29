@@ -121,7 +121,14 @@ public class QueryCrsAccountPeriodController {
     			roomsNightCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthRoomsNumber() != null).map(AccountPeriodDto::getCurrentMonthRoomsNumber).reduce(Integer::sum).orElse(0));// 1. 本月双方确认的已售间夜数
     			
     			XSSFCell currentMonthSettlementTotalAmountCell = sheet1.getRow(8).getCell(2);
-    			currentMonthSettlementTotalAmountCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmountCompute() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmountCompute).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// 2. 本月双方确认的营收
+    			BigDecimal currentMonthSettlementTotalAmount = eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmountCompute() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmountCompute).reduce(BigDecimal.ZERO, BigDecimal::add);
+    			currentMonthSettlementTotalAmountCell.setCellValue(null != currentMonthSettlementTotalAmount ? currentMonthSettlementTotalAmount.doubleValue() : 0.00);// 2. 本月双方确认的营收
+    			
+    			//3. 本月双方确认的OYO的提成
+    			XSSFCell doubleConfirmOyoCell = sheet1.getRow(9).getCell(2);
+    			BigDecimal rate = eachList.get(0).getCurrentMonthRate();
+    			BigDecimal doubleConfirmOyoValue = currentMonthSettlementTotalAmount.multiply(rate).multiply(new BigDecimal("0.01")).setScale(2,BigDecimal.ROUND_HALF_UP);
+    			doubleConfirmOyoCell.setCellValue(null != doubleConfirmOyoValue ? doubleConfirmOyoValue.doubleValue() : 0.00);
     			
     			XSSFCell ownerPayCell = sheet1.getRow(12).getCell(2);
     			ownerPayCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP).toString());// //6. 本月业主应支付OYO金额
