@@ -127,6 +127,7 @@ public class QueryCrsAccountPeriodService {
     			
     			SimpleDateFormat sdfCheck = new SimpleDateFormat("yyyy-MM-dd");
     			resultList.forEach(q->{
+    				
     			    //设置区域
     				if (StringUtils.isEmpty(q.getRegion()) && null != oyoShareDtoList && !oyoShareDtoList.isEmpty() &&
     						oyoShareDtoList.stream().anyMatch(m->m.getHotelId().equals(m.getHotelId()))) {
