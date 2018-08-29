@@ -886,4 +886,9 @@
     where account_period = #{accountPeriod,jdbcType=VARCHAR}
   </delete>
   
+  <!-- 按账期truncate对账信息 -->
+  <update id="truncateByAccountPeriod" parameterType="java.lang.String">
+    TRUNCATE TABLE account_period
+  </update>
+  
 </mapper>
