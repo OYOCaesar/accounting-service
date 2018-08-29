@@ -38,6 +38,9 @@ public interface AccountPeriodMapper {
     //按账期删除对账信息
     public int deleteByAccountPeriod(@Param("accountPeriod") String accountPeriod);
     
+    //按账期truncate对账信息
+    public int truncateByAccountPeriod(@Param("accountPeriod") String accountPeriod);
+    
     //按账期查询对账的记录数
     public int selectByAccountPeriod(@Param("accountPeriod") String accountPeriod);
     

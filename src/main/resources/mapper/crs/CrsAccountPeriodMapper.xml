@@ -53,7 +53,9 @@
 		A.checkout,
 		A.status,
 		A.oyo_rooms,
-		A.amount,
+		case when A.key_source = 9 then A.owner_amount
+	    else A.amount 
+		end amount,	
 		A.payments,
 		A.payment_type,
 		A.ota_booking_id ota_id,

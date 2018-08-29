@@ -177,7 +177,15 @@ public class QueryCrsAccountPeriodService {
 					}
     			    
     				//替换表情符号为空
-    				q.setGuestName(q.getGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
+					if (StringUtils.isNotEmpty(q.getGuestName())) {
+						q.setGuestName(q.getGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
+					}
+					if (StringUtils.isNotEmpty(q.getBookingGuestName())) {
+						q.setBookingGuestName(q.getBookingGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
+					}
+					if (StringUtils.isNotEmpty(q.getBookingSecondaryGuestName())) {
+						q.setBookingSecondaryGuestName(q.getBookingSecondaryGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
+					}
     				
     				//订单渠道
     				if (null != q.getOrderChannelCode()) {
@@ -260,6 +268,13 @@ public class QueryCrsAccountPeriodService {
     					throw new Exception("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!");
     				}
     			}
+    			
+    			//truncate整个表
+    			/*int deleteCount = this.accountPeriodMapper.truncateByAccountPeriod(queryAccountPeriodDto.getAccountPeriod());
+    			if (deleteCount < 1) {
+					buf.append("Truncate acccount period failed!<br/>");
+					throw new Exception("Truncate acccount period failed!");
+				}*/
 				
 			    //每1000条批量插入一次
         		int len = (resultList.size() % 1000 == 0 ? resultList.size() / 1000 : ((resultList.size() / 1000) + 1));
