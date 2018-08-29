@@ -334,7 +334,7 @@ jQuery(document).ready(function () {
 	$('.calendar').datetimepicker({
         format: 'yyyy-mm',
         autoclose: true,
-        todayBtn: true,
+        todayBtn: false,
         startView: 'year',
         minView:'year',
         maxView:'decade',
@@ -344,7 +344,7 @@ jQuery(document).ready(function () {
 	$('.calendar2').datetimepicker({
         format: 'yyyy-mm-dd',
         autoclose: true,
-        todayBtn: true,
+        todayBtn: false,
         startView: 'month',
         minView:'month',
         maxView:'decade',
