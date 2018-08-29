@@ -209,7 +209,7 @@ var Datatable_expRemoteAjaxDemo = function () {
 		        city:$("#city").val(),
 		        hotelName:$("#hotelName").val()
 		    },
-		    timeout:3600000,    //超时时间
+		    timeout:3600000,    //超时时间,单位毫秒，1个小时
 		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
 		    beforeSend:function(xhr){
 		        $("#m_generate_recon_btn").html("执行中...");
