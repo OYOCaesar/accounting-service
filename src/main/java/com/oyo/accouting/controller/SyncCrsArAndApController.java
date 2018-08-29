@@ -27,6 +27,7 @@ public class SyncCrsArAndApController {
     	String result = "";
     	try {
     		String yearMonth = request.getParameter("yearMonth");
+    		//yearMonth = "2018-07";
 			result = syncCrsArAndApService.syncCrsArAndAp(yearMonth);
 			log.info(result);
 		} catch (Exception e) {

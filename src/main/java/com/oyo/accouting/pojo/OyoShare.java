@@ -29,4 +29,14 @@ public class OyoShare {
 
   private String validDate;
 
+  private String zone;
+
+  private String le;
+
+  private String propertyId;
+
+  private String rateType;
+
+  private String rateRemarks;
+
 }

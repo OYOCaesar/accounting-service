@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.slf4j.Logger;
@@ -22,9 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.druid.util.StringUtils;
+import com.oyo.accouting.bean.OyoShareDto;
 import com.oyo.accouting.bean.SyncCrsArAndApDto;
 import com.oyo.accouting.bean.SyncLogDto;
 import com.oyo.accouting.constants.AccountingCode;
+import com.oyo.accouting.mapper.accounting.AccountingOyoShareMapper;
 import com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper;
 import com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper;
 import com.oyo.accouting.pojo.SyncCrsArAndAp;
@@ -52,6 +55,9 @@ public class SyncArAndApAndJournalEntryToSapService {
 
     @Autowired
     private AccountingSyncLogMapper accountingSyncLogMapper;
+    
+    @Autowired
+    private AccountingOyoShareMapper accountingOyoShareMapper;
     
     //获取sap接口对象
   	public SAPWebServiceSoap getSapSapService() {
@@ -114,9 +120,21 @@ public class SyncArAndApAndJournalEntryToSapService {
     			map.put("hotelId", syncHotelId);
     		}
     		crsArAndApList = this.syncCrsArAndApMapper.selectByMap(map);
-        	totalCount = crsArAndApList.size();
-        	totalCountJournalEntries = crsArAndApList.size();
+        	
         	if (null != crsArAndApList && !crsArAndApList.isEmpty()) {
+        		
+        		OyoShareDto info = new OyoShareDto();
+    			info.setIsTest("t");
+    			//过滤掉黑名单或测试酒店
+    			List<OyoShareDto> hotelExceptList = this.accountingOyoShareMapper.queryOyoShareList(info);
+    			if (null != hotelExceptList && !hotelExceptList.isEmpty()) {
+    				List<String> hotelIdHeiList = hotelExceptList.stream().map(OyoShareDto::getHotelId).collect(Collectors.toList());
+    				crsArAndApList = crsArAndApList.stream().filter(q->!hotelIdHeiList.contains(q.getHotelId().toString())).collect(Collectors.toList());
+    			}
+    			
+    			totalCount = crsArAndApList.size();
+            	totalCountJournalEntries = crsArAndApList.size();
+            	
         		//获取sap接口
         		SAPWebServiceSoap sapService = this.getSapSapService();
         		if (null == sapService) {

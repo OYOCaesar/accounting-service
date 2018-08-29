@@ -71,7 +71,6 @@ public class QueryCrsAccountPeriodService {
         	
         	ZoneId zoneId = ZoneId.systemDefault();
         	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        	List<QueryAccountPeriodDto> list = new ArrayList<QueryAccountPeriodDto>();
         	String startYearAndMonthQuery = queryAccountPeriodDto.getStartYearAndMonthQuery();//开始账期
         	String[] startYearMonthArray = startYearAndMonthQuery.split("-");
         	LocalDate start = LocalDate.of(Integer.valueOf(startYearMonthArray[0]), Integer.valueOf(startYearMonthArray[1]), 1);
@@ -121,9 +120,21 @@ public class QueryCrsAccountPeriodService {
     				resultList = resultList.stream().filter(q->!hotelIdHeiList.contains(q.getHotelId().toString())).collect(Collectors.toList());
     			}
     			
+    			//查询汇率表，以便获取CRS中城市没有维护的区域
+    			OyoShareDto oyoShare = new OyoShareDto();
+    			oyoShare.setValidDate(startYearMonthArray[0] + "-" + (startYearMonthArray[1].length() == 1 ? "0" + startYearMonthArray[1] : startYearMonthArray[1]));
+    			List<OyoShareDto> oyoShareDtoList = accountingOyoShareMapper.queryOyoShareList(oyoShare);
+    			
     			SimpleDateFormat sdfCheck = new SimpleDateFormat("yyyy-MM-dd");
     			resultList.forEach(q->{
-    			    
+    				
+    			    //设置区域
+    				if (StringUtils.isEmpty(q.getRegion()) && null != oyoShareDtoList && !oyoShareDtoList.isEmpty() &&
+    						oyoShareDtoList.stream().anyMatch(m->m.getHotelId().equals(m.getHotelId()))) {
+    					String region = oyoShareDtoList.stream().filter(m->m.getHotelId().equals(m.getHotelId())).map(OyoShareDto::getZoneName).collect(Collectors.toList()).get(0);
+    					q.setRegion(region);
+    				}
+    				
     			    Date checkInDate = null;
     				Date checkOutDate = null;
     				int days = 0;//总入住天数
@@ -166,7 +177,15 @@ public class QueryCrsAccountPeriodService {
 					}
     			    
     				//替换表情符号为空
-    				q.setGuestName(q.getGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
+					if (StringUtils.isNotEmpty(q.getGuestName())) {
+						q.setGuestName(q.getGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
+					}
+					if (StringUtils.isNotEmpty(q.getBookingGuestName())) {
+						q.setBookingGuestName(q.getBookingGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
+					}
+					if (StringUtils.isNotEmpty(q.getBookingSecondaryGuestName())) {
+						q.setBookingSecondaryGuestName(q.getBookingSecondaryGuestName().replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", ""));
+					}
     				
     				//订单渠道
     				if (null != q.getOrderChannelCode()) {
@@ -241,14 +260,17 @@ public class QueryCrsAccountPeriodService {
     				
     			});
     			
-    			if (this.accountPeriodMapper.selectByAccountPeriod(queryAccountPeriodDto.getAccountPeriod()) > 0) {
+    			/*if (this.accountPeriodMapper.selectByAccountPeriod(queryAccountPeriodDto.getAccountPeriod()) > 0) {
     				//先删除所选账期的数据,然后再插入所选账期数据
         			int deleteCount = this.accountPeriodMapper.deleteByAccountPeriod(queryAccountPeriodDto.getAccountPeriod());
     				if (deleteCount < 1) {
     					buf.append("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!<br/>");
     					throw new Exception("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!");
     				}
-    			}
+    			}*/
+    			
+    			//truncate整张表
+    			this.accountPeriodMapper.truncateByAccountPeriod(null);
 				
 			    //每1000条批量插入一次
         		int len = (resultList.size() % 1000 == 0 ? resultList.size() / 1000 : ((resultList.size() / 1000) + 1));

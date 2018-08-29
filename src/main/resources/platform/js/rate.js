@@ -54,13 +54,17 @@ var Datatable_expRemoteAjaxDemo = function () {
             {field:'validDate',title:'有效时间'},
             {field:'hotelId',title:'hotelId'},
             {field:'uniqueCode',title:'uniqueCode'},
-            {field:'oyoId',title:'oyoId'},
+            //{field:'oyoId',title:'oyoId'},
             {field:'hotelName',title:'hotelName'},
             {field:'city',title:'city'},
             {field:'zoneName',title:'区域'},
-            {field:'fixedRate',title:'fixedRate'},
+            //{field:'fixedRate',title:'fixedRate'},
             {field:'status',title:'状态'},
-            {field:'oyoShare',title:'oyoShare'}
+            {field:'oyoShare',title:'oyoShare'},
+            {field:'le',title:'le'},
+            {field:'propertyId',title:'propertyId'},
+            {field:'rateType',title:'rateType'},
+            {field:'rateRemarks',title:'rateRemarks'}
         ],
     });
 

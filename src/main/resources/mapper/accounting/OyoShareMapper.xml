@@ -16,6 +16,11 @@
         <result column="is_test"  property="isTest"/>
         <result column="batch" property="batch"/>
         <result column="valid_date" property="validDate"/>
+        <result column="le" property="le"/>
+        <result column="property_id" property="propertyId"/>
+        <result column="rate_type" property="rateType"/>
+        <result column="rate_remarks" property="rateRemarks"/>
+
     </resultMap>
 
     <select id="queryOyoShareList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.OyoShareDto">
@@ -56,7 +61,7 @@
     <insert id ="insertOyoShareList" parameterType="java.util.List" >
         insert into oyo_share
         (
-          hotel_id,oyo_share,status,unique_code,oyo_id,hotel_name,city,zone_name,fixed_rate,is_test,batch,testing,valid_date
+          hotel_id,oyo_share,status,unique_code,oyo_id,hotel_name,city,zone_name,fixed_rate,is_test,batch,testing,valid_date,le,property_id,rate_type,rate_remarks
          )
         values
         <foreach collection ="oyoShareList" item="oyoShare" index= "index" separator =",">
@@ -160,6 +165,38 @@
                 <choose>
                     <when test="oyoShare.validDate != null">
                         #{oyoShare.validDate},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.le != null">
+                        #{oyoShare.le},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.propertyId != null">
+                        #{oyoShare.propertyId},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.rateType != null">
+                        #{oyoShare.rateType},
+                    </when>
+                    <otherwise>
+                        '',
+                    </otherwise>
+                </choose>
+                <choose>
+                    <when test="oyoShare.rateRemarks != null">
+                        #{oyoShare.rateRemarks},
                     </when>
                     <otherwise>
                         '',
