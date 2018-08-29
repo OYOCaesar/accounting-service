@@ -129,9 +129,11 @@ public class QueryCrsAccountPeriodController {
     			BigDecimal rate = eachList.get(0).getCurrentMonthRate();
     			BigDecimal doubleConfirmOyoValue = currentMonthSettlementTotalAmount.multiply(rate).multiply(new BigDecimal("0.01")).setScale(2,BigDecimal.ROUND_HALF_UP);
     			doubleConfirmOyoCell.setCellValue(null != doubleConfirmOyoValue ? doubleConfirmOyoValue.doubleValue() : 0.00);
+    			doubleConfirmOyoCell.setCellFormula(sheet1.getRow(9).getCell(2).getCellFormula());//支持公式
     			
     			XSSFCell ownerPayCell = sheet1.getRow(12).getCell(2);
     			ownerPayCell.setCellValue(sheet1.getRow(9).getCell(2).getNumericCellValue() - sheet1.getRow(10).getCell(2).getNumericCellValue() - sheet1.getRow(11).getCell(2).getNumericCellValue());// //6. 本月业主应支付OYO金额
+    			ownerPayCell.setCellFormula(sheet1.getRow(12).getCell(2).getCellFormula());//支持公式
     			
     			if (null != deductionsList && !deductionsList.isEmpty() && 
     					deductionsList.stream().anyMatch(q->q.getHotelId().equals(eachList.get(0).getHotelId()))) {
@@ -164,6 +166,7 @@ public class QueryCrsAccountPeriodController {
             					                                                  .add(deductions.getNewActivityA())
             					                                                  .add(deductions.getNewActivityB())
             					                                                  .add(deductions.getNewActivityC()).doubleValue());//求和
+            			totalCell.setCellFormula(sheetAppendix.getRow(9).getCell(2).getCellFormula());//支持公式
             			
             			//这个是月账单sheet
             			XSSFCell oyoShareCell = sheet1.getRow(11).getCell(2);
@@ -172,6 +175,7 @@ public class QueryCrsAccountPeriodController {
             			//这个是月账单sheet
             			XSSFCell deductionsCell = sheet1.getRow(10).getCell(2);
             			deductionsCell.setCellValue(totalCell.getNumericCellValue());//4. 本月OYO承担的费用
+            			deductionsCell.setCellFormula(sheet1.getRow(10).getCell(2).getCellFormula());//支持公式
     				}
     			}
     			
