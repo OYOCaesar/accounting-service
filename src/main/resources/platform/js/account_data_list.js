@@ -101,14 +101,6 @@ var Datatable_expRemoteAjaxDemo = function () {
       region = $("#region").val();
       city = $("#city").val();
       hotelName = $("#hotelName").val();
-      if (!startYearAndMonthQuery) {
-		  alert("请选择开始账期！");
-		  return;
-	  }
-	  if (!endYearAndMonthQuery) {
-		  alert("请选择结束账期！");
-		  return;
-	  }
   }
  
   //查询
@@ -118,6 +110,15 @@ var Datatable_expRemoteAjaxDemo = function () {
       
       setParamValues();
       
+      if (!startYearAndMonthQuery) {
+		  alert("请选择开始账期！");
+		  return;
+	  }
+	  if (!endYearAndMonthQuery) {
+		  alert("请选择结束账期！");
+		  return;
+	  }
+      
       demo_exp();
   });
   
@@ -126,6 +127,15 @@ var Datatable_expRemoteAjaxDemo = function () {
 	  t.preventDefault();
 
 	  setParamValues();
+	  
+	  if (!startYearAndMonthQuery) {
+		  alert("请选择开始账期！");
+		  return;
+	  }
+	  if (!endYearAndMonthQuery) {
+		  alert("请选择结束账期！");
+		  return;
+	  }
 	  
 	  if (startYearAndMonthQuery != endYearAndMonthQuery) {
 		  alert("请选择相同账期！");
@@ -148,6 +158,15 @@ var Datatable_expRemoteAjaxDemo = function () {
 
 	  setParamValues();
 	  
+	  if (!startYearAndMonthQuery) {
+		  alert("请选择开始账期！");
+		  return;
+	  }
+	  if (!endYearAndMonthQuery) {
+		  alert("请选择结束账期！");
+		  return;
+	  }
+	  
 	  if (startYearAndMonthQuery != endYearAndMonthQuery) {
 		  alert("请选择相同账期！");
 		  return;
@@ -169,6 +188,15 @@ var Datatable_expRemoteAjaxDemo = function () {
 		
 	  setParamValues();
 	  
+	  if (!startYearAndMonthQuery) {
+		  alert("请选择开始账期！");
+		  return;
+	  }
+	  if (!endYearAndMonthQuery) {
+		  alert("请选择结束账期！");
+		  return;
+	  }
+	  
 	  if (startYearAndMonthQuery != endYearAndMonthQuery) {
 		  alert("请选择相同账期！");
 		  return;
@@ -189,6 +217,15 @@ var Datatable_expRemoteAjaxDemo = function () {
       t.preventDefault();
       
       setParamValues();
+      
+      if (!startYearAndMonthQuery) {
+		  alert("请选择开始账期！");
+		  return;
+	  }
+	  if (!endYearAndMonthQuery) {
+		  alert("请选择结束账期！");
+		  return;
+	  }
 	  
 	  if (startYearAndMonthQuery != endYearAndMonthQuery) {
 		  alert("请选择相同账期！");
@@ -302,6 +339,7 @@ jQuery(document).ready(function () {
         minView:'year',
         maxView:'decade',
         language:'zh-CN',
+        clearBtn: true  //添加清除按钮，可选值：true/false
     });
 	$('.calendar2').datetimepicker({
         format: 'yyyy-mm-dd',
@@ -311,6 +349,7 @@ jQuery(document).ready(function () {
         minView:'month',
         maxView:'decade',
         language:'zh-CN',
+        clearBtn: true  //添加清除按钮，可选值：true/false
     });
 	
 	var myDate = new Date();
