@@ -255,22 +255,25 @@ public class QueryCrsAccountPeriodService {
     					q.setOyoShare(q.getCurrentMonthSettlementTotalAmountCompute().multiply(q.getCurrentMonthRate()).multiply(new BigDecimal("0.01")).setScale(2,BigDecimal.ROUND_HALF_UP));
     				}
     				
+    				//营收核对结果，默认是“确认”
+    				q.setRevenueCheckResults("确认");
+    				
     				//创建时间
     				q.setCreateTime(new Date());
     				
     			});
     			
-    			/*if (this.accountPeriodMapper.selectByAccountPeriod(queryAccountPeriodDto.getAccountPeriod()) > 0) {
+    			if (this.accountPeriodMapper.selectByAccountPeriod(queryAccountPeriodDto.getAccountPeriod()) > 0) {
     				//先删除所选账期的数据,然后再插入所选账期数据
         			int deleteCount = this.accountPeriodMapper.deleteByAccountPeriod(queryAccountPeriodDto.getAccountPeriod());
     				if (deleteCount < 1) {
     					buf.append("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!<br/>");
     					throw new Exception("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!");
     				}
-    			}*/
+    			}
     			
     			//truncate整张表
-    			this.accountPeriodMapper.truncateByAccountPeriod(null);
+    			//this.accountPeriodMapper.truncateByAccountPeriod(null);
 				
 			    //每1000条批量插入一次
         		int len = (resultList.size() % 1000 == 0 ? resultList.size() / 1000 : ((resultList.size() / 1000) + 1));
