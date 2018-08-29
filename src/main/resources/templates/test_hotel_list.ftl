@@ -85,7 +85,7 @@
                   </span>
                   </button>
                   &nbsp;&nbsp;
-                  <button type="button" class="btn btn-outline-danger m-btn--icon" id="m_reset">
+                  <button type="button" onclick="delTestHotel();" class="btn btn-outline-danger m-btn--icon" id="m_reset">
                     <span>
                         <i class="la la-close"></i>
                         <span>删除</span>
@@ -152,6 +152,30 @@
 <#include "/base/baseJs.ftl">
 <!-- end::baseJs -->
 <script src="/js/test_hotel_list.js" type="text/javascript"></script>
+<script>
+
+    function delTestHotel(){
+        var ids = $(".m-datatable__row--active input[type='checkbox']").map(function(){
+            return $(this).val();
+        }).get().join("|");
+        if(ids == null || ids ==undefined || ids == ''){
+            alert("请选择记录！");
+            return false;
+        }
+        ids = "("+ids+")";
+        $.ajax({
+            url:"../oyoShare/deleteByIds",
+            async:false,
+            data:{ids:ids},
+            success: function(data){
+                if(data.toString().indexOf("成功")<0){
+                    alert(data);
+                }
+                $("#m_search_btn").click();
+            }
+        })
+    }
+</script>
 </body>
 <!-- end::Body -->
 </html>
