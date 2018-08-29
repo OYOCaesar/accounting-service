@@ -51,4 +51,12 @@ public class OyoShareController {
         return ResponseEntity.ok(list);
     }
 
+    @RequestMapping(value = "deleteByIds")
+    public ResponseEntity<String> deleteByIds(HttpServletRequest request,String ids) {
+
+
+        int i = this.oyoShareService.deleteByIds(ids);
+        return ResponseEntity.ok(i>0?"成功删除"+i+"条记录！":"删除失败！");
+    }
+
 }
