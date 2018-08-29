@@ -161,8 +161,8 @@ public class QueryCrsAccountPeriodController {
             					                                                  .add(deductions.getNewActivityC()).doubleValue());//求和
             			
             			//这个是月账单sheet
-            			XSSFCell oyoShareCell = sheet1.getRow(9).getCell(2);
-            			oyoShareCell.setCellValue(null != deductions.getCurrentMonthReceivedOyoCommission() ? deductions.getCurrentMonthReceivedOyoCommission().doubleValue() : 0.00);// //3. 本月双方确认的OYO的提成
+            			XSSFCell oyoShareCell = sheet1.getRow(11).getCell(2);
+            			oyoShareCell.setCellValue(null != deductions.getCurrentMonthReceivedOyoCommission() ? deductions.getCurrentMonthReceivedOyoCommission().doubleValue() : 0.00);// 5. 本月已收取的OYO提成
             			
             			//这个是月账单sheet
             			XSSFCell deductionsCell = sheet1.getRow(10).getCell(2);
