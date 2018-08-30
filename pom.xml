@@ -171,12 +171,18 @@
 	        <version>2.4.0</version>  
 	    </dependency> 
 	    
-		<!-- jdbcTemplate -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-
+        <!-- poi依赖 -->
+        <dependency>
+	      <groupId>org.apache.poi</groupId>
+	      <artifactId>poi</artifactId>
+	      <version>3.9</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>org.apache.poi</groupId>
+	      <artifactId>poi-ooxml</artifactId>
+	      <version>3.9</version>
+	    </dependency>
+        
 	</dependencies>
 
 	<build>

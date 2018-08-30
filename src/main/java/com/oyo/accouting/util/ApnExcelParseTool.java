@@ -211,8 +211,8 @@ public class ApnExcelParseTool {
 
     private static String getCellValue(Cell cell){
         String value = null;
-        switch (cell.getCellTypeEnum()) {
-            case NUMERIC:
+        switch (cell.getCellType()) {
+            case 0:
                 if (HSSFDateUtil.isCellDateFormatted(cell)) {
                     //注：format格式 yyyy-MM-dd hh:mm:ss 中小时为12小时制，若要24小时制，则把小h变为H即可，yyyy-MM-dd HH:mm:ss
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -222,10 +222,10 @@ public class ApnExcelParseTool {
                     value = String.valueOf(cell.getNumericCellValue());
                 }
                 break;
-            case STRING:
+            case 1:
                 value = cell.getStringCellValue();
                 break;
-            case BLANK:
+            case 3:
                 value = "";
                 break;
         }

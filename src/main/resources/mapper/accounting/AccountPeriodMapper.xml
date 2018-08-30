@@ -765,6 +765,42 @@
 	 ORDER BY unique_code,order_no,guest_name,check_in_date desc
   </select>
   
+  <!-- 条件查询账期对账总记录数 -->
+  <select id="queryAccountPeriodCountByCondition"  resultType="java.lang.Integer" parameterType="com.oyo.accouting.bean.QueryAccountPeriodDto">
+     select count(1) recordsCount
+     from account_period
+     where 1 = 1
+     <if test="startYearAndMonthQuery != null and startYearAndMonthQuery != ''">
+		AND account_period <![CDATA[>=]]> #{startYearAndMonthQuery}
+	 </if>
+     <if test="endYearAndMonthQuery != null and endYearAndMonthQuery != ''">
+		AND account_period <![CDATA[<=]]> #{endYearAndMonthQuery}
+	 </if>
+	 <if test="checkInDate != null and checkInDate != ''">
+		AND check_in_date = str_to_date(#{checkInDate}, '%Y-%m-%d')
+	 </if>
+	 <if test="checkOutDate != null and checkOutDate != ''">
+		AND check_out_date = str_to_date(#{checkOutDate}, '%Y-%m-%d')
+	 </if>
+     <if test="orderNo != null and orderNo != ''">
+		AND order_no like CONCAT(CONCAT('%',#{orderNo}),'%')
+	 </if>
+	 <if test="region != null and region != ''">
+	    AND region = #{region}
+	 </if>
+	 <if test="city != null and city != ''">
+	    AND city = #{city}
+	 </if>
+	 <if test="hotelName != null and hotelName != ''">
+	    AND hotel_name like CONCAT(CONCAT('%',#{hotelName}),'%')
+	 </if>
+	 <if test="hotelId != null and hotelId != ''">
+	    AND hotel_id = #{hotelId}
+	 </if> 
+	 ORDER BY unique_code,order_no,guest_name,check_in_date desc
+  </select>
+  
+  
   <!-- 条件查询账期对账统计列表 -->
   <select id="queryAccountPeriodStatisticsByCondition"  resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.QueryAccountPeriodDto">
      select
