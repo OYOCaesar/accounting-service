@@ -61,6 +61,13 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
   
+  <!-- Ar and Ap result -->
+  <resultMap id="ArApBaseResultMap" type="com.oyo.accouting.bean.SyncCrsArAndApDto" >
+    <result column="hotel_id" property="hotelId" />
+    <result column="hotel_name" property="hotelName" />
+    <result column="ar_amount" property="arAmount" />
+  </resultMap>
+  
   <sql id="Base_Column_List">
     id, oyo_id, unique_code, hotel_name, account_period, order_no, guest_name, booking_guest_name, 
     booking_secondary_guest_name, order_channel_code, order_channel, channel_name, check_in_date, 
@@ -890,5 +897,15 @@
   <update id="truncateByAccountPeriod" parameterType="java.lang.String">
     TRUNCATE TABLE account_period
   </update>
+  
+  <!-- 查询酒店指定月份的收入信息 -->
+  <select id="selectArByAccountPeriod" parameterType="java.lang.String" resultMap="ArApBaseResultMap">
+    select t.hotel_id,t.hotel_name,sum(t.current_month_settlement_total_amount_compute) ar_amount from account_period t
+    <where>
+        and t.account_period = #{accountPeriod,jdbcType=VARCHAR}
+    </where>
+	group by t.hotel_id
+    order by t.hotel_id
+  </select>
   
 </mapper>

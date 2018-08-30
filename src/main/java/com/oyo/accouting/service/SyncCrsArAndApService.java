@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.oyo.accouting.bean.SyncCrsArAndApDto;
+import com.oyo.accouting.mapper.accounting.AccountPeriodMapper;
 import com.oyo.accouting.mapper.accounting.SyncCrsArAndApMapper;
 import com.oyo.accouting.mapper.crs.CrsAccountMapper;
 import com.oyo.accouting.pojo.SyncCrsArAndAp;
@@ -44,6 +46,161 @@ public class SyncCrsArAndApService {
     
     @Autowired
     private SyncCrsArAndApMapper syncCrsArAndApMapper;
+    
+    @Autowired
+    private AccountPeriodMapper accountPeriodMapper;
+    
+    private String yearMonth = null;
+    
+    private List<SyncCrsArAndAp> crsArAndApList = null;
+    
+    private Integer hotelIdMark = 0;
+    
+    private List<HashMap<String,String>> ownerShareMapList = null;
+    
+    private SyncCrsArAndAp syncCrsArAndAp;
+    
+    @Transactional(value="accountingTransactionManager", rollbackFor = Exception.class)
+    public String syncAccountingArAndAp(String yearMonthSync) throws Exception {
+    	log.info("----syncAccountingArAndAp start-------------");
+    	String result = "";
+    	Integer totalCount = 0;//同步总记录数
+    	List<SyncCrsArAndApDto> syncCrsArAndApList = null;//ar列表
+    	crsArAndApList = new ArrayList<SyncCrsArAndAp>();//要插入accounting的列表
+    	try {
+    		this.yearMonth = yearMonthSync;
+    		ZoneId zoneId = ZoneId.systemDefault();
+    		LocalDate now = LocalDate.now();
+            LocalDate lastMonthDateLocal = now.minusMonths(1);
+            ZonedDateTime zdt = lastMonthDateLocal.atStartOfDay(zoneId);
+            Date lastMonthDate = Date.from(zdt.toInstant());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+            if (StringUtils.isEmpty(yearMonth)) {//如果未传同步年月，那么就取当前日期的上月为同步年月
+            	yearMonth = sdf.format(lastMonthDate);
+            }
+            //先删除掉指定年月的Ar And Ap数据
+    		syncCrsArAndApMapper.updateYearMonthCrsArAndApIsDelBatch(yearMonth);
+    		
+    		LocalDate specifiedDate = LocalDate.parse(yearMonth + "-01");
+            LocalDate firstDayOfThisMonth = specifiedDate.with(TemporalAdjusters.firstDayOfMonth()); // 指定月份第一天
+            LocalDate lastDayOfThisMonth = specifiedDate.with(TemporalAdjusters.lastDayOfMonth()); // 指定月份最后一天
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    		
+    		HashMap<String,Object> map = new HashMap<String,Object>();
+    		map.put("checkInDateStart", firstDayOfThisMonth.format(df));
+    		map.put("checkInDateEnd", lastDayOfThisMonth.format(df));
+        	
+        	syncCrsArAndApList = accountPeriodMapper.selectArByAccountPeriod(yearMonth.replaceAll("-", ""));
+        	if (null != syncCrsArAndApList && !syncCrsArAndApList.isEmpty()) {
+        		totalCount = syncCrsArAndApList.size();
+        		
+        		//获取所有hotelId列表
+        		List<Integer> hotleIds = syncCrsArAndApList.stream().map(SyncCrsArAndApDto::getHotelId).collect(Collectors.toList());
+            	map.put("hotelsIds", hotleIds);//只查询当前年月酒店的ower share数据
+            	ownerShareMapList = this.crsAccountMapper.getHotelOwnerShare(map);//获取ower share数据
+            	
+            	syncCrsArAndApList.forEach(q->{
+            		Integer hotelId = q.getHotelId();
+    				hotelIdMark = hotelId;
+    		    	BigDecimal arAmount = q.getArAmount();//ar
+    		    	BigDecimal apAmount = new BigDecimal("0");
+    		    	
+    		    	if (null != ownerShareMapList && !ownerShareMapList.isEmpty() && ownerShareMapList.stream().anyMatch(m->Integer.valueOf(String.valueOf(m.get("hotel_id"))).equals(hotelId))) {
+    		    		HashMap<String,String> ownerShareMap = ownerShareMapList.stream().filter(m->Integer.valueOf(String.valueOf(m.get("hotel_id"))).equals(hotelId)).distinct().collect(Collectors.toList()).get(0);
+    		    		String ownerShareJson = String.valueOf(ownerShareMap.get("rs_slabs"));
+    		    		if (StringUtils.isNotEmpty(ownerShareJson)) {
+    			    		String[] ownerShareArray = ownerShareJson.split(",");
+    			    		List<OwnerShare> list = new ArrayList<OwnerShare>();
+    			    		if (null != ownerShareArray && ownerShareArray.length > 0) {
+    			    			for (String eachOwnerShare : ownerShareArray) {
+    			    				eachOwnerShare = eachOwnerShare.replace("{", "");
+    			    				eachOwnerShare = eachOwnerShare.replace("}", "");
+    			    				eachOwnerShare = eachOwnerShare.replace("\"", "");
+    			    				String [] array = eachOwnerShare.split(":");
+    			    				if (null != array && array.length > 0) {
+    			    					OwnerShare ownerShare = null; 
+    			    					ownerShare = new OwnerShare(new BigDecimal(array[0]),new BigDecimal(array[1]));
+    			    					list.add(ownerShare);
+    			    				}
+    							}
+    			    			
+    			    			if (null != list && !list.isEmpty()) {
+    				    			Collections.sort(list,new Comparator<OwnerShare>() {
+    				    	            @Override
+    				    	            public int compare(OwnerShare o1, OwnerShare o2) {
+    				    	                return (int) (o1.key.compareTo(o2.key));
+    				    	            }
+    				    	        });
+    				    			
+    				    			BigDecimal owerShare = getOwerShare(list,arAmount);
+    				    			q.setRate(owerShare);//汇率
+    				    			apAmount = owerShare.multiply(arAmount).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP);
+    				    		}
+    			    			
+    			    		} else {
+    			    			JSONObject jsonObj = JSONObject.fromObject(ownerShareJson);
+    			    			Integer owerShare = Integer.valueOf(jsonObj.get("0").toString());
+    			    			q.setRate(new BigDecimal(owerShare));//汇率
+    			    			apAmount = new BigDecimal(owerShare).multiply(arAmount).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP);
+    			    		}
+    		    		}
+    		    		
+    		    	}
+    		        
+    		        q.setSyncYearMonth(yearMonth);
+    		        q.setApAmount(apAmount);
+    		        q.setIsSync(Boolean.FALSE);
+    		        q.setIsDel(Boolean.FALSE);
+    		        q.setCreateTime(new Timestamp(System.currentTimeMillis()));
+    		        
+    		        syncCrsArAndAp = new SyncCrsArAndAp();
+    		        syncCrsArAndAp.setHotelId(q.getHotelId());
+    		        syncCrsArAndAp.setHotelName(q.getHotelName());
+    		        syncCrsArAndAp.setSyncYearMonth(q.getSyncYearMonth());
+    		        syncCrsArAndAp.setArAmount(q.getArAmount());
+    		        syncCrsArAndAp.setApAmount(q.getApAmount());
+    		        syncCrsArAndAp.setRate(q.getRate());
+    		        syncCrsArAndAp.setIsDel(Boolean.FALSE);
+    		        syncCrsArAndAp.setIsSync(Boolean.FALSE);
+    		        syncCrsArAndAp.setCreateTime(q.getCreateTime());
+    		        
+    		        crsArAndApList.add(syncCrsArAndAp);
+    		    	
+            	});
+            	
+            	//每1000条批量插入一次
+        		int len = (crsArAndApList.size() % 1000 == 0 ? crsArAndApList.size() / 1000 : ((crsArAndApList.size() / 1000) + 1));
+        		for (int i = 0; i < len; i++) {
+        			int startIndex = 0;
+        			int endIndex = 0;
+        			if (len <= 1) {
+        				endIndex = crsArAndApList.size();
+        			} else {
+        				startIndex = i * 1000;
+        				if (i == len - 1) {
+            				endIndex = crsArAndApList.size();
+            			} else {
+            				endIndex = (i + 1) * 1000;
+            			}
+        			}
+        			
+        			//批量插入来自crs 的ar and ap数据
+            		int syncResult = syncCrsArAndApMapper.insertCrsArAndApList(crsArAndApList.subList(startIndex, endIndex));
+            		if (syncResult < 0) {
+            			throw new Exception("Batch insert into sync_crs_ar_ap throw Exception!");
+            		}
+            		
+        		}
+            	
+        	}
+    	} catch (Exception e) {
+    		result = "sync CRS ar and ap throw exception, hotelId is:" + hotelIdMark;
+    		throw e;
+    	}
+    	log.info("----syncAccountingArAndAp end-------------");
+    	result += "Sync result:totalCount=" + totalCount;
+    	return result;
+    }
     
     @Transactional(value="accountingTransactionManager", rollbackFor = Exception.class)
     public String syncCrsArAndAp(String yearMonth) throws Exception {

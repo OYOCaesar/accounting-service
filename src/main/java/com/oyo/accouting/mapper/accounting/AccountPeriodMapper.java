@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
+import com.oyo.accouting.bean.SyncCrsArAndApDto;
 import com.oyo.accouting.pojo.AccountPeriod;
 
 /***
@@ -43,5 +44,8 @@ public interface AccountPeriodMapper {
     
     //按账期查询对账的记录数
     public int selectByAccountPeriod(@Param("accountPeriod") String accountPeriod);
+    
+    //查询酒店指定月份的收入信息
+    public List<SyncCrsArAndApDto> selectArByAccountPeriod(@Param("accountPeriod") String accountPeriod);
     
 }
