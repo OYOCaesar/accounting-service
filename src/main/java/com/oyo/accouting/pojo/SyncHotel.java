@@ -37,8 +37,8 @@ public class SyncHotel {
   @Column(name = "update_remark")
   private String updateRemark;
 
-
-
+  @Column(name = "soldout_reason")
+  private String soldoutReason;
 
 
 }

@@ -17,6 +17,7 @@
         <result column="batch" property="batch"/>
         <result column="start_date" property="startDate"/>
         <result column="update_remark" property="updateRemark"/>
+        <result column="soldout_reason" property="soldoutReason"/>
     </resultMap>
 
     <select id="querySyncHotelList" resultMap="BaseResultMap" parameterType="com.oyo.accouting.pojo.SyncHotel">
