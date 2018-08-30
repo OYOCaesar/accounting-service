@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,13 +61,17 @@ public class QueryCrsAccountPeriodService {
     @Autowired
     private AccountingOyoShareMapper accountingOyoShareMapper;
     
-    //生成recon数据
-    @Transactional(value="accountingTransactionManager", rollbackFor = Exception.class)
-    public String generateReconData(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {
-    	log.info("----Generate recon data start-------------");
-    	StringBuffer buf = new StringBuffer();
+    @Autowired
+    private SqlSessionTemplate crsSqlSessionTemplate;
+    
+    private List<AccountPeriod> resultList = null;
+    
+    //从CRS中按条件查询账期数据
+    @SuppressWarnings("rawtypes")
+	public List<AccountPeriod> queryAccountPeriodFromCrs(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {
+    	log.info("---- queryAccountPeriodFromCrs start-------------");
     	try {
-    		List<AccountPeriod> resultList = new ArrayList<AccountPeriod>();
+    		resultList = new ArrayList<AccountPeriod>();
         	if (null == queryAccountPeriodDto) {
         		throw new Exception("Please input the necessary parameters.");
         	}
@@ -91,7 +98,22 @@ public class QueryCrsAccountPeriodService {
     		queryAccountPeriodDto.setNextAccountPeriodStart(sdf.format(firstDayOfNextMonthDate));
         	
     		queryAccountPeriodDto.setPageSize(null);
+    		
+    		/*long start11 = System.currentTimeMillis();
     		resultList = crsAccountPeriodMapper.queryAccountPeriodByCondition(queryAccountPeriodDto);
+    		long start22 = System.currentTimeMillis();
+    		System.out.println((start22-start11)/1000);*/
+    		
+    		//流方式读取
+    		crsSqlSessionTemplate.select("com.oyo.accouting.mapper.crs.CrsAccountPeriodMapper.queryAccountPeriodByCondition", queryAccountPeriodDto, new ResultHandler() {
+    			
+				@Override
+                public void handleResult(ResultContext resultContext) {
+        			AccountPeriod accountPeriod = (AccountPeriod) resultContext.getResultObject();
+                    resultList.add(accountPeriod);
+                }
+
+    		});
     		
     		if (null != resultList && !resultList.isEmpty()) {
     			//获取CRS中所有的bookings表的枚举类型
@@ -203,7 +225,7 @@ public class QueryCrsAccountPeriodService {
     				
     				//本月应结算总额（计算）,=房价*天数*客房数 currentMonthSettlementTotalAmountCompute
     				if (null != q.getRoomPrice() && null != q.getCheckInDays()) {
-    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getRoomsNumber())).multiply(new BigDecimal(q.getCheckInDays())).setScale(2, BigDecimal.ROUND_HALF_UP));
+    					q.setCurrentMonthSettlementTotalAmountCompute(q.getRoomPrice().multiply(new BigDecimal(q.getRoomsNumber())).multiply(new BigDecimal(q.getCheckInDays())).setScale(2, BigDecimal.ROUND_HALF_UP).setScale( 0, BigDecimal.ROUND_HALF_UP ).setScale(2, BigDecimal.ROUND_HALF_UP));
     				} else {
     					q.setCurrentMonthSettlementTotalAmountCompute(null);
     				}
@@ -263,49 +285,43 @@ public class QueryCrsAccountPeriodService {
     				
     			});
     			
-    			if (this.accountPeriodMapper.selectByAccountPeriod(queryAccountPeriodDto.getAccountPeriod()) > 0) {
-    				//先删除所选账期的数据,然后再插入所选账期数据
-        			int deleteCount = this.accountPeriodMapper.deleteByAccountPeriod(queryAccountPeriodDto.getAccountPeriod());
-    				if (deleteCount < 1) {
-    					buf.append("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!<br/>");
-    					throw new Exception("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!");
-    				}
-    			}
-    			
-    			//truncate整张表
-    			//this.accountPeriodMapper.truncateByAccountPeriod(null);
-				
-			    //每1000条批量插入一次
-        		int len = (resultList.size() % 1000 == 0 ? resultList.size() / 1000 : ((resultList.size() / 1000) + 1));
-        		for (int i = 0; i < len; i++) {
-        			int startIndex = 0;
-        			int endIndex = 0;
-        			if (len <= 1) {
-        				endIndex = resultList.size();
-        			} else {
-        				startIndex = i * 1000;
-        				if (i == len - 1) {
-            				endIndex = resultList.size();
-            			} else {
-            				endIndex = (i + 1) * 1000;
-            			}
-        			}
-        			//批量插入所选账期数据
-        			int insertCount = this.accountPeriodMapper.insertBtach(resultList.subList(startIndex, endIndex));
-        			if (insertCount < 1) {
-				    	buf.append("Insert acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!<br/>");
-				    	throw new Exception("Insert acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed");
-				    }
-        			
-        		}
     			
     		}
     	} catch (Exception e) {
-    		log.info("Generate recon data throw exception:{}", e);
+    		log.info("queryAccountPeriodFromCrs data throw exception:{}", e);
     		throw e;
     	}
-    	log.info("----Generate recon data end-------------");
-    	return buf.toString();
+    	log.info("----queryAccountPeriodFromCrs data end-------------");
+    	return resultList;
+    }
+    
+    //删除指定账期的对账数据
+    @Transactional(value="accountingTransactionManager", rollbackFor = Exception.class)
+    public int deleteAccountPeriodByYearMonth(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {
+    	int result = 0;
+    	if (this.accountPeriodMapper.selectByAccountPeriod(queryAccountPeriodDto.getAccountPeriod()) > 0) {
+			//先删除所选账期的数据,然后再插入所选账期数据
+			result = this.accountPeriodMapper.deleteByAccountPeriod(queryAccountPeriodDto.getAccountPeriod());
+			if (result < 1) {
+				throw new Exception("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!");
+			}
+		} else {
+			result = 1;//没有该账期对账，不需要删除
+		}
+    	return result;
+    }
+    
+    //批量提交账期数据
+    @Transactional(value="accountingTransactionManager", rollbackFor = Exception.class)
+    public List<AccountPeriod> batchInsertAccountPeriod(List<AccountPeriod> resultList) throws Exception {
+    	List<AccountPeriod> result = null;
+    	//批量插入所选账期数据
+		int insertResult = this.accountPeriodMapper.insertBtach(resultList);
+		if (insertResult < 1) {
+			result = resultList;
+	    	throw new Exception("Insert acccount period data failed.");
+	    }
+		return result;
     }
     
     //条件查询账期对账信息
