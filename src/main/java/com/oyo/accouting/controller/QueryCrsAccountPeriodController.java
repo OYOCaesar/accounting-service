@@ -38,6 +38,7 @@ import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.DeductionsDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
 import com.oyo.accouting.job.SyncArAndApJob;
+import com.oyo.accouting.pojo.AccountPeriod;
 import com.oyo.accouting.service.DeductionsService;
 import com.oyo.accouting.service.QueryCrsAccountPeriodService;
 
@@ -54,7 +55,7 @@ public class QueryCrsAccountPeriodController {
     
     @Autowired
     private DeductionsService deductionsService;
-
+    
     @RequestMapping(value = "query")
     @ResponseBody
     public ResponseEntity<List<AccountPeriodDto>> query(HttpServletRequest request, QueryAccountPeriodDto queryAccountPeriodDto) {
@@ -121,10 +122,19 @@ public class QueryCrsAccountPeriodController {
     			roomsNightCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthRoomsNumber() != null).map(AccountPeriodDto::getCurrentMonthRoomsNumber).reduce(Integer::sum).orElse(0));// 1. 本月双方确认的已售间夜数
     			
     			XSSFCell currentMonthSettlementTotalAmountCell = sheet1.getRow(8).getCell(2);
-    			currentMonthSettlementTotalAmountCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmountCompute() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmountCompute).reduce(BigDecimal.ZERO, BigDecimal::add).toString());// 2. 本月双方确认的营收
+    			BigDecimal currentMonthSettlementTotalAmount = eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmountCompute() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmountCompute).reduce(BigDecimal.ZERO, BigDecimal::add);
+    			currentMonthSettlementTotalAmountCell.setCellValue(null != currentMonthSettlementTotalAmount ? currentMonthSettlementTotalAmount.doubleValue() : 0.00);// 2. 本月双方确认的营收
+    			
+    			//3. 本月双方确认的OYO的提成
+    			XSSFCell doubleConfirmOyoCell = sheet1.getRow(9).getCell(2);
+    			BigDecimal rate = eachList.get(0).getCurrentMonthRate();
+    			BigDecimal doubleConfirmOyoValue = currentMonthSettlementTotalAmount.multiply(rate).multiply(new BigDecimal("0.01")).setScale(2,BigDecimal.ROUND_HALF_UP);
+    			doubleConfirmOyoCell.setCellValue(null != doubleConfirmOyoValue ? doubleConfirmOyoValue.doubleValue() : 0.00);
+    			doubleConfirmOyoCell.setCellFormula(sheet1.getRow(9).getCell(2).getCellFormula());//支持公式
     			
     			XSSFCell ownerPayCell = sheet1.getRow(12).getCell(2);
-    			ownerPayCell.setCellValue(eachList.stream().filter(q->q.getOyoShare() != null).map(AccountPeriodDto::getOyoShare).reduce(BigDecimal.ZERO, BigDecimal::add).divide(new BigDecimal("100"),2,BigDecimal.ROUND_HALF_UP).toString());// //6. 本月业主应支付OYO金额
+    			ownerPayCell.setCellValue(sheet1.getRow(9).getCell(2).getNumericCellValue() - sheet1.getRow(10).getCell(2).getNumericCellValue() - sheet1.getRow(11).getCell(2).getNumericCellValue());// //6. 本月业主应支付OYO金额
+    			ownerPayCell.setCellFormula(sheet1.getRow(12).getCell(2).getCellFormula());//支持公式
     			
     			if (null != deductionsList && !deductionsList.isEmpty() && 
     					deductionsList.stream().anyMatch(q->q.getHotelId().equals(eachList.get(0).getHotelId()))) {
@@ -157,6 +167,7 @@ public class QueryCrsAccountPeriodController {
             					                                                  .add(deductions.getNewActivityA())
             					                                                  .add(deductions.getNewActivityB())
             					                                                  .add(deductions.getNewActivityC()).doubleValue());//求和
+            			totalCell.setCellFormula(sheetAppendix.getRow(9).getCell(2).getCellFormula());//支持公式
             			
             			//这个是月账单sheet
             			XSSFCell oyoShareCell = sheet1.getRow(11).getCell(2);
@@ -165,6 +176,7 @@ public class QueryCrsAccountPeriodController {
             			//这个是月账单sheet
             			XSSFCell deductionsCell = sheet1.getRow(10).getCell(2);
             			deductionsCell.setCellValue(totalCell.getNumericCellValue());//4. 本月OYO承担的费用
+            			deductionsCell.setCellFormula(sheet1.getRow(10).getCell(2).getCellFormula());//支持公式
     				}
     			}
     			
@@ -492,7 +504,7 @@ public class QueryCrsAccountPeriodController {
 		} 
 	}
 	
-	//生成recon数据
+	//生成RECON数据
 	@RequestMapping("generateRecon")
 	@ResponseBody
 	public JSONObject generateRecon(HttpServletRequest request, QueryAccountPeriodDto queryAccountPeriodDto) {
@@ -521,20 +533,97 @@ public class QueryCrsAccountPeriodController {
         			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
         		}
     		}
-    		String resultStr = queryCrsAccountPeriodService.generateReconData(queryAccountPeriodDto);
-    		if (StringUtils.isNotEmpty(resultStr)) {
+    		
+    		//首先:删除指定账期的对账数据
+    		int deleteResult = queryCrsAccountPeriodService.deleteAccountPeriodByYearMonth(queryAccountPeriodDto);
+    		if (deleteResult < 1) {
     			result.put("code", "-1");
-    			result.put("msg", resultStr);
-    		} else {
+    			result.put("msg", "删除该账期数据失败!");
+    			return result;
+    		}
+    		
+    		//其次:从CRS中查询中指定账期的对账数据列表
+    		List<AccountPeriod> resultList = queryCrsAccountPeriodService.queryAccountPeriodFromCrs(queryAccountPeriodDto);
+    		if (null == resultList || resultList.isEmpty()) {
+    			result.put("code", "-1");
+    			result.put("msg", "从CRS获取该账期数据失败!");
+    			return result;
+    		}
+    		//最后:遍历上述对账数据列表,分批插入到对账表accout_period中
+    		List<AccountPeriod> failedInsertList = new ArrayList<AccountPeriod>();
+    		int times = 3;//错误最多执行三次
+    		//调用分批插入方法
+    		batchInsertionList(resultList, failedInsertList);
+    		
+    		//如果失败列表为空，那么数据全部插入成功
+    		if (failedInsertList == null || failedInsertList.isEmpty()) {
     			result.put("code", "0");
     			result.put("msg", "Generate Recon successfully.");
+    		} else {
+    			//循环执行
+        		while(times > 0) {
+        			resultList = new ArrayList<AccountPeriod>();
+        			resultList = failedInsertList;
+        			failedInsertList = new ArrayList<AccountPeriod>();//重置错误列表
+        			//调用分批插入方法
+        			batchInsertionList(resultList, failedInsertList);
+            		times--;
+        		}
     		}
+    		
+    		if (failedInsertList != null && !failedInsertList.isEmpty()) {
+    			String orderNos = "[";
+    			List<String> orderNoList = failedInsertList.stream().map(AccountPeriod::getOrderNo).collect(Collectors.toList());
+    			for (int i = 0; i < orderNoList.size(); i++) {
+					if (i != orderNoList.size() - 1) {
+						orderNos += orderNoList.get(i) + ",";
+					} else {
+						orderNos += orderNoList.get(i);
+					}
+				}
+    			orderNos += "]";
+
+    			result.put("code", "-1");
+    			result.put("msg", "Generate Recon failed,orderNo list is:" + orderNos);
+    		}
+    		
 		} catch (Exception e) {
 			result.put("code", "-1");
 			result.put("msg", e.getMessage());
 			log.error("Generate Recon throwing exception:{}", e);
 		}
 		return result;
+	}
+
+	/***
+	 * 分批插入
+	 * @param resultList 要插入的列表
+	 * @param failedInsertList 失败列表
+	 * @throws Exception
+	 */
+	private void batchInsertionList(List<AccountPeriod> resultList, List<AccountPeriod> failedInsertList)
+			throws Exception {
+		//每1000条批量插入一次
+		int len = (resultList.size() % 1000 == 0 ? resultList.size() / 1000 : ((resultList.size() / 1000) + 1));
+		for (int i = 0; i < len; i++) {
+			int startIndex = 0;
+			int endIndex = 0;
+			if (len <= 1) {
+				endIndex = resultList.size();
+			} else {
+				startIndex = i * 1000;
+				if (i == len - 1) {
+					endIndex = resultList.size();
+				} else {
+					endIndex = (i + 1) * 1000;
+				}
+			}
+			//批量插入所选账期数据
+			List<AccountPeriod> insertReslutList = this.queryCrsAccountPeriodService.batchInsertAccountPeriod(resultList.subList(startIndex, endIndex));
+			if (null != insertReslutList) {//如果插入失败，将失败的列表放入failedInsertList，以便后面继续做插入操作。
+				failedInsertList.addAll(insertReslutList);
+		    }
+		}
 	}
 	
 	/***
