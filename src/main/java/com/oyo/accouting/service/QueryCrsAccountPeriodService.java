@@ -64,6 +64,9 @@ public class QueryCrsAccountPeriodService {
     @Autowired
     private SqlSessionTemplate crsSqlSessionTemplate;
     
+    @Autowired
+    private SqlSessionTemplate accountingSqlSessionTemplate;
+    
     private List<AccountPeriod> resultList = null;
     
     //从CRS中按条件查询账期数据
@@ -330,6 +333,7 @@ public class QueryCrsAccountPeriodService {
     	if (null == queryAccountPeriodDto) {
     		throw new Exception("Please input the necessary parameters.");
     	}
+    	
     	resultList = this.accountPeriodMapper.queryAccountPeriodByCondition(queryAccountPeriodDto);
         return resultList;
     }

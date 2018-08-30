@@ -28,10 +28,10 @@ public interface AccountPeriodMapper {
     int updateByPrimaryKey(AccountPeriod record);
     
     //条件查询账期数据
-    List<AccountPeriodDto> queryAccountPeriodByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
+    public List<AccountPeriodDto> queryAccountPeriodByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
     
     //条件查询账期统计数据
-    List<AccountPeriodDto> queryAccountPeriodStatisticsByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
+    public List<AccountPeriodDto> queryAccountPeriodStatisticsByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
     
     //批量插入账期数据
     public int insertBtach(@Param("accountPeriodList") List<AccountPeriod> accountPeriodList);
