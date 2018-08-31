@@ -110,8 +110,37 @@ public class QueryCrsAccountPeriodController {
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
     			List<AccountPeriodDto> eachList = entry.getValue();
     			excelFileName = eachList.get(0).getOyoId() + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + ".xlsx";
+    			String templateName = "merchantAccount.xlsx";
+    			switch(eachList.get(0).getRegion()) {
+	    			case "East China":
+	    				templateName = "/accountPeriodExcelTemplates/merchantAccount_EastChina.xlsx";
+	    				break;
+	    			case "Expansion M1B":
+	    				templateName = "/accountPeriodExcelTemplates/merchantAccount_ExpansionM1B.xlsx";
+	    				break;
+	    			case "North China":
+	    				templateName = "/accountPeriodExcelTemplates/merchantAccount_NorthChina.xlsx";
+	    				break;
+	    			case "North East China":
+	    				templateName = "/accountPeriodExcelTemplates/merchantAccount_NorthEastChina.xlsx";
+	    				break;
+	    			case "NorthWest China":
+	    				templateName = "/accountPeriodExcelTemplates/merchantAccount_NorthWestChina.xlsx";
+	    				break;
+	    			case "South Central China":
+	    				templateName = "/accountPeriodExcelTemplates/merchantAccount_SouthCentralChina.xlsx";
+	    				break;
+	    			case "South China":
+	    				templateName = "/accountPeriodExcelTemplates/merchantAccount_SouthChina.xlsx";
+	    				break;
+	    			case "SouthWest China":
+	    				templateName = "/accountPeriodExcelTemplates/merchantAccount_SouthWestChina.xlsx";
+	    				break;
+	    			default: 
+	    			    templateName = "/accountPeriodExcelTemplates/merchantAccount.xlsx";
+    			}
     			//读取模块文件
-    			inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/merchantAccount.xlsx");
+    			inStream = this.getClass().getResourceAsStream(templateName);
     			workBook = new XSSFWorkbook(inStream);
     			XSSFSheet sheet1 = workBook.getSheet("月账单");
     			XSSFCell oyoIdCell = sheet1.getRow(1).getCell(2);
