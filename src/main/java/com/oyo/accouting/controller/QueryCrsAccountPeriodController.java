@@ -19,11 +19,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +76,8 @@ public class QueryCrsAccountPeriodController {
     //商户对账单导出
 	@RequestMapping("exportMerchantAccount")
 	public void exportMerchantAccount(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
-		SXSSFWorkbook workBook = null;
+		XSSFWorkbook workBook = null;
+		InputStream inStream = null;
 		// 设置压缩流：直接写入response，实现边压缩边下载
 		ZipOutputStream zipOutputStream = null;
 		DataOutputStream dataOutputStream = null;
@@ -101,38 +106,39 @@ public class QueryCrsAccountPeriodController {
     			List<AccountPeriodDto> eachList = entry.getValue();
     			excelFileName = eachList.get(0).getOyoId() + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + ".xlsx";
     			//读取模块文件
-    			//读取模块文件
-    			XSSFWorkbook xssfWorkbook = new XSSFWorkbook(this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/merchantAccount.xlsx"));
-    			workBook = new SXSSFWorkbook(xssfWorkbook, 100);
-    			Sheet sheet1 = workBook.getSheet("月账单");
-    			
-    			Cell oyoIdCell = sheet1.getRow(1).getCell(2);
+    			inStream = this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/merchantAccount.xlsx");
+    			workBook = new XSSFWorkbook(inStream);
+    			XSSFSheet sheet1 = workBook.getSheet("月账单");
+    			XSSFCell oyoIdCell = sheet1.getRow(1).getCell(2);
     			oyoIdCell.setCellValue(eachList.get(0).getOyoId());//oyo id
     			
-    			Cell hotelNameCell = sheet1.getRow(2).getCell(2);
+    			XSSFCell hotelNameCell = sheet1.getRow(2).getCell(2);
     			hotelNameCell.setCellValue(eachList.get(0).getHotelName());// hotel name
     			
-    			Cell rateCell = sheet1.getRow(4).getCell(2);
+    			XSSFCell rateCell = sheet1.getRow(4).getCell(2);
     			rateCell.setCellValue(null != eachList.get(0).getCurrentMonthRatePercent() ? eachList.get(0).getCurrentMonthRatePercent().toString() : "");// rate
     			
-    			Cell titleCell = sheet1.getRow(6).getCell(1);
+    			XSSFCell titleCell = sheet1.getRow(6).getCell(1);
     			titleCell.setCellValue(eachList.get(0).getAccountPeriod().substring(0, 4) + "/" + eachList.get(0).getAccountPeriod().substring(4) + "账单总结");// 2018/07账单总结
     			
-    			Cell roomsNightCell = sheet1.getRow(7).getCell(2);
+    			XSSFCell roomsNightCell = sheet1.getRow(7).getCell(2);
     			roomsNightCell.setCellValue(eachList.stream().filter(q->q.getCurrentMonthRoomsNumber() != null).map(AccountPeriodDto::getCurrentMonthRoomsNumber).reduce(Integer::sum).orElse(0));// 1. 本月双方确认的已售间夜数
     			
-    			Cell currentMonthSettlementTotalAmountCell = sheet1.getRow(8).getCell(2);
+    			XSSFCell currentMonthSettlementTotalAmountCell = sheet1.getRow(8).getCell(2);
     			BigDecimal currentMonthSettlementTotalAmount = eachList.stream().filter(q->q.getCurrentMonthSettlementTotalAmountCompute() != null).map(AccountPeriodDto::getCurrentMonthSettlementTotalAmountCompute).reduce(BigDecimal.ZERO, BigDecimal::add);
     			currentMonthSettlementTotalAmountCell.setCellValue(null != currentMonthSettlementTotalAmount ? currentMonthSettlementTotalAmount.doubleValue() : 0.00);// 2. 本月双方确认的营收
     			
     			//3. 本月双方确认的OYO的提成
-    			Cell doubleConfirmOyoCell = sheet1.getRow(9).getCell(2);
+    			XSSFCell doubleConfirmOyoCell = sheet1.getRow(9).getCell(2);
     			BigDecimal rate = eachList.get(0).getCurrentMonthRate();
-    			BigDecimal doubleConfirmOyoValue = currentMonthSettlementTotalAmount.multiply(rate).multiply(new BigDecimal("0.01")).setScale(2,BigDecimal.ROUND_HALF_UP);
+    			BigDecimal doubleConfirmOyoValue = new BigDecimal("0.00");
+    			if (currentMonthSettlementTotalAmount != null && rate != null && currentMonthSettlementTotalAmount.compareTo(BigDecimal.ZERO) != 0 && rate.compareTo(BigDecimal.ZERO) != 0) {
+    				doubleConfirmOyoValue = currentMonthSettlementTotalAmount.multiply(rate).multiply(new BigDecimal("0.01")).setScale(2,BigDecimal.ROUND_HALF_UP);
+    			}
     			doubleConfirmOyoCell.setCellValue(null != doubleConfirmOyoValue ? doubleConfirmOyoValue.doubleValue() : 0.00);
     			doubleConfirmOyoCell.setCellFormula(sheet1.getRow(9).getCell(2).getCellFormula());//支持公式
     			
-    			Cell ownerPayCell = sheet1.getRow(12).getCell(2);
+    			XSSFCell ownerPayCell = sheet1.getRow(12).getCell(2);
     			ownerPayCell.setCellValue(sheet1.getRow(9).getCell(2).getNumericCellValue() - sheet1.getRow(10).getCell(2).getNumericCellValue() - sheet1.getRow(11).getCell(2).getNumericCellValue());// //6. 本月业主应支付OYO金额
     			ownerPayCell.setCellFormula(sheet1.getRow(12).getCell(2).getCellFormula());//支持公式
     			
@@ -141,27 +147,27 @@ public class QueryCrsAccountPeriodController {
     				DeductionsDto deductions = deductionsList.stream().filter(q->q.getHotelId().equals(eachList.get(0).getHotelId())).collect(Collectors.toList()).get(0);
     				if (null != deductions) {
     					//设置附表中的扣除费用
-            			Sheet sheetAppendix = workBook.getSheet("附表");
+            			XSSFSheet sheetAppendix = workBook.getSheet("附表");
                         
-            			Cell tempMemPromotionFeeCell = sheetAppendix.getRow(3).getCell(2);
+            			XSSFCell tempMemPromotionFeeCell = sheetAppendix.getRow(3).getCell(2);
             			tempMemPromotionFeeCell.setCellValue(null != deductions.getTempMemPromotionFee() ? deductions.getTempMemPromotionFee().doubleValue() : 0.00);//tempMemPromotionFee
             			
-            			Cell praisePlatformPromotionFeeCell = sheetAppendix.getRow(4).getCell(2);
+            			XSSFCell praisePlatformPromotionFeeCell = sheetAppendix.getRow(4).getCell(2);
             			praisePlatformPromotionFeeCell.setCellValue(null != deductions.getPraisePlatformPromotionFee() ? deductions.getPraisePlatformPromotionFee().doubleValue() : 0.00);//praisePlatformPromotionFee
             			
-            			Cell flyingPigsPlatformPromotionFeeCell = sheetAppendix.getRow(5).getCell(2);
+            			XSSFCell flyingPigsPlatformPromotionFeeCell = sheetAppendix.getRow(5).getCell(2);
             			flyingPigsPlatformPromotionFeeCell.setCellValue(null != deductions.getFlyingPigsPlatformPromotionFee() ? deductions.getFlyingPigsPlatformPromotionFee().doubleValue() : 0.00);//flyingPigsPlatformPromotionFee
             			
-            			Cell newActivityACell = sheetAppendix.getRow(6).getCell(2);
+            			XSSFCell newActivityACell = sheetAppendix.getRow(6).getCell(2);
             			newActivityACell.setCellValue(null != deductions.getNewActivityA() ? deductions.getNewActivityA().doubleValue() : 0.00);//newActivityA
             			
-            			Cell newActivityBCell = sheetAppendix.getRow(7).getCell(2);
+            			XSSFCell newActivityBCell = sheetAppendix.getRow(7).getCell(2);
             			newActivityBCell.setCellValue(null != deductions.getNewActivityB() ? deductions.getNewActivityB().doubleValue() : 0.00);//newActivityBCell
             			
-            			Cell newActivityCCell = sheetAppendix.getRow(8).getCell(2);
+            			XSSFCell newActivityCCell = sheetAppendix.getRow(8).getCell(2);
             			newActivityCCell.setCellValue(null != deductions.getNewActivityC() ? deductions.getNewActivityC().doubleValue() : 0.00);//newActivityCCell
             			
-            			Cell totalCell = sheetAppendix.getRow(9).getCell(2);
+            			XSSFCell totalCell = sheetAppendix.getRow(9).getCell(2);
             			totalCell.setCellValue(deductions.getTempMemPromotionFee().add(deductions.getPraisePlatformPromotionFee())
             					                                                  .add(deductions.getFlyingPigsPlatformPromotionFee())
             					                                                  .add(deductions.getNewActivityA())
@@ -170,21 +176,21 @@ public class QueryCrsAccountPeriodController {
             			totalCell.setCellFormula(sheetAppendix.getRow(9).getCell(2).getCellFormula());//支持公式
             			
             			//这个是月账单sheet
-            			Cell oyoShareCell = sheet1.getRow(11).getCell(2);
+            			XSSFCell oyoShareCell = sheet1.getRow(11).getCell(2);
             			oyoShareCell.setCellValue(null != deductions.getCurrentMonthReceivedOyoCommission() ? deductions.getCurrentMonthReceivedOyoCommission().doubleValue() : 0.00);// 5. 本月已收取的OYO提成
             			
             			//这个是月账单sheet
-            			Cell deductionsCell = sheet1.getRow(10).getCell(2);
+            			XSSFCell deductionsCell = sheet1.getRow(10).getCell(2);
             			deductionsCell.setCellValue(totalCell.getNumericCellValue());//4. 本月OYO承担的费用
             			deductionsCell.setCellFormula(sheet1.getRow(10).getCell(2).getCellFormula());//支持公式
     				}
     			}
     			
     			//写CRS明细数据
-    			Sheet sheet = workBook.getSheet("CRS明细");
+    			XSSFSheet sheet = workBook.getSheet("CRS明细");
     			try {
     				for (int i = 0; i < entry.getValue().size(); i++) {
-    					Row row = sheet.getRow(2 + i);
+    					XSSFRow row = sheet.getRow(2 + i);
     					if (row == null) { 
     						row = sheet.createRow(2 + i);
     						row.setRowStyle(sheet.getRow(2).getRowStyle());
@@ -234,7 +240,7 @@ public class QueryCrsAccountPeriodController {
     					inputStream.close();
     				}
     				if (null != workBook) {
-    					workBook.dispose();
+    					workBook = null;
     				}
     			}
 				
@@ -244,6 +250,9 @@ public class QueryCrsAccountPeriodController {
 			log.error("Export Merchant Account throwing exception:{}", e);
 		} finally {
 			try {
+				if (null != inStream) {
+					inStream.close();
+				}
 				if (null != dataOutputStream) {
 					//flush
 					dataOutputStream.flush();
@@ -275,10 +284,27 @@ public class QueryCrsAccountPeriodController {
 			workBook = new SXSSFWorkbook(xssfWorkbook, 100);
 			Sheet sheet = workBook.getSheet("Sheet1");
 			
+			// 设置单元格边框
+			CellStyle cellStyle = workBook.createCellStyle(); 
+			cellStyle.setBorderBottom(CellStyle.BORDER_THIN); // 底部边框
+			cellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex()); // 底部边框颜色
+			         
+			cellStyle.setBorderLeft(CellStyle.BORDER_THIN);  // 左边边框
+			cellStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex()); // 左边边框颜色
+			         
+			cellStyle.setBorderRight(CellStyle.BORDER_THIN); // 右边边框
+			cellStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());  // 右边边框颜色
+			         
+			cellStyle.setBorderTop(CellStyle.BORDER_THIN); // 上边边框
+			cellStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());  // 上边边框颜色
+			
 			Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getHotelId));
-			sheet.shiftRows(1, 1 + hotelGroupMap.size(), 1, true, false); // 第1个参数是指要开始插入的行，第2个参数是结尾行数
 			int count = 0;
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
+    			//超过1000000条数据，将产生一个新的sheet存在数据
+				if (count > 1000000 && (count + 1) % 1000000 == 1) {
+					sheet = workBook.createSheet("sheet" + (count / 1000000 + 1));
+				}
     			Integer hotelId = entry.getKey();//hotelId
     			List<AccountPeriodDto> eachList = entry.getValue();//每家酒店订单列表
     			
@@ -323,9 +349,8 @@ public class QueryCrsAccountPeriodController {
     			}
     			
     			Row creRow = sheet.createRow(1 + count);
-    			creRow.setRowStyle(sheet.getRow(2).getRowStyle());
 				for (int j = 0; j <= 33; j++) {
-					creRow.createCell(j).setCellStyle(sheet.getRow(1).getCell(j).getCellStyle());
+					creRow.createCell(j).setCellStyle(cellStyle);//给单元格设置边框
 				}
     			
 				creRow.getCell(0).setCellValue(eachList.get(0).getOyoId());//oyo id
@@ -395,17 +420,33 @@ public class QueryCrsAccountPeriodController {
 			XSSFWorkbook xssfWorkbook = new XSSFWorkbook(this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/details.xlsx"));
 	        workBook = new SXSSFWorkbook(xssfWorkbook, 100);
 	        Sheet sheet = workBook.getSheetAt(0);
+	        
+	        // 设置单元格边框
+ 			CellStyle cellStyle = workBook.createCellStyle(); 
+ 			cellStyle.setBorderBottom(CellStyle.BORDER_THIN); // 底部边框
+ 			cellStyle.setBottomBorderColor(IndexedColors.BLACK.getIndex()); // 底部边框颜色
+ 			         
+ 			cellStyle.setBorderLeft(CellStyle.BORDER_THIN);  // 左边边框
+ 			cellStyle.setLeftBorderColor(IndexedColors.BLACK.getIndex()); // 左边边框颜色
+ 			         
+ 			cellStyle.setBorderRight(CellStyle.BORDER_THIN); // 右边边框
+ 			cellStyle.setRightBorderColor(IndexedColors.BLACK.getIndex());  // 右边边框颜色
+ 			         
+ 			cellStyle.setBorderTop(CellStyle.BORDER_THIN); // 上边边框
+ 			cellStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());  // 上边边框颜色
 			
 			if (null != list && !list.isEmpty()) {
 				AccountPeriodDto accountPeriodDto = null;
 				for (int i = 0;i<list.size();i++) {
+					//超过1000000条数据，将产生一个新的sheet存在数据
+					if (i > 1000000 && (i + 1) % 1000000 == 1) {
+						sheet = workBook.createSheet("sheet" + (i / 1000000 + 1));
+					}
 					accountPeriodDto = list.get(i);
 					Row creRow = sheet.createRow(1 + i);
-	    			creRow.setRowStyle(sheet.getRow(1).getRowStyle());
 					for (int j = 0; j <= 41; j++) {
-						creRow.createCell(j).setCellStyle(sheet.getRow(1).getCell(j).getCellStyle());
+						creRow.createCell(j).setCellStyle(cellStyle);//给单元格设置边框
 					}
-					
 					creRow.getCell(0).setCellValue(accountPeriodDto.getOyoId());//oyo id
 					creRow.getCell(1).setCellValue(accountPeriodDto.getUniqueCode());//unique Code
 					creRow.getCell(2).setCellValue(accountPeriodDto.getHotelName());//酒店名称
