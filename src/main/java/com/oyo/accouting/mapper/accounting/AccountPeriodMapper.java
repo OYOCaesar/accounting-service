@@ -2,10 +2,12 @@ package com.oyo.accouting.mapper.accounting;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
+import com.oyo.accouting.bean.SyncCrsArAndApDto;
 import com.oyo.accouting.pojo.AccountPeriod;
 
 /***
@@ -13,6 +15,7 @@ import com.oyo.accouting.pojo.AccountPeriod;
  * @author ZhangSuYun
  * @date 2018-08-25
  */
+@Mapper
 public interface AccountPeriodMapper {
     int deleteByPrimaryKey(Integer id);
 
@@ -27,10 +30,16 @@ public interface AccountPeriodMapper {
     int updateByPrimaryKey(AccountPeriod record);
     
     //条件查询账期数据
-    List<AccountPeriodDto> queryAccountPeriodByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
+    public List<AccountPeriodDto> queryAccountPeriodByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
+    
+    //条件查询账期数据-游标方式
+    public List<AccountPeriodDto> queryAccountPeriodByConditionCursor(QueryAccountPeriodDto queryAccountPeriodDto);
+    
+    //条件查询账期数据总记录数
+    public Integer queryAccountPeriodCountByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
     
     //条件查询账期统计数据
-    List<AccountPeriodDto> queryAccountPeriodStatisticsByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
+    public List<AccountPeriodDto> queryAccountPeriodStatisticsByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
     
     //批量插入账期数据
     public int insertBtach(@Param("accountPeriodList") List<AccountPeriod> accountPeriodList);
@@ -43,5 +52,8 @@ public interface AccountPeriodMapper {
     
     //按账期查询对账的记录数
     public int selectByAccountPeriod(@Param("accountPeriod") String accountPeriod);
+    
+    //查询酒店指定月份的收入信息
+    public List<SyncCrsArAndApDto> selectArByAccountPeriod(@Param("accountPeriod") String accountPeriod);
     
 }

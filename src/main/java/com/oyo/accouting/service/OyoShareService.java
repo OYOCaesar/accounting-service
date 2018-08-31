@@ -5,6 +5,7 @@ import com.oyo.accouting.mapper.accounting.AccountingOyoShareMapper;
 import com.oyo.accouting.mapper.accounting.AccountingSyncLogMapper;
 import com.oyo.accouting.pojo.OyoShare;
 import com.oyo.accouting.pojo.SyncLog;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -75,6 +76,19 @@ public class OyoShareService {
         int i = 0;
         try {
             i = this.accountingOyoShareMapper.insertOyoShareList(oyoSharesList);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return i;
+    }
+
+    public int deleteByIds(String ids){
+        if(StringUtils.isEmpty(ids)){
+            return -1;
+        }
+        int i =0;
+        try{
+            i = this.accountingOyoShareMapper.deleteByIds(ids);
         }catch (Exception e){
             e.printStackTrace();
         }

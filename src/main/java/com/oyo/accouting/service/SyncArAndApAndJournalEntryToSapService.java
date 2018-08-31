@@ -152,6 +152,7 @@ public class SyncArAndApAndJournalEntryToSapService {
     		    	jsonData.put("C_Code", "CH-" + hotelId);//客户代码，传递时前面加C
     		    	jsonData.put("CardName", syncCrsArAndAp.getHotelName());//业务伙伴名称
     		    	jsonData.put("DocDate", sdf2.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
+    		    	//jsonData.put("DocDate", "2018-08-22");//过账日期,固定为每月最后一天
     		    	jsonData.put("DocDueDate", sdf2.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号
     		    	jsonData.put("TaxDate", sdf2.format(lastDayOfPreviousMonthDate));//单据日期,固定为每月最后一天
     		    	jsonData.put("CurSource", "3");//币种,固定为RMB
@@ -174,6 +175,7 @@ public class SyncArAndApAndJournalEntryToSapService {
                     	successCount ++;
                     	jsonData = new JSONObject();
         		        jsonData.put("RefDate", sdf2.format(lastDayOfPreviousMonthDate));//过账日期,固定为每月最后一天
+        		        //jsonData.put("RefDate", "2018-08-22");//过账日期,固定为每月最后一天
         		        jsonData.put("DueDate", sdf2.format(fifteenDayOfThisMonthDate));//到期日,固定为下月15号
         		        jsonData.put("TaxDate", sdf2.format(lastDayOfPreviousMonthDate));//单据日期,固定为每月最后一天
         		        jsonData.put("Memo", "CH-" + hotelId);//备注

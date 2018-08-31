@@ -39,10 +39,12 @@ public class SyncHotel {
         this.syncHotelMap.put("CardType",isC?"C":"V");
         this.syncHotelMap.put("DebPayAcct",isC?AccountingCode.CODE_11220203.getCode():AccountingCode.CODE_22020203.getCode());
         this.syncHotelMap.put("StartDate",hotel.getActivationDate()==null?"":hotel.getActivationDate().toString());
-        String statusTrack = hotel.getStatusTrack()==null?"":hotel.getStatusTrack();
-        this.syncHotelMap.put("UpdateRemark", "sold_out:"+hotel.getUpdateRemark()+"状态更新原因:"+statusTrack.substring(0,statusTrack.length()>100?100:statusTrack.length()));//
-
-
+        String reg ="[\"\\\\]";
+        String reg1 = "(\\\":)";
+        System.out.println(hotel.getStatusTrack());
+        String statusTrack = hotel.getStatusTrack()==null?"":hotel.getStatusTrack().replaceAll(reg1,"==>").replaceAll(reg,"");
+        this.syncHotelMap.put("UpdateRemark",statusTrack);//
+        this.syncHotelMap.put("SoldoutReason",hotel.getUpdateRemark()==null?"":hotel.getUpdateRemark().replaceAll(reg1,"==>").replaceAll(reg,""));
 
         Map<String ,Object>[] contactEmployees = new LinkedHashMap[1];
         UserProfilesDto userProfiles = hotel.getUserProfiles();

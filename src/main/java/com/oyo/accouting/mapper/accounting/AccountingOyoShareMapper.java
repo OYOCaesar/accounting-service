@@ -17,4 +17,6 @@ public interface AccountingOyoShareMapper extends com.github.abel533.mapper.Mapp
 
     public int insertOyoShareList(@Param("oyoShareList") List<OyoShare> oyoShareList);
 
+    public int deleteByIds(@Param("ids") String ids);
+
 }

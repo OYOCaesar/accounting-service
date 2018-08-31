@@ -50,11 +50,24 @@ var importReportData = function () {
 
       // 表列定义
       columns: [
+
+        {
+            field: 'id',
+            title: 'id',
+            sortable: false,
+            textAlign: 'center',
+            textAlign: 'center', selector: {class: 'm-checkbox--solid m-checkbox--brand'}
+        },
+        {
+            field: 'hotelId',
+            title: 'hotelId',
+            sortable: false,
+            textAlign: 'center'
+        },
         {
           field: 'uniqueCode',
           title: 'uniqueCode',
-          sortable: false,
-          textAlign: 'center', selector: {class: 'm-checkbox--solid m-checkbox--brand'}
+          sortable: false
         },
         {
           field: 'oyoId',
@@ -62,10 +75,6 @@ var importReportData = function () {
           sortable: false,
           selector: false,
           textAlign: 'center'
-        },
-        {
-          field: 'hotelId',
-          title: 'hotelId',
         },
         {
           field: 'status',
