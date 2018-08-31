@@ -16,9 +16,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.pagehelper.PageHelper;
 import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.CrsEnumsDto;
 import com.oyo.accouting.bean.OyoShareDto;
@@ -64,8 +68,8 @@ public class QueryCrsAccountPeriodService {
     @Autowired
     private SqlSessionTemplate crsSqlSessionTemplate;
     
-    @Autowired
-    private SqlSessionTemplate accountingSqlSessionTemplate;
+    @Resource(name="accountingSqlSessionFactory")
+    private SqlSessionFactory accountingSqlSessionFactory;
     
     private List<AccountPeriod> resultList = null;
     
@@ -334,9 +338,55 @@ public class QueryCrsAccountPeriodService {
     		throw new Exception("Please input the necessary parameters.");
     	}
     	
+    	// 使用游标获取数据（避免结果集太大引起的OOM错误）
+    	/*MyBatisCursorItemReader<AccountPeriodDto> reader = new MyBatisCursorItemReader<>();
+    	reader.setSqlSessionFactory(accountingSqlSessionFactory);
+    	reader.setQueryId("com.oyo.accouting.mapper.accounting.AccountPeriodMapper.queryAccountPeriodByConditionCursor");
+    	Map<String, Object> readerParams = new HashMap<String, Object>();
+    	readerParams.put("startYearAndMonthQuery", queryAccountPeriodDto.getStartYearAndMonthQuery());
+    	readerParams.put("endYearAndMonthQuery", queryAccountPeriodDto.getEndYearAndMonthQuery());
+    	readerParams.put("checkInDate", queryAccountPeriodDto.getCheckInDate());
+    	readerParams.put("checkOutDate", queryAccountPeriodDto.getCheckOutDate());
+    	readerParams.put("orderNo", queryAccountPeriodDto.getOrderNo());
+    	readerParams.put("region", queryAccountPeriodDto.getRegion());
+    	readerParams.put("city", queryAccountPeriodDto.getCity());
+    	readerParams.put("hotelName", queryAccountPeriodDto.getHotelName());
+    	readerParams.put("hotelId", queryAccountPeriodDto.getHotelId());
+    	// 设置参数
+    	reader.setParameterValues(readerParams);
+    	try {
+    	    reader.open(new ExecutionContext());    // 打开游标
+    	    AccountPeriodDto accountPeriodDto;
+    	    while ((accountPeriodDto = reader.read()) != null) {
+    	    	resultList.add(accountPeriodDto);
+    	    }
+    	} catch (Exception e) {
+    	    log.error("queryAccountPeriodByCondition throw exception! ", e);
+    	}*/
+    	
     	resultList = this.accountPeriodMapper.queryAccountPeriodByCondition(queryAccountPeriodDto);
         return resultList;
     }
+    
+    //分批条件查询账期所有对账信息
+    public List<AccountPeriodDto> queryAccountPeriodAllByConditionBatch(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {
+    	List<AccountPeriodDto> resultList = new ArrayList<AccountPeriodDto>();
+    	if (null == queryAccountPeriodDto) {
+    		throw new Exception("Please input the necessary parameters.");
+    	}
+    	//首先根据收入的条件获取记录总数
+    	int recordsCount = this.accountPeriodMapper.queryAccountPeriodCountByCondition(queryAccountPeriodDto);
+    	if (recordsCount > 0) {
+    		//每10000条为一个批量,len 是共要查询的次数
+    		int len = (recordsCount % 10000 == 0 ? recordsCount / 10000 : ((recordsCount / 10000) + 1));
+    		for (int i = 1; i <= len; i++) {
+        		PageHelper.startPage(i, 10000);
+        		resultList.addAll(this.accountPeriodMapper.queryAccountPeriodByCondition(queryAccountPeriodDto));
+    		}
+    	}
+        return resultList;
+    }
+    
     
     //条件查询账期统计对账信息
     public List<AccountPeriodDto> queryAccountPeriodStatisticsByCondition(QueryAccountPeriodDto queryAccountPeriodDto) throws Exception {

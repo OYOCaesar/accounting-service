@@ -2,11 +2,13 @@ package com.oyo.accouting.mapper.accounting;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.oyo.accouting.bean.DeductionsDto;
 import com.oyo.accouting.pojo.Deductions;
 
+@Mapper
 public interface DeductionsMapper {
     int deleteByPrimaryKey(Integer id);
 

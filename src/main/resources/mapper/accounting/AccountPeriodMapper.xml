@@ -718,6 +718,54 @@
   <!-- #########################下面是手工添加的方法########################################################## -->
   <!-- ******************************************************************************************************* -->
   
+  <!-- 条件查询账期对账列表->游标方式获取，避免OOM -->
+  <!-- 增加的配置fetchSize="-2147483648" resultSetType="FORWARD_ONLY" -->
+  <select id="queryAccountPeriodByConditionCursor"  fetchSize="-2147483648" resultSetType="FORWARD_ONLY" resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.QueryAccountPeriodDto">
+     select
+     id, oyo_id, unique_code, hotel_name, account_period, order_no, guest_name, booking_guest_name, 
+     booking_secondary_guest_name, order_channel_code, order_channel, channel_name, check_in_date, 
+     check_out_date, status_code, status_desc, rooms_number, current_month_rooms_number, 
+     order_total_amount, current_month_settlement_total_amount, current_month_oyo_share_amount, 
+     owner_gross_share_amount, dispute_order_amount, ota_exemption_amount, current_month_owners_net_share_amount, 
+     current_month_pay_amont, hotel_charge_amount, hotel_charge_more_amount, oyo_charge_amount, 
+     oyo_charge_more_amount, payment_method, payment_details, payment_type, ota_commission, 
+     ota_commission_tax, ota_id, ota_name, city, city_ch, region, hotel_id, current_month_rate, 
+     oyo_share, start_date_of_account_period, end_date_of_account_period, check_in_days, 
+     room_price, current_month_settlement_total_amount_compute, revenue_check_results, 
+     reasons_for_revenue_difference, proportions, payment_type_checking_result, platform_fee_payable_party, 
+     remarks, create_time,CONCAT(current_month_rate,'%') current_month_rate_percent
+     from account_period
+     where 1 = 1
+     <if test="startYearAndMonthQuery != null and startYearAndMonthQuery != ''">
+		AND account_period <![CDATA[>=]]> #{startYearAndMonthQuery}
+	 </if>
+     <if test="endYearAndMonthQuery != null and endYearAndMonthQuery != ''">
+		AND account_period <![CDATA[<=]]> #{endYearAndMonthQuery}
+	 </if>
+	 <if test="checkInDate != null and checkInDate != ''">
+		AND check_in_date = str_to_date(#{checkInDate}, '%Y-%m-%d')
+	 </if>
+	 <if test="checkOutDate != null and checkOutDate != ''">
+		AND check_out_date = str_to_date(#{checkOutDate}, '%Y-%m-%d')
+	 </if>
+     <if test="orderNo != null and orderNo != ''">
+		AND order_no like CONCAT(CONCAT('%',#{orderNo}),'%')
+	 </if>
+	 <if test="region != null and region != ''">
+	    AND region = #{region}
+	 </if>
+	 <if test="city != null and city != ''">
+	    AND city = #{city}
+	 </if>
+	 <if test="hotelName != null and hotelName != ''">
+	    AND hotel_name like CONCAT(CONCAT('%',#{hotelName}),'%')
+	 </if>
+	 <if test="hotelId != null and hotelId != ''">
+	    AND hotel_id = #{hotelId}
+	 </if> 
+	 ORDER BY id
+  </select>
+  
   <!-- 条件查询账期对账列表 -->
   <select id="queryAccountPeriodByCondition"  resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.QueryAccountPeriodDto">
      select
@@ -762,7 +810,7 @@
 	 <if test="hotelId != null and hotelId != ''">
 	    AND hotel_id = #{hotelId}
 	 </if> 
-	 ORDER BY unique_code,order_no,guest_name,check_in_date desc
+	 ORDER BY id
   </select>
   
   <!-- 条件查询账期对账总记录数 -->
@@ -797,9 +845,8 @@
 	 <if test="hotelId != null and hotelId != ''">
 	    AND hotel_id = #{hotelId}
 	 </if> 
-	 ORDER BY unique_code,order_no,guest_name,check_in_date desc
+	 ORDER BY id
   </select>
-  
   
   <!-- 条件查询账期对账统计列表 -->
   <select id="queryAccountPeriodStatisticsByCondition"  resultMap="BaseResultMap" parameterType="com.oyo.accouting.bean.QueryAccountPeriodDto">

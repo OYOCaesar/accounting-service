@@ -37,6 +37,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.github.pagehelper.PageHelper;
 import com.oyo.accouting.bean.AccountPeriodDto;
 import com.oyo.accouting.bean.DeductionsDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
@@ -65,6 +66,10 @@ public class QueryCrsAccountPeriodController {
     	List<AccountPeriodDto> list = new ArrayList<AccountPeriodDto>();
     	try {
     		setReuestParams(request, queryAccountPeriodDto);
+    		//int pageNumber = Integer.parseInt(request.getParameter("page")); //获取当前页码
+    		//int pageSize = Integer.parseInt(request.getParameter("rows")); //获取每页显示多少行
+    		//PageHelper.startPage(pageNumber, pageSize);
+    		PageHelper.startPage(1, 10000);
     		list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
     		
 		} catch (Exception e) {
@@ -85,7 +90,7 @@ public class QueryCrsAccountPeriodController {
 			
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
-    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
+    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodAllByConditionBatch(queryAccountPeriodDto);
     		
     		// 遍历打包下载
     		String zipName = "商户对账" + System.currentTimeMillis() + ".zip";
@@ -274,7 +279,7 @@ public class QueryCrsAccountPeriodController {
 		try {
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
-    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
+    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodAllByConditionBatch(queryAccountPeriodDto);
     		//查询指定账期的扣除费用列表
 			List<DeductionsDto> deductionsList = deductionsService.selectListByAccountPeriod(queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", ""));
     		
@@ -414,7 +419,7 @@ public class QueryCrsAccountPeriodController {
 			//设置请求参数
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
-    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodByCondition(queryAccountPeriodDto);
+    		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodAllByConditionBatch(queryAccountPeriodDto);
 			
 			String fileName = "明细" + queryAccountPeriodDto.getStartYearAndMonthQuery() + ".xlsx";
 			XSSFWorkbook xssfWorkbook = new XSSFWorkbook(this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/details.xlsx"));

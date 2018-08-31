@@ -62,7 +62,7 @@ spring:
     template-loader-path:
     -     classpath:/templates/  
 server:
-  port: 8001
+  port: 8002
 
 
 logging:

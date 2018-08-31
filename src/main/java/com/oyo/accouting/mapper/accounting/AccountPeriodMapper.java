@@ -2,6 +2,7 @@ package com.oyo.accouting.mapper.accounting;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.oyo.accouting.bean.AccountPeriodDto;
@@ -14,6 +15,7 @@ import com.oyo.accouting.pojo.AccountPeriod;
  * @author ZhangSuYun
  * @date 2018-08-25
  */
+@Mapper
 public interface AccountPeriodMapper {
     int deleteByPrimaryKey(Integer id);
 
@@ -29,6 +31,9 @@ public interface AccountPeriodMapper {
     
     //条件查询账期数据
     public List<AccountPeriodDto> queryAccountPeriodByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
+    
+    //条件查询账期数据-游标方式
+    public List<AccountPeriodDto> queryAccountPeriodByConditionCursor(QueryAccountPeriodDto queryAccountPeriodDto);
     
     //条件查询账期数据总记录数
     public Integer queryAccountPeriodCountByCondition(QueryAccountPeriodDto queryAccountPeriodDto);
