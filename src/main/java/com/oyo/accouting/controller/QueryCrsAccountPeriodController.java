@@ -561,7 +561,6 @@ public class QueryCrsAccountPeriodController {
     		queryAccountPeriodDto.setRegion(request.getParameter("region"));
     		queryAccountPeriodDto.setCity(request.getParameter("city"));
     		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));*/
-    		queryAccountPeriodDto.setAccountPeriod(request.getParameter("startYearAndMonthQuery").replaceAll("-", ""));//账期,如：201808
     		
 			LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
@@ -576,6 +575,7 @@ public class QueryCrsAccountPeriodController {
         			queryAccountPeriodDto.setStartYearAndMonthQuery(queryAccountPeriodDto.getEndYearAndMonthQuery());
         		}
     		}
+    		queryAccountPeriodDto.setAccountPeriod(queryAccountPeriodDto.getStartYearAndMonthQuery().replaceAll("-", ""));//账期,如：201808
     		
     		//首先:删除指定账期的对账数据
     		int deleteResult = queryCrsAccountPeriodService.deleteAccountPeriodByYearMonth(queryAccountPeriodDto);
@@ -592,6 +592,7 @@ public class QueryCrsAccountPeriodController {
     			result.put("msg", "从CRS获取该账期数据失败!");
     			return result;
     		}
+    		log.info("本次'" + queryAccountPeriodDto.getAccountPeriod() + "'共需同步：" + resultList.size() + "条数据");
     		//最后:遍历上述对账数据列表,分批插入到对账表accout_period中
     		List<AccountPeriod> failedInsertList = new ArrayList<AccountPeriod>();
     		int times = 3;//错误最多执行三次

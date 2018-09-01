@@ -312,6 +312,7 @@ public class QueryCrsAccountPeriodService {
 			if (result < 1) {
 				throw new Exception("Delete acccount period:'" + queryAccountPeriodDto.getAccountPeriod() + "' failed!");
 			}
+			log.info("本次'" + queryAccountPeriodDto.getAccountPeriod() + "'共删除：" + resultList.size() + "条数据");
 		} else {
 			result = 1;//没有该账期对账，不需要删除
 		}
