@@ -555,12 +555,13 @@ public class QueryCrsAccountPeriodController {
 			
 			queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
     		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
-    		queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
+    		/*queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
     		queryAccountPeriodDto.setCheckOutDate(request.getParameter("checkOutDate"));
     		queryAccountPeriodDto.setOrderNo(request.getParameter("orderNo"));
     		queryAccountPeriodDto.setRegion(request.getParameter("region"));
     		queryAccountPeriodDto.setCity(request.getParameter("city"));
-    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+    		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));*/
+    		queryAccountPeriodDto.setAccountPeriod(request.getParameter("startYearAndMonthQuery").replaceAll("-", ""));//账期,如：201808
     		
 			LocalDate localDate = LocalDate.now();
     		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
