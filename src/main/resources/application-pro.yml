@@ -63,6 +63,11 @@ spring:
     -     classpath:/templates/  
 server:
   port: 8001
+  tomcat:
+    min-spare-threads: 20
+    max-threads: 100
+  connection-timeout:
+    seconds: 5000
 
 logging:
   level:
