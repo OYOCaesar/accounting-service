@@ -472,7 +472,7 @@ public class QueryCrsAccountPeriodController {
  			cellStyle.setBorderTop(CellStyle.BORDER_THIN); // 上边边框
  			cellStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());  // 上边边框颜色
 			
-			if (null != list && !list.isEmpty()) {
+			/*if (null != list && !list.isEmpty()) {
 				AccountPeriodDto accountPeriodDto = null;
 				for (int i = 0;i<list.size();i++) {
 					//超过1000000条数据，将产生一个新的sheet存在数据
@@ -528,7 +528,7 @@ public class QueryCrsAccountPeriodController {
 					creRow.getCell(41).setCellValue(null != accountPeriodDto.getCurrentMonthSettlementTotalAmountCompute() ? accountPeriodDto.getCurrentMonthSettlementTotalAmountCompute().doubleValue() : 0.00);// 本月应结算总额（计算）,=房价*天数*已用房间
 				}
 				
-			}
+			}*/
 			
 			// 设置response参数，可以打开下载页面
     		response.setContentType("application/octet-stream");
