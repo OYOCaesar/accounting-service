@@ -1,10 +1,16 @@
 package com.oyo.accouting.controller;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.LocalDate;
@@ -54,6 +60,9 @@ import net.sf.json.JSONObject;
 public class QueryCrsAccountPeriodController {
 	private static Logger log = LoggerFactory.getLogger(SyncArAndApJob.class);
 
+	//下载文件的路径
+	private static String PATH = System.getProperty("user.dir") + "/src/main/resources/exportExcel/";//导出excel文件路径
+		
     @Autowired
     private QueryCrsAccountPeriodService queryCrsAccountPeriodService;
     
@@ -80,12 +89,15 @@ public class QueryCrsAccountPeriodController {
     
     //商户对账单导出
 	@RequestMapping("exportMerchantAccount")
-	public void exportMerchantAccount(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
+	@ResponseBody
+	public JSONObject exportMerchantAccount(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
+		JSONObject result = new JSONObject();
 		XSSFWorkbook workBook = null;
 		InputStream inStream = null;
 		// 设置压缩流：直接写入response，实现边压缩边下载
 		ZipOutputStream zipOutputStream = null;
 		DataOutputStream dataOutputStream = null;
+		OutputStream outputStrem = null;
 		try {
 			
 			setReuestParams(request, queryAccountPeriodDto);
@@ -93,11 +105,21 @@ public class QueryCrsAccountPeriodController {
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodAllByConditionBatch(queryAccountPeriodDto);
     		
     		// 遍历打包下载
-    		String zipName = "商户对账" + System.currentTimeMillis() + ".zip";
-    		zipName = URLEncoder.encode(zipName,"UTF-8");
-    		response.setContentType("APPLICATION/OCTET-STREAM");
+    		String zipName = "商户对账-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-" + System.currentTimeMillis() + ".zip";
+    		
+    		//先删掉当前年月的商户对账单excel
+			delFilesByPath(PATH, "商户对账-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-", ".xlsx");
+			
+    		//zipName = URLEncoder.encode(zipName,"UTF-8");
+    		/*response.setContentType("APPLICATION/OCTET-STREAM");
     		response.setHeader("Content-Disposition", "attachment; filename=" + zipName);
-    		zipOutputStream = new ZipOutputStream(new BufferedOutputStream(response.getOutputStream()));
+    		zipOutputStream = new ZipOutputStream(new BufferedOutputStream(response.getOutputStream()));*/
+    		File file = new File(zipName);
+    		if (!file.exists()) {
+    			file.createNewFile();
+    		}
+    		outputStrem = new FileOutputStream(PATH + file);
+    		zipOutputStream = new ZipOutputStream(outputStrem);
 			// 设置压缩方式
 			zipOutputStream.setMethod(ZipOutputStream.DEFLATED);
 			
@@ -269,6 +291,9 @@ public class QueryCrsAccountPeriodController {
 					zipOutputStream.putNextEntry(new ZipEntry(excelFileName));
 					dataOutputStream = new DataOutputStream(zipOutputStream);
 					IOUtils.copy(inputStream, dataOutputStream);//将excel放入zip文件中
+					
+		    		result.put("code", 0);
+					result.put("msg", zipName);
     			} finally {
     				if (null != out) {
     					out.close();
@@ -284,6 +309,8 @@ public class QueryCrsAccountPeriodController {
     		}
 		    
 		} catch (Exception e) {
+			result.put("code", -1);
+			result.put("msg", "下载失败");
 			log.error("Export Merchant Account throwing exception:{}", e);
 		} finally {
 			try {
@@ -298,16 +325,23 @@ public class QueryCrsAccountPeriodController {
 				if (null != zipOutputStream) {
 					zipOutputStream.close();
 				}
+				if (null != outputStrem) {
+					outputStrem.close();
+				}
 			} catch (Exception e) {
-				log.error("Export Merchant Account close generate zip file stream exception：{}：{}", e);
+				log.error("Export Merchant Account close generate zip file stream exception:{}", e);
 			}
 		}
+		return result;
 	}
 	
 	//汇总统计导出
 	@RequestMapping("exportSummaryStatistics")
-	public void exportSummaryStatistics(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
+	@ResponseBody
+	public JSONObject exportSummaryStatistics(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
+		JSONObject result = new JSONObject();
 		SXSSFWorkbook workBook = null;
+		OutputStream out = null;
 		try {
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
@@ -315,10 +349,14 @@ public class QueryCrsAccountPeriodController {
     		//查询指定账期的扣除费用列表
 			List<DeductionsDto> deductionsList = deductionsService.selectListByAccountPeriod(queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", ""));
     		
-    		String fileName = "汇总" + queryAccountPeriodDto.getStartYearAndMonthQuery() + ".xlsx";
+			String fileName = "汇总-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-" + System.currentTimeMillis() + ".xlsx";
+			
+			//先删掉当前年月的汇总统计excel
+			delFilesByPath(PATH, "汇总-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-", ".xlsx");
+			
     		//读取模块文件
 			XSSFWorkbook xssfWorkbook = new XSSFWorkbook(this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/summaryStatistics.xlsx"));
-			workBook = new SXSSFWorkbook(xssfWorkbook, 100);
+			workBook = new SXSSFWorkbook(xssfWorkbook, 1000);
 			Sheet sheet = workBook.getSheet("Sheet1");
 			
 			// 设置单元格边框
@@ -428,34 +466,46 @@ public class QueryCrsAccountPeriodController {
 				count ++;
     		}
 			
-			// 设置response参数，可以打开下载页面
-    		response.setContentType("application/octet-stream");
-    		fileName = URLEncoder.encode(fileName,"UTF-8");
-            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
-            response.flushBuffer();
-            workBook.write(response.getOutputStream());
+    		File file = new File(PATH + fileName);
+    		if (!file.exists()) {
+    			file.createNewFile();
+    		}
+    		out = new FileOutputStream(file);
+    		workBook.write(out);
+    		result.put("code", 0);
+			result.put("msg", fileName);
 		} catch (Exception e) {
+			result.put("code", -1);
+			result.put("msg", "下载失败");
 			log.error("Export Summary Statistics throwing exception:{}", e);
 		} finally {
 			if (null != workBook) {
 				workBook.dispose();
 			}
 		}
+		return result;
 	}
 	
 	//明细导出
 	@RequestMapping("exportDetails")
-	public void exportDetails(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
+	@ResponseBody
+	public JSONObject exportDetails(HttpServletRequest request, HttpServletResponse response, QueryAccountPeriodDto queryAccountPeriodDto) {
+		JSONObject result = new JSONObject();
 		SXSSFWorkbook workBook = null;
+		OutputStream out = null;
 		try {
 			//设置请求参数
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodAllByConditionBatch(queryAccountPeriodDto);
 			
-			String fileName = "明细" + queryAccountPeriodDto.getStartYearAndMonthQuery() + ".xlsx";
+			String fileName = "明细-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-" + System.currentTimeMillis() + ".xlsx";
+			
+			//先删掉当前年月的明细excel
+			delFilesByPath(PATH, "明细-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-", ".xlsx");
+			
 			XSSFWorkbook xssfWorkbook = new XSSFWorkbook(this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/details.xlsx"));
-	        workBook = new SXSSFWorkbook(xssfWorkbook, 100);
+	        workBook = new SXSSFWorkbook(xssfWorkbook, 1000);
 	        Sheet sheet = workBook.getSheetAt(0);
 	        
 	        // 设置单元格边框
@@ -472,7 +522,7 @@ public class QueryCrsAccountPeriodController {
  			cellStyle.setBorderTop(CellStyle.BORDER_THIN); // 上边边框
  			cellStyle.setTopBorderColor(IndexedColors.BLACK.getIndex());  // 上边边框颜色
 			
-			/*if (null != list && !list.isEmpty()) {
+			if (null != list && !list.isEmpty()) {
 				AccountPeriodDto accountPeriodDto = null;
 				for (int i = 0;i<list.size();i++) {
 					//超过1000000条数据，将产生一个新的sheet存在数据
@@ -528,22 +578,105 @@ public class QueryCrsAccountPeriodController {
 					creRow.getCell(41).setCellValue(null != accountPeriodDto.getCurrentMonthSettlementTotalAmountCompute() ? accountPeriodDto.getCurrentMonthSettlementTotalAmountCompute().doubleValue() : 0.00);// 本月应结算总额（计算）,=房价*天数*已用房间
 				}
 				
-			}*/
+			}
 			
-			// 设置response参数，可以打开下载页面
-    		response.setContentType("application/octet-stream");
-    		fileName = URLEncoder.encode(fileName,"UTF-8");
-            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
-            response.flushBuffer();
-            workBook.write(response.getOutputStream());
+			File file = new File(PATH + fileName);
+    		if (!file.exists()) {
+    			file.createNewFile();
+    		}
+    		out = new FileOutputStream(file);
+    		workBook.write(out);
+    		result.put("code", 0);
+			result.put("msg", fileName);
 			
 		} catch (Exception e) {
+			result.put("code", -1);
+			result.put("msg", "下载失败");
 			log.error("Export Details throwing exception:{}", e);
 		} finally {
 			if (null != workBook) {
 				workBook.dispose();
 			}
 		} 
+		return result;
+	}
+	
+	//文件下载相关代码
+	@RequestMapping("/downloadExcel")
+	public String downloadExcel(HttpServletRequest request, HttpServletResponse response) {
+		String fileName = PATH + request.getParameter("fileName");
+	    if (StringUtils.isNotEmpty(fileName)) {
+            byte[] buffer = new byte[2048];
+            FileInputStream fis = null;
+            BufferedInputStream bis = null;
+            try {
+                response.setContentType("application/force-download");// 设置强制下载不打开
+                String excelFileName = request.getParameter("fileName");
+                excelFileName = URLEncoder.encode(excelFileName,"UTF-8");
+                response.addHeader("Content-Disposition", "attachment;fileName=" + excelFileName);// 设置文件名
+                
+            	File file = new File(fileName);
+                fis = new FileInputStream(file);
+                bis = new BufferedInputStream(fis);
+                OutputStream os = response.getOutputStream();
+                int i = bis.read(buffer);
+                while (i != -1) {
+                    os.write(buffer, 0, i);
+                    i = bis.read(buffer);
+                }
+                
+            } catch (Exception e) {
+                log.error("Download Excel throw exception:{}", e);
+            } finally {
+                if (bis != null) {
+                    try {
+                        bis.close();
+                    } catch (IOException e) {
+                    	log.error("Download Excel close bis throw exception:{}", e);
+                    }
+                }
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                    	log.error("Download Excel close fis throw exception:{}", e);
+                    }
+                }
+            }
+	    }
+	    return null;
+	}
+	
+	// 用以模糊删除头部为startStr,以endStr结尾的文件
+	private static boolean delFilesByPath(String path, String startStr, String endStr) {
+		boolean b = false;
+		File file = new File(path);
+		File[] tempFile = file.listFiles();
+		for (int i = 0; i < tempFile.length; i++) {
+			long createTime = Long.valueOf(tempFile[i].getName().substring(tempFile[i].getName().lastIndexOf("-") + 1, tempFile[i].getName().lastIndexOf(".")));
+			if (tempFile[i].getName().startsWith(startStr) && tempFile[i].getName().endsWith(endStr) 
+					&& (System.currentTimeMillis() - createTime >= 1000*3600*2)) {//删除2小时之前创建的文件(包括2小时)
+				boolean del = deleteFile(path + tempFile[i].getName());
+				if (del) {
+					log.info("文件" + tempFile[i].getName() + "删除成功");
+					b = true;
+				} else {
+					log.info("文件" + tempFile[i].getName() + "删除失败");
+				}
+			}
+		}
+		return b;
+	}
+
+	//删除文件
+	private static boolean deleteFile(String path) {
+		boolean del = false;
+		File file = new File(path);
+		if (file.isFile()) {
+			file.delete();
+			del = true;
+		}
+		return del;
 	}
 	
 	//生成RECON数据

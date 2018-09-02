@@ -141,15 +141,52 @@ var Datatable_expRemoteAjaxDemo = function () {
 		  alert("请选择相同账期！");
 		  return;
 	  }
+	  
+	  $.ajax({
+		    url:'/queryCrsAccountPeriod/exportSummaryStatistics',
+		    type:'POST', //GET
+		    async:true,  //或false,是否异步
+		    data:{
+		    	startYearAndMonthQuery:$("#syncCrs").val(),
+		        endYearAndMonthQuery:$("#endYearAndMonthQuery").val(),
+		        checkInDate:$("#m_datepicker_1").val(),
+		        checkOutDate:$("#m_datepicker_2").val(),
+		        orderNo:$("#orderNo").val(),
+		        region:$("#region").val(),
+		        city:$("#city").val(),
+		        hotelName:$("#hotelName").val()
+		    },
+		    timeout:3600000,    //超时时间,单位毫秒，1个小时
+		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+		    beforeSend:function(xhr){
+		        $("#m_summary_statistics_btn").html("执行中...");
+		        $("#m_summary_statistics_btn").attr("disabled",true);
+		    },
+		    success:function(data,textStatus,jqXHR){
+		    	
+		    },
+		    error:function(xhr,textStatus){
+		        console.log(xhr)
+		        console.log(textStatus);
+		        alert(textStatus);
+		    },
+		    complete:function(data) {
+		    	if (data && data.responseJSON) {
+		    		if (data.responseJSON.code == 0) {
+		    			location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data.responseJSON.msg;
+		    		} else if (data.responseJSON.code == -1) {
+		    			alert(data.responseJSON.msg);
+		    		} else {
+		    			alert("汇总下载失败!");
+		    		}
+		    	} else {
+		    		alert("汇总下载失败!");
+		    	}
+		    	$("#m_summary_statistics_btn").attr("disabled",false);
+		    	$("#m_summary_statistics_btn").html("汇总下载");
+		    }
+	  });
 
-	  location.href = '/queryCrsAccountPeriod/exportSummaryStatistics?startYearAndMonthQuery=' + startYearAndMonthQuery
-				    + '&endYearAndMonthQuery=' + endYearAndMonthQuery
-					+ '&checkInDate=' + checkInDate
-					+ '&checkOutDate=' + checkOutDate
-					+ '&orderNo=' + orderNo
-					+ '&region=' + region
-					+ '&city=' + city 
-					+ '&hotelName=' + hotelName;
   });
   
   //商户对账单下载
@@ -171,15 +208,52 @@ var Datatable_expRemoteAjaxDemo = function () {
 		  alert("请选择相同账期！");
 		  return;
 	  }
+	  
+	  $.ajax({
+		    url:'/queryCrsAccountPeriod/exportMerchantAccount',
+		    type:'POST', //GET
+		    async:true,  //或false,是否异步
+		    data:{
+		    	startYearAndMonthQuery:$("#syncCrs").val(),
+		        endYearAndMonthQuery:$("#endYearAndMonthQuery").val(),
+		        checkInDate:$("#m_datepicker_1").val(),
+		        checkOutDate:$("#m_datepicker_2").val(),
+		        orderNo:$("#orderNo").val(),
+		        region:$("#region").val(),
+		        city:$("#city").val(),
+		        hotelName:$("#hotelName").val()
+		    },
+		    timeout:3600000,    //超时时间,单位毫秒，1个小时
+		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+		    beforeSend:function(xhr){
+		        $("#m_merchant_account_download_btn").html("执行中...");
+		        $("#m_merchant_account_download_btn").attr("disabled",true);
+		    },
+		    success:function(data,textStatus,jqXHR){
+		    	
+		    },
+		    error:function(xhr,textStatus){
+		        console.log(xhr)
+		        console.log(textStatus);
+		        alert(textStatus);
+		    },
+		    complete:function(data) {
+		    	if (data && data.responseJSON) {
+		    		if (data.responseJSON.code == 0) {
+		    			location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data.responseJSON.msg;
+		    		} else if (data.responseJSON.code == -1) {
+		    			alert(data.responseJSON.msg);
+		    		} else {
+		    			alert("商户对账单下载失败!");
+		    		}
+		    	} else {
+		    		alert("商户对账单下载失败!");
+		    	}
+		    	$("#m_merchant_account_download_btn").attr("disabled",false);
+		    	$("#m_merchant_account_download_btn").html("商户对账单下载");
+		    }
+	  });
 
-	  location.href = '/queryCrsAccountPeriod/exportMerchantAccount?startYearAndMonthQuery=' + startYearAndMonthQuery
-					+ '&endYearAndMonthQuery=' + endYearAndMonthQuery
-					+ '&checkInDate=' + checkInDate
-					+ '&checkOutDate=' + checkOutDate
-					+ '&orderNo=' + orderNo
-					+ '&region=' + region
-					+ '&city=' + city 
-					+ '&hotelName=' + hotelName;
   });
   
   //明细下载
@@ -201,15 +275,52 @@ var Datatable_expRemoteAjaxDemo = function () {
 		  alert("请选择相同账期！");
 		  return;
 	  }
+	  
+	  $.ajax({
+		    url:'/queryCrsAccountPeriod/exportDetails',
+		    type:'POST', //GET
+		    async:true,  //或false,是否异步
+		    data:{
+		    	startYearAndMonthQuery:$("#syncCrs").val(),
+		        endYearAndMonthQuery:$("#endYearAndMonthQuery").val(),
+		        checkInDate:$("#m_datepicker_1").val(),
+		        checkOutDate:$("#m_datepicker_2").val(),
+		        orderNo:$("#orderNo").val(),
+		        region:$("#region").val(),
+		        city:$("#city").val(),
+		        hotelName:$("#hotelName").val()
+		    },
+		    timeout:3600000,    //超时时间,单位毫秒，1个小时
+		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
+		    beforeSend:function(xhr){
+		        $("#m_detail_download_btn").html("执行中...");
+		        $("#m_detail_download_btn").attr("disabled",true);
+		    },
+		    success:function(data,textStatus,jqXHR){
+		    	
+		    },
+		    error:function(xhr,textStatus){
+		        console.log(xhr)
+		        console.log(textStatus);
+		        alert(textStatus);
+		    },
+		    complete:function(data) {
+		    	if (data && data.responseJSON) {
+		    		if (data.responseJSON.code == 0) {
+		    			location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data.responseJSON.msg;
+		    		} else if (data.responseJSON.code == -1) {
+		    			alert(data.responseJSON.msg);
+		    		} else {
+		    			alert("明细下载失败!");
+		    		}
+		    	} else {
+		    		alert("明细下载失败!");
+		    	}
+		    	$("#m_detail_download_btn").attr("disabled",false);
+		    	$("#m_detail_download_btn").html("明细下载");
+		    }
+	  });
 		
-	  location.href = '/queryCrsAccountPeriod/exportDetails?startYearAndMonthQuery=' + startYearAndMonthQuery
-				    + '&endYearAndMonthQuery=' + endYearAndMonthQuery
-					+ '&checkInDate=' + checkInDate
-					+ '&checkOutDate=' + checkOutDate
-					+ '&orderNo=' + orderNo
-					+ '&region=' + region
-					+ '&city=' + city 
-					+ '&hotelName=' + hotelName;
   });
   
   //生成recon数据
