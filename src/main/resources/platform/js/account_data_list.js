@@ -3,6 +3,7 @@
  */
 //定义页面的参数变量
 var startYearAndMonthQuery = "",endYearAndMonthQuery="",checkInDate="",checkOutDate="",orderNo="",region="",city="",hotelName="";
+var myTimer = null;//定时器
 //== Class definition
 var Datatable_expRemoteAjaxDemo = function () {
 
@@ -327,6 +328,8 @@ var Datatable_expRemoteAjaxDemo = function () {
   $("#m_generate_recon_btn").on("click", function (t) {
       t.preventDefault();
       
+      myTimer = setInterval("myInterval()",1000*30);//1000为1秒钟
+      
       setParamValues();
       
       if (!startYearAndMonthQuery) {
@@ -373,15 +376,20 @@ var Datatable_expRemoteAjaxDemo = function () {
 		    error:function(xhr,textStatus){
 		        console.log(xhr)
 		        console.log(textStatus);
-		        alert(textStatus);
 		    },
 		    complete:function(data) {
-		    	if (data && data.responseJSON && data.responseJSON.msg) {
-		    		alert(data.responseJSON.msg);
+		    	if (data && data.responseJSON) {
+		    		if (data.responseJSON.code) {
+		    			clearInterval(myTimer);//关掉定时器
+		    			alert(data.responseJSON.msg);
+		    			$("#m_generate_recon_btn").attr("disabled",false);
+				    	$("#m_generate_recon_btn").html("生成recon数据");
+		    		} else {
+		    			console.log("生成recon数据失败，后台抛异常了，没有返回code!");
+		    		}
+		    	} else {
+		    		console.log("生成recon数据失败，后台抛异常了!");
 		    	}
-		    	$("#m_generate_recon_btn").attr("disabled",false);
-		    	$("#m_generate_recon_btn").html("生成recon数据");
-		    	console.log(data);
 		    }
 		});
       
@@ -436,6 +444,34 @@ function prefixInteger(num, n) {
    return (Array(n).join(0) + num).slice(-n);
 }
 
+//定时器
+function myInterval() {
+	$.ajax({
+		type : "POST",
+		dataType : "json",
+		url : "/queryCrsAccountPeriod/accountPeriodTimer",
+		data : "",
+		success : function(data) {
+			if (data && data.length > 0) {
+				for (i = 0; i < data.length; i++) {
+					if (data[i].functionName == "generateRecon") {
+						if (data[i].status == -1 || data[i].status == 1) {//执行失败或成功，给出提示，并点亮按钮
+							if (data[i].status == 1) {
+								alert("Generate Recon successfully.");
+							} else {
+								alert("Generate Recon failed!");
+							}
+							$("#m_generate_recon_btn").attr("disabled",false);
+					    	$("#m_generate_recon_btn").html("生成recon数据");
+					    	clearInterval(myTimer);//关掉定时器
+						};
+					}
+				}
+			}
+		}
+	});   
+}
+
 jQuery(document).ready(function () {
 	//填充城市下拉框
 	fillCitiesSelect();
@@ -473,4 +509,5 @@ jQuery(document).ready(function () {
 	$("#endYearAndMonthQuery").val(year + "-" + month);
 	
     Datatable_expRemoteAjaxDemo.init();
+    
 });

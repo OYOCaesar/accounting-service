@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,6 +49,8 @@ import com.oyo.accouting.bean.DeductionsDto;
 import com.oyo.accouting.bean.QueryAccountPeriodDto;
 import com.oyo.accouting.job.SyncArAndApJob;
 import com.oyo.accouting.pojo.AccountPeriod;
+import com.oyo.accouting.pojo.AccountPeriodTimer;
+import com.oyo.accouting.service.AccountPeriodTimerService;
 import com.oyo.accouting.service.DeductionsService;
 import com.oyo.accouting.service.QueryCrsAccountPeriodService;
 
@@ -61,12 +64,39 @@ public class QueryCrsAccountPeriodController {
 
 	//下载文件的路径
 	private static String PATH = System.getProperty("user.dir") + "/src/main/resources/exportExcel/";//导出excel文件路径
+	
+	//功能名产量
+	private static String FUNCTIONNAME_EXPORTMERCHANTACCOUNT = "exportMerchantAccount";//商户对账单导出
+	private static String FUNCTIONNAME_EXPORTSUMMARYSTATISTICS = "exportSummaryStatistics";//汇总统计导出
+	private static String FUNCTIONNAME_EXPORTDETAILS = "exportDetails";//明细导出
+	private static String FUNCTIONNAME_GENERATERECON = "generateRecon";//生成RECON数据
 		
     @Autowired
     private QueryCrsAccountPeriodService queryCrsAccountPeriodService;
     
     @Autowired
     private DeductionsService deductionsService;
+    
+    @Autowired
+    private AccountPeriodTimerService accountPeriodTimerService;
+    
+    //recon和导出定时器
+    @RequestMapping(value = "accountPeriodTimer")
+    @ResponseBody
+    public ResponseEntity<List<AccountPeriodTimer>> accountPeriodTimer() {
+    	List<AccountPeriodTimer> list = new ArrayList<AccountPeriodTimer>();
+    	try {
+    		List<String> queryList = new ArrayList<String>();
+    		queryList.add(FUNCTIONNAME_EXPORTMERCHANTACCOUNT);
+    		queryList.add(FUNCTIONNAME_EXPORTSUMMARYSTATISTICS);
+    		queryList.add(FUNCTIONNAME_EXPORTDETAILS);
+    		queryList.add(FUNCTIONNAME_GENERATERECON);
+    		list = accountPeriodTimerService.selectByFunctionNameList(queryList);
+		} catch (Exception e) {
+			log.error("accountPeriodTimer throwing exception:{}", e);
+		}
+    	return ResponseEntity.ok(list);
+    }
     
     @RequestMapping(value = "query")
     @ResponseBody
@@ -684,7 +714,39 @@ public class QueryCrsAccountPeriodController {
 	public JSONObject generateRecon(HttpServletRequest request, QueryAccountPeriodDto queryAccountPeriodDto) {
 		JSONObject result = new JSONObject();
 		try {
-			
+			//先查询当前是否在导出
+			AccountPeriodTimer accountPeriodTimer = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
+			if (null == accountPeriodTimer) {
+				accountPeriodTimer = new AccountPeriodTimer();
+				accountPeriodTimer.setFunctionName(FUNCTIONNAME_GENERATERECON);
+				accountPeriodTimer.setCreatetime(System.currentTimeMillis());
+				accountPeriodTimer.setStatus(0);//执行中，状态：-1：失败；0：执行中；1：执行完成 
+				accountPeriodTimer.setCreatedate(new Date());
+				int insertResult = this.accountPeriodTimerService.insertSelective(accountPeriodTimer);
+				if (insertResult < 1) {
+					result.put("code", "-1");
+					result.put("msg", "生成RECON数据失败,请重试!");
+					log.info("插入account_period_timer表失败");
+					return result;
+				}
+			} else {
+				if (accountPeriodTimer.getStatus() == 0) {
+					result.put("code", "-1");
+					result.put("msg", "正在生成RECON数据,请稍等......");
+					return result;
+				} else {
+					accountPeriodTimer.setStatus(0);
+					accountPeriodTimer.setCreatetime(System.currentTimeMillis());
+					accountPeriodTimer.setCreatedate(new Date());
+					int updateResult = this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimer);
+					if (updateResult < 1) {
+						result.put("code", "-1");
+						result.put("msg", "生成RECON数据失败,请重试!");
+						log.info("更新account_period_timer表失败");
+						return result;
+					}
+				}
+			}
 			queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
     		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
     		/*queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
@@ -735,6 +797,12 @@ public class QueryCrsAccountPeriodController {
     		if (failedInsertList == null || failedInsertList.isEmpty()) {
     			result.put("code", "0");
     			result.put("msg", "Generate Recon successfully.");
+    			//更新监控表信息
+    			AccountPeriodTimer accountPeriodTimerFinish = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
+				if (accountPeriodTimerFinish != null) {
+					accountPeriodTimerFinish.setStatus(1);//执行完成
+					this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerFinish);
+				}
     		} else {
     			//循环执行
         		while(times > 0) {
@@ -761,9 +829,29 @@ public class QueryCrsAccountPeriodController {
 
     			result.put("code", "-1");
     			result.put("msg", "Generate Recon failed,orderNo list is:" + orderNos);
+    			
+    			//更新监控表信息
+    			AccountPeriodTimer accountPeriodTimerFinish  = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
+				if (accountPeriodTimerFinish != null) {
+					accountPeriodTimerFinish.setStatus(-1);//执行失败
+					this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerFinish);
+				}
+    			
     		}
     		
+    		//删除监控表信息
+			AccountPeriodTimer accountPeriodTimerFinish = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
+			if (accountPeriodTimerFinish != null) {
+				this.accountPeriodTimerService.deleteByPrimaryKey(accountPeriodTimerFinish.getId());
+			}
+    		
 		} catch (Exception e) {
+			//更新监控表信息
+			AccountPeriodTimer accountPeriodTimerFinish  = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
+			if (accountPeriodTimerFinish != null) {
+				accountPeriodTimerFinish.setStatus(-1);//执行失败
+				this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerFinish);
+			}
 			result.put("code", "-1");
 			result.put("msg", e.getMessage());
 			log.error("Generate Recon throwing exception:{}", e);
