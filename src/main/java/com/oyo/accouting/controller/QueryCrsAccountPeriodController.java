@@ -131,7 +131,10 @@ public class QueryCrsAccountPeriodController {
 			
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
+			long queryStart = System.currentTimeMillis();
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodAllByConditionBatch(queryAccountPeriodDto);
+    		long queryEnd = System.currentTimeMillis();
+    		log.info("query time:" + (queryEnd - queryStart) / 1000);
     		
     		// 遍历打包下载
     		String zipName = "商户对账-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-" + System.currentTimeMillis() + ".zip";
@@ -155,8 +158,13 @@ public class QueryCrsAccountPeriodController {
 			ByteArrayOutputStream out = null;
 			InputStream inputStream = null;
 			String excelFileName = "";//excel文件名
+			long queryDeductionsStart = System.currentTimeMillis();
 			//查询指定账期的扣除费用列表
 			List<DeductionsDto> deductionsList = deductionsService.selectListByAccountPeriod(queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", ""));
+			long queryDeductionsEnd = System.currentTimeMillis();
+    		log.info("query Deductions:" + (queryDeductionsEnd - queryDeductionsStart) / 1000);
+    		
+    		long insertExcelStart = System.currentTimeMillis();
 			Map<Integer,List<AccountPeriodDto>> hotelGroupMap = list.stream().collect(Collectors.groupingBy(AccountPeriodDto::getUniqueCode));
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
     			List<AccountPeriodDto> eachList = entry.getValue();
@@ -320,9 +328,7 @@ public class QueryCrsAccountPeriodController {
 					zipOutputStream.putNextEntry(new ZipEntry(excelFileName));
 					dataOutputStream = new DataOutputStream(zipOutputStream);
 					IOUtils.copy(inputStream, dataOutputStream);//将excel放入zip文件中
-					
-		    		result.put("code", 0);
-					result.put("msg", zipName);
+		    		
     			} finally {
     				if (null != out) {
     					out.close();
@@ -336,6 +342,12 @@ public class QueryCrsAccountPeriodController {
     			}
 				
     		}
+    		
+    		long insertExcelEnd = System.currentTimeMillis();
+    		log.info("insert Excel:" + (insertExcelEnd - insertExcelStart) / 1000);
+    		
+    		result.put("code", 0);
+			result.put("msg", zipName);
 		    
 		} catch (Exception e) {
 			result.put("code", -1);
