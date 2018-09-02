@@ -839,12 +839,6 @@ public class QueryCrsAccountPeriodController {
     			
     		}
     		
-    		//删除监控表信息
-			AccountPeriodTimer accountPeriodTimerFinish = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
-			if (accountPeriodTimerFinish != null) {
-				this.accountPeriodTimerService.deleteByPrimaryKey(accountPeriodTimerFinish.getId());
-			}
-    		
 		} catch (Exception e) {
 			//更新监控表信息
 			AccountPeriodTimer accountPeriodTimerFinish  = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
