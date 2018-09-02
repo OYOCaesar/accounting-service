@@ -4,6 +4,13 @@
 //定义页面的参数变量
 var startYearAndMonthQuery = "",endYearAndMonthQuery="",checkInDate="",checkOutDate="",orderNo="",region="",city="",hotelName="";
 var myTimer = null;//定时器
+var summaryTime = null;//汇总统计执行时间戳
+var merchantAccountTime = null;//商户对账执行时间戳
+var detailTime = null;//明细执行时间戳
+var summaryStatus = 0;//汇总统计导出状态
+var merchantStatus = 0;//商户对账执导出状态
+var datailsStatus = 0;//明细导出状态
+var reconStatus = 0;//生成recon状态
 //== Class definition
 var Datatable_expRemoteAjaxDemo = function () {
 
@@ -13,7 +20,7 @@ var Datatable_expRemoteAjaxDemo = function () {
 
     var url = '/queryCrsAccountPeriod/query?startYearAndMonthQuery=' + startYearAndMonthQuery+"&endYearAndMonthQuery="+endYearAndMonthQuery
              +"&checkInDate="+checkInDate+"&checkOutDate="+checkOutDate+"&orderNo="+orderNo+"&region="+region
-             +"&city="+city+"&hotelName="+hotelName;
+             +"&city="+city+"&hotelName="+hotelName+"&doTime=0";
 
     datatable_exp = $('.m_datatable_exception').mDatatable({
       // datasource definition
@@ -129,6 +136,10 @@ var Datatable_expRemoteAjaxDemo = function () {
 
 	  setParamValues();
 	  
+	  if (!myTimer) {
+		  myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
+	  }
+	  
 	  if (!startYearAndMonthQuery) {
 		  alert("请选择开始账期！");
 		  return;
@@ -143,6 +154,10 @@ var Datatable_expRemoteAjaxDemo = function () {
 		  return;
 	  }
 	  
+	  summaryStatus = 1;//汇总统计导出状态
+	  
+	  summaryTime = new Date().getTime();
+	  
 	  $.ajax({
 		    url:'/queryCrsAccountPeriod/exportSummaryStatistics',
 		    type:'POST', //GET
@@ -155,7 +170,8 @@ var Datatable_expRemoteAjaxDemo = function () {
 		        orderNo:$("#orderNo").val(),
 		        region:$("#region").val(),
 		        city:$("#city").val(),
-		        hotelName:$("#hotelName").val()
+		        hotelName:$("#hotelName").val(),
+		        doTime:summaryTime
 		    },
 		    timeout:3600000,    //超时时间,单位毫秒，1个小时
 		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
@@ -172,19 +188,19 @@ var Datatable_expRemoteAjaxDemo = function () {
 		        //alert(textStatus);
 		    },
 		    complete:function(data) {
-		    	if (data && data.responseJSON) {
+		    	if (data && data.responseJSON && data.responseJSON.code) {
 		    		if (data.responseJSON.code == 0) {
-		    			location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data.responseJSON.msg;
+		    			//location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data.responseJSON.msg;
 		    		} else if (data.responseJSON.code == -1) {
-		    			alert(data.responseJSON.msg);
+		    			//alert(data.responseJSON.msg);
 		    		} else {
-		    			alert("汇总下载失败!");
+		    			//alert("汇总下载失败!");
 		    		}
 		    	} else {
-		    		alert("汇总下载失败!");
+		    		//alert("汇总下载失败!");
 		    	}
-		    	$("#m_summary_statistics_btn").attr("disabled",false);
-		    	$("#m_summary_statistics_btn").html("汇总下载");
+		    	//$("#m_summary_statistics_btn").attr("disabled",false);
+		    	//$("#m_summary_statistics_btn").html("汇总下载");
 		    }
 	  });
 
@@ -194,6 +210,10 @@ var Datatable_expRemoteAjaxDemo = function () {
   $("#m_merchant_account_download_btn").on("click", function (t) {
 	  t.preventDefault();
 
+	  if (!myTimer) {
+		  myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
+	  }
+	  
 	  setParamValues();
 	  
 	  if (!startYearAndMonthQuery) {
@@ -210,6 +230,10 @@ var Datatable_expRemoteAjaxDemo = function () {
 		  return;
 	  }
 	  
+	  merchantStatus = 1;//商户对账执导出状态
+	  
+	  merchantAccountTime = new Date().getTime();
+	  
 	  $.ajax({
 		    url:'/queryCrsAccountPeriod/exportMerchantAccount',
 		    type:'POST', //GET
@@ -222,7 +246,8 @@ var Datatable_expRemoteAjaxDemo = function () {
 		        orderNo:$("#orderNo").val(),
 		        region:$("#region").val(),
 		        city:$("#city").val(),
-		        hotelName:$("#hotelName").val()
+		        hotelName:$("#hotelName").val(),
+		        doTime:merchantAccountTime
 		    },
 		    timeout:3600000,    //超时时间,单位毫秒，1个小时
 		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
@@ -239,19 +264,19 @@ var Datatable_expRemoteAjaxDemo = function () {
 		        //alert(textStatus);
 		    },
 		    complete:function(data) {
-		    	if (data && data.responseJSON) {
+		    	if (data && data.responseJSON && data.responseJSON.code) {
 		    		if (data.responseJSON.code == 0) {
-		    			location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data.responseJSON.msg;
+		    			//location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data.responseJSON.msg;
 		    		} else if (data.responseJSON.code == -1) {
-		    			alert(data.responseJSON.msg);
+		    			//alert(data.responseJSON.msg);
 		    		} else {
-		    			alert("商户对账单下载失败!");
+		    			//alert("商户对账单下载失败!");
 		    		}
 		    	} else {
-		    		alert("商户对账单下载失败!");
+		    		//alert("商户对账单下载失败!");
 		    	}
-		    	$("#m_merchant_account_download_btn").attr("disabled",false);
-		    	$("#m_merchant_account_download_btn").html("商户对账单下载");
+		    	//$("#m_merchant_account_download_btn").attr("disabled",false);
+		    	//$("#m_merchant_account_download_btn").html("商户对账单下载");
 		    }
 	  });
 
@@ -260,7 +285,11 @@ var Datatable_expRemoteAjaxDemo = function () {
   //明细下载
   $("#m_detail_download_btn").on("click", function (t) {
 	  t.preventDefault();
-		
+	
+	  if (!myTimer) {
+		  myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
+	  }
+	  
 	  setParamValues();
 	  
 	  if (!startYearAndMonthQuery) {
@@ -277,6 +306,10 @@ var Datatable_expRemoteAjaxDemo = function () {
 		  return;
 	  }
 	  
+	  datailsStatus = 1;//明细导出状态
+	  
+	  detailTime = new Date().getTime();
+	  
 	  $.ajax({
 		    url:'/queryCrsAccountPeriod/exportDetails',
 		    type:'POST', //GET
@@ -289,7 +322,8 @@ var Datatable_expRemoteAjaxDemo = function () {
 		        orderNo:$("#orderNo").val(),
 		        region:$("#region").val(),
 		        city:$("#city").val(),
-		        hotelName:$("#hotelName").val()
+		        hotelName:$("#hotelName").val(),
+		        doTime:detailTime
 		    },
 		    timeout:3600000,    //超时时间,单位毫秒，1个小时
 		    dataType:'json',    //返回的数据格式：json/xml/html/script/jsonp/text
@@ -306,19 +340,17 @@ var Datatable_expRemoteAjaxDemo = function () {
 		        //alert(textStatus);
 		    },
 		    complete:function(data) {
-		    	if (data && data.responseJSON) {
+		    	if (data && data.responseJSON && data.responseJSON.code) {
 		    		if (data.responseJSON.code == 0) {
-		    			location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data.responseJSON.msg;
+		    			//location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data.responseJSON.msg;
 		    		} else if (data.responseJSON.code == -1) {
-		    			alert(data.responseJSON.msg);
+		    			//alert(data.responseJSON.msg);
 		    		} else {
-		    			alert("明细下载失败!");
+		    			//alert("明细下载失败!");
 		    		}
 		    	} else {
-		    		alert("明细下载失败!");
+		    		//alert("明细下载失败!");
 		    	}
-		    	$("#m_detail_download_btn").attr("disabled",false);
-		    	$("#m_detail_download_btn").html("明细下载");
 		    }
 	  });
 		
@@ -328,7 +360,9 @@ var Datatable_expRemoteAjaxDemo = function () {
   $("#m_generate_recon_btn").on("click", function (t) {
       t.preventDefault();
       
-      myTimer = setInterval("myInterval()",1000*30);//1000为1秒钟
+      if (!myTimer) {
+		  myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
+	  }
       
       setParamValues();
       
@@ -345,6 +379,8 @@ var Datatable_expRemoteAjaxDemo = function () {
 		  alert("请选择相同账期！");
 		  return;
 	  }
+	  
+	  reconStatus = 1;//生成recon状态
       
       $.ajax({
 		    url:'/queryCrsAccountPeriod/generateRecon',
@@ -380,10 +416,9 @@ var Datatable_expRemoteAjaxDemo = function () {
 		    complete:function(data) {
 		    	if (data && data.responseJSON) {
 		    		if (data.responseJSON.code) {
-		    			clearInterval(myTimer);//关掉定时器
-		    			alert(data.responseJSON.msg);
-		    			$("#m_generate_recon_btn").attr("disabled",false);
-				    	$("#m_generate_recon_btn").html("生成recon数据");
+		    			//alert(data.responseJSON.msg);
+		    			//$("#m_generate_recon_btn").attr("disabled",false);
+				    	//$("#m_generate_recon_btn").html("生成recon数据");
 		    		} else {
 		    			console.log("生成recon数据失败，后台抛异常了，没有返回code!");
 		    		}
@@ -454,8 +489,44 @@ function myInterval() {
 		success : function(data) {
 			if (data && data.length > 0) {
 				for (i = 0; i < data.length; i++) {
+					if (data[i].functionName == "exportSummaryStatistics") { 
+						if (data[i].status == -1 || data[i].status == 1 && summaryStatus == 1 && data[i].createtime == summaryTime) {//执行失败或成功，给出提示，并点亮按钮
+							if (data[i].status == 1) {
+								location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data[i].exportFileName;
+							} else {
+								alert("Export Summary Statistics failed!");
+							}
+							$("#m_summary_statistics_btn").attr("disabled",false);
+					    	$("#m_summary_statistics_btn").html("汇总下载");
+					    	summaryStatus = 2;//汇总统计导出状态
+						};
+					}
+					if (data[i].functionName == "exportMerchantAccount") {
+						if (data[i].status == -1 || data[i].status == 1 && merchantStatus == 1 && data[i].createtime == merchantAccountTime) {//执行失败或成功，给出提示，并点亮按钮
+							if (data[i].status == 1) {
+								location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data[i].exportFileName;
+							} else {
+								alert("Export Merchant Account failed!");
+							}
+							$("#m_merchant_account_download_btn").attr("disabled",false);
+					    	$("#m_merchant_account_download_btn").html("商户对账单下载");
+					    	merchantStatus = 2;//商户对账执导出状态
+						};
+					}
+					if (data[i].functionName == "exportDetails") {
+						if (data[i].status == -1 || data[i].status == 1 && datailsStatus == 1 && data[i].createtime == detailTime) {//执行失败或成功，给出提示，并点亮按钮
+							if (data[i].status == 1) {
+								location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data[i].exportFileName;
+							} else {
+								alert("Export Details failed!");
+							}
+							$("#m_detail_download_btn").attr("disabled",false);
+					    	$("#m_detail_download_btn").html("明细下载");
+					    	datailsStatus = 2;//明细导出状态
+						};
+					}
 					if (data[i].functionName == "generateRecon") {
-						if (data[i].status == -1 || data[i].status == 1) {//执行失败或成功，给出提示，并点亮按钮
+						if (data[i].status == -1 || data[i].status == 1 && reconStatus == 1) {//执行失败或成功，给出提示，并点亮按钮
 							if (data[i].status == 1) {
 								alert("Generate Recon successfully.");
 							} else {
@@ -463,10 +534,18 @@ function myInterval() {
 							}
 							$("#m_generate_recon_btn").attr("disabled",false);
 					    	$("#m_generate_recon_btn").html("生成recon数据");
-					    	clearInterval(myTimer);//关掉定时器
+					    	reconStatus = 2;//生成recon状态
 						};
 					}
 				}
+			}
+			
+			//如果都执行完，那么关掉定时器
+			if (merchantStatus == 2 && merchantStatus == 2 && datailsStatus == 2 && reconStatus == 2) {
+				clearInterval(myTimer);
+				myTimer = null;
+			} else {
+				myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
 			}
 		}
 	});   
@@ -509,5 +588,7 @@ jQuery(document).ready(function () {
 	$("#endYearAndMonthQuery").val(year + "-" + month);
 	
     Datatable_expRemoteAjaxDemo.init();
+    
+    myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
     
 });

@@ -31,9 +31,9 @@ public class AccountPeriodTimerService {
     	return accountPeriodTimerMapper.selectByPrimaryKey(id);
     }
     
-    //根据功能名称查询
-    public AccountPeriodTimer selectByFunctionName(String functionName) {
-    	return accountPeriodTimerMapper.selectByFunctionName(functionName);
+    //条件查询
+    public List<AccountPeriodTimer> selectByAccountPeriodTimer(AccountPeriodTimer accountPeriodTimer) {
+    	return accountPeriodTimerMapper.selectByAccountPeriodTimer(accountPeriodTimer);
     }
     
     //根据功能名称列表查询

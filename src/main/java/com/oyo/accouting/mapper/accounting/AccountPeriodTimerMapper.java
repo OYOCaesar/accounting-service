@@ -41,8 +41,8 @@ public interface AccountPeriodTimerMapper {
      */
     AccountPeriodTimer selectByPrimaryKey(Integer id);
     
-    //根据功能名称列表查询
-    AccountPeriodTimer selectByFunctionName(@Param("functionName") String functionName);
+    //条件查询
+    List<AccountPeriodTimer> selectByAccountPeriodTimer(AccountPeriodTimer accountPeriodTimer);
     
     //根据功能名称列表查询
     List<AccountPeriodTimer> selectByFunctionNameList(@Param("list") List<String> list);

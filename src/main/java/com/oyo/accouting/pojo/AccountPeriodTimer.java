@@ -16,6 +16,7 @@ public class AccountPeriodTimer {
     private String functionName;
     private Long createtime;
     private Integer status;
+    private String exportFileName;
     private String creator;
     private Date createdate;
 }

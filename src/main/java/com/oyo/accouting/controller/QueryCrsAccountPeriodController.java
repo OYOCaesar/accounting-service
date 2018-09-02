@@ -66,8 +66,8 @@ public class QueryCrsAccountPeriodController {
 	private static String PATH = System.getProperty("user.dir") + "/src/main/resources/exportExcel/";//导出excel文件路径
 	
 	//功能名产量
-	private static String FUNCTIONNAME_EXPORTMERCHANTACCOUNT = "exportMerchantAccount";//商户对账单导出
 	private static String FUNCTIONNAME_EXPORTSUMMARYSTATISTICS = "exportSummaryStatistics";//汇总统计导出
+	private static String FUNCTIONNAME_EXPORTMERCHANTACCOUNT = "exportMerchantAccount";//商户对账单导出
 	private static String FUNCTIONNAME_EXPORTDETAILS = "exportDetails";//明细导出
 	private static String FUNCTIONNAME_GENERATERECON = "generateRecon";//生成RECON数据
 		
@@ -127,10 +127,49 @@ public class QueryCrsAccountPeriodController {
 		ZipOutputStream zipOutputStream = null;
 		DataOutputStream dataOutputStream = null;
 		OutputStream outputStrem = null;
+		AccountPeriodTimer accountPeriodTimerQuery = null;
 		try {
 			
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
+			
+			accountPeriodTimerQuery = new AccountPeriodTimer();
+			accountPeriodTimerQuery.setFunctionName(FUNCTIONNAME_EXPORTMERCHANTACCOUNT);
+			accountPeriodTimerQuery.setCreatetime(queryAccountPeriodDto.getDoTime());
+			//先查询当前是否在导出
+			List<AccountPeriodTimer> accountPeriodTimerList = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null == accountPeriodTimerList || accountPeriodTimerList.isEmpty()) {
+				AccountPeriodTimer accountPeriodTimer = new AccountPeriodTimer();
+				accountPeriodTimer.setFunctionName(FUNCTIONNAME_EXPORTMERCHANTACCOUNT);
+				accountPeriodTimer.setCreatetime(queryAccountPeriodDto.getDoTime());
+				accountPeriodTimer.setStatus(0);//执行中，状态：-1：失败；0：执行中；1：执行完成 
+				accountPeriodTimer.setCreatedate(new Date());
+				int insertResult = this.accountPeriodTimerService.insertSelective(accountPeriodTimer);
+				if (insertResult < 1) {
+					result.put("code", "-1");
+					result.put("msg", "商户对账单导出失败,请重试!");
+					log.info("插入account_period_timer表失败");
+					return result;
+				}
+			} else {
+				if (accountPeriodTimerList.get(0).getStatus() == 0) {
+					result.put("code", "-1");
+					result.put("msg", "正在商户对账单导出,请稍等......");
+					return result;
+				} else {
+					accountPeriodTimerList.get(0).setStatus(0);
+					accountPeriodTimerList.get(0).setCreatetime(System.currentTimeMillis());
+					accountPeriodTimerList.get(0).setCreatedate(new Date());
+					int updateResult = this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerList.get(0));
+					if (updateResult < 1) {
+						result.put("code", "-1");
+						result.put("msg", "商户对账单导出失败,请重试!");
+						log.info("更新account_period_timer表失败");
+						return result;
+					}
+				}
+			}
+			
 			long queryStart = System.currentTimeMillis();
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodAllByConditionBatch(queryAccountPeriodDto);
     		long queryEnd = System.currentTimeMillis();
@@ -348,8 +387,22 @@ public class QueryCrsAccountPeriodController {
     		
     		result.put("code", 0);
 			result.put("msg", zipName);
+			
+			//查询recon的记录
+			List<AccountPeriodTimer> accountPeriodTimerListExist = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null != accountPeriodTimerListExist && !accountPeriodTimerListExist.isEmpty()) {
+				accountPeriodTimerListExist.get(0).setStatus(1);//执行完成
+				accountPeriodTimerListExist.get(0).setExportFileName(zipName);//导出文件名
+				this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerListExist.get(0));
+			}
 		    
 		} catch (Exception e) {
+			//查询recon的记录
+			List<AccountPeriodTimer> accountPeriodTimerListExist = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null != accountPeriodTimerListExist && !accountPeriodTimerListExist.isEmpty()) {
+				accountPeriodTimerListExist.get(0).setStatus(-1);//执行失败
+				this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerListExist.get(0));
+			}
 			result.put("code", -1);
 			result.put("msg", "下载失败");
 			log.error("Export Merchant Account throwing exception:{}", e);
@@ -383,9 +436,48 @@ public class QueryCrsAccountPeriodController {
 		JSONObject result = new JSONObject();
 		SXSSFWorkbook workBook = null;
 		OutputStream out = null;
+		AccountPeriodTimer accountPeriodTimerQuery = null;
 		try {
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
+			
+			accountPeriodTimerQuery = new AccountPeriodTimer();
+			accountPeriodTimerQuery.setFunctionName(FUNCTIONNAME_EXPORTSUMMARYSTATISTICS);
+			accountPeriodTimerQuery.setCreatetime(queryAccountPeriodDto.getDoTime());
+			//先查询当前是否在导出
+			List<AccountPeriodTimer> accountPeriodTimerList = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null == accountPeriodTimerList || accountPeriodTimerList.isEmpty()) {
+				AccountPeriodTimer accountPeriodTimer = new AccountPeriodTimer();
+				accountPeriodTimer.setFunctionName(FUNCTIONNAME_EXPORTSUMMARYSTATISTICS);
+				accountPeriodTimer.setCreatetime(queryAccountPeriodDto.getDoTime());
+				accountPeriodTimer.setStatus(0);//执行中，状态：-1：失败；0：执行中；1：执行完成 
+				accountPeriodTimer.setCreatedate(new Date());
+				int insertResult = this.accountPeriodTimerService.insertSelective(accountPeriodTimer);
+				if (insertResult < 1) {
+					result.put("code", "-1");
+					result.put("msg", "汇总统计导出失败,请重试!");
+					log.info("插入account_period_timer表失败");
+					return result;
+				}
+			} else {
+				if (accountPeriodTimerList.get(0).getStatus() == 0) {
+					result.put("code", "-1");
+					result.put("msg", "正在汇总统计导出,请稍等......");
+					return result;
+				} else {
+					accountPeriodTimerList.get(0).setStatus(0);
+					accountPeriodTimerList.get(0).setCreatetime(System.currentTimeMillis());
+					accountPeriodTimerList.get(0).setCreatedate(new Date());
+					int updateResult = this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerList.get(0));
+					if (updateResult < 1) {
+						result.put("code", "-1");
+						result.put("msg", "汇总统计导出失败,请重试!");
+						log.info("更新account_period_timer表失败");
+						return result;
+					}
+				}
+			}
+			
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodAllByConditionBatch(queryAccountPeriodDto);
     		//查询指定账期的扣除费用列表
 			List<DeductionsDto> deductionsList = deductionsService.selectListByAccountPeriod(queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", ""));
@@ -515,7 +607,21 @@ public class QueryCrsAccountPeriodController {
     		workBook.write(out);
     		result.put("code", 0);
 			result.put("msg", fileName);
+			
+			//查询recon的记录
+			List<AccountPeriodTimer> accountPeriodTimerListExist = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null != accountPeriodTimerListExist && !accountPeriodTimerListExist.isEmpty()) {
+				accountPeriodTimerListExist.get(0).setStatus(1);//执行完成
+				accountPeriodTimerListExist.get(0).setExportFileName(fileName);//导出文件名
+				this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerListExist.get(0));
+			}
 		} catch (Exception e) {
+			//查询recon的记录
+			List<AccountPeriodTimer> accountPeriodTimerListExist = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null != accountPeriodTimerListExist && !accountPeriodTimerListExist.isEmpty()) {
+				accountPeriodTimerListExist.get(0).setStatus(-1);//执行失败
+				this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerListExist.get(0));
+			}
 			result.put("code", -1);
 			result.put("msg", "下载失败");
 			log.error("Export Summary Statistics throwing exception:{}", e);
@@ -534,10 +640,49 @@ public class QueryCrsAccountPeriodController {
 		JSONObject result = new JSONObject();
 		SXSSFWorkbook workBook = null;
 		OutputStream out = null;
+		AccountPeriodTimer accountPeriodTimerQuery = null;
 		try {
 			//设置请求参数
 			setReuestParams(request, queryAccountPeriodDto);
 			queryAccountPeriodDto.setPageSize(null);
+			
+			accountPeriodTimerQuery = new AccountPeriodTimer();
+			accountPeriodTimerQuery.setFunctionName(FUNCTIONNAME_EXPORTDETAILS);
+			accountPeriodTimerQuery.setCreatetime(queryAccountPeriodDto.getDoTime());
+			//先查询当前是否在导出
+			List<AccountPeriodTimer> accountPeriodTimerList = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null == accountPeriodTimerList || accountPeriodTimerList.isEmpty()) {
+				AccountPeriodTimer accountPeriodTimer = new AccountPeriodTimer();
+				accountPeriodTimer.setFunctionName(FUNCTIONNAME_EXPORTDETAILS);
+				accountPeriodTimer.setCreatetime(queryAccountPeriodDto.getDoTime());
+				accountPeriodTimer.setStatus(0);//执行中，状态：-1：失败；0：执行中；1：执行完成 
+				accountPeriodTimer.setCreatedate(new Date());
+				int insertResult = this.accountPeriodTimerService.insertSelective(accountPeriodTimer);
+				if (insertResult < 1) {
+					result.put("code", "-1");
+					result.put("msg", "明细导出失败,请重试!");
+					log.info("插入account_period_timer表失败");
+					return result;
+				}
+			} else {
+				if (accountPeriodTimerList.get(0).getStatus() == 0) {
+					result.put("code", "-1");
+					result.put("msg", "正在明细导出,请稍等......");
+					return result;
+				} else {
+					accountPeriodTimerList.get(0).setStatus(0);
+					accountPeriodTimerList.get(0).setCreatetime(System.currentTimeMillis());
+					accountPeriodTimerList.get(0).setCreatedate(new Date());
+					int updateResult = this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerList.get(0));
+					if (updateResult < 1) {
+						result.put("code", "-1");
+						result.put("msg", "明细导出失败,请重试!");
+						log.info("更新account_period_timer表失败");
+						return result;
+					}
+				}
+			}
+			
     		List<AccountPeriodDto> list = queryCrsAccountPeriodService.queryAccountPeriodAllByConditionBatch(queryAccountPeriodDto);
 			
 			String fileName = "明细-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-" + System.currentTimeMillis() + ".xlsx";
@@ -630,7 +775,21 @@ public class QueryCrsAccountPeriodController {
     		result.put("code", 0);
 			result.put("msg", fileName);
 			
+			//查询recon的记录
+			List<AccountPeriodTimer> accountPeriodTimerListExist = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null != accountPeriodTimerListExist && !accountPeriodTimerListExist.isEmpty()) {
+				accountPeriodTimerListExist.get(0).setStatus(1);//执行完成
+				accountPeriodTimerListExist.get(0).setExportFileName(fileName);//导出文件名
+				this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerListExist.get(0));
+			}
+			
 		} catch (Exception e) {
+			//查询recon的记录
+			List<AccountPeriodTimer> accountPeriodTimerListExist = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null != accountPeriodTimerListExist && !accountPeriodTimerListExist.isEmpty()) {
+				accountPeriodTimerListExist.get(0).setStatus(-1);//执行失败
+				this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerListExist.get(0));
+			}
 			result.put("code", -1);
 			result.put("msg", "下载失败");
 			log.error("Export Details throwing exception:{}", e);
@@ -725,11 +884,14 @@ public class QueryCrsAccountPeriodController {
 	@ResponseBody
 	public JSONObject generateRecon(HttpServletRequest request, QueryAccountPeriodDto queryAccountPeriodDto) {
 		JSONObject result = new JSONObject();
+		AccountPeriodTimer accountPeriodTimerQuery = null;
 		try {
+			accountPeriodTimerQuery = new AccountPeriodTimer();
+			accountPeriodTimerQuery.setFunctionName(FUNCTIONNAME_GENERATERECON);
 			//先查询当前是否在导出
-			AccountPeriodTimer accountPeriodTimer = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
-			if (null == accountPeriodTimer) {
-				accountPeriodTimer = new AccountPeriodTimer();
+			List<AccountPeriodTimer> accountPeriodTimerList = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null == accountPeriodTimerList || accountPeriodTimerList.isEmpty()) {
+				AccountPeriodTimer accountPeriodTimer = new AccountPeriodTimer();
 				accountPeriodTimer.setFunctionName(FUNCTIONNAME_GENERATERECON);
 				accountPeriodTimer.setCreatetime(System.currentTimeMillis());
 				accountPeriodTimer.setStatus(0);//执行中，状态：-1：失败；0：执行中；1：执行完成 
@@ -742,15 +904,15 @@ public class QueryCrsAccountPeriodController {
 					return result;
 				}
 			} else {
-				if (accountPeriodTimer.getStatus() == 0) {
+				if (accountPeriodTimerList.get(0).getStatus() == 0) {
 					result.put("code", "-1");
 					result.put("msg", "正在生成RECON数据,请稍等......");
 					return result;
 				} else {
-					accountPeriodTimer.setStatus(0);
-					accountPeriodTimer.setCreatetime(System.currentTimeMillis());
-					accountPeriodTimer.setCreatedate(new Date());
-					int updateResult = this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimer);
+					accountPeriodTimerList.get(0).setStatus(0);
+					accountPeriodTimerList.get(0).setCreatetime(System.currentTimeMillis());
+					accountPeriodTimerList.get(0).setCreatedate(new Date());
+					int updateResult = this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerList.get(0));
 					if (updateResult < 1) {
 						result.put("code", "-1");
 						result.put("msg", "生成RECON数据失败,请重试!");
@@ -759,6 +921,7 @@ public class QueryCrsAccountPeriodController {
 					}
 				}
 			}
+			
 			queryAccountPeriodDto.setStartYearAndMonthQuery(request.getParameter("startYearAndMonthQuery"));
     		queryAccountPeriodDto.setEndYearAndMonthQuery(request.getParameter("endYearAndMonthQuery"));
     		/*queryAccountPeriodDto.setCheckInDate(request.getParameter("checkInDate"));
@@ -809,11 +972,12 @@ public class QueryCrsAccountPeriodController {
     		if (failedInsertList == null || failedInsertList.isEmpty()) {
     			result.put("code", "0");
     			result.put("msg", "Generate Recon successfully.");
-    			//更新监控表信息
-    			AccountPeriodTimer accountPeriodTimerFinish = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
-				if (accountPeriodTimerFinish != null) {
-					accountPeriodTimerFinish.setStatus(1);//执行完成
-					this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerFinish);
+    			
+    			//查询recon的记录
+    			List<AccountPeriodTimer> accountPeriodTimerListExist = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+				if (null != accountPeriodTimerListExist && !accountPeriodTimerListExist.isEmpty()) {
+					accountPeriodTimerListExist.get(0).setStatus(1);//执行完成
+					this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerListExist.get(0));
 				}
     		} else {
     			//循环执行
@@ -842,21 +1006,21 @@ public class QueryCrsAccountPeriodController {
     			result.put("code", "-1");
     			result.put("msg", "Generate Recon failed,orderNo list is:" + orderNos);
     			
-    			//更新监控表信息
-    			AccountPeriodTimer accountPeriodTimerFinish  = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
-				if (accountPeriodTimerFinish != null) {
-					accountPeriodTimerFinish.setStatus(-1);//执行失败
-					this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerFinish);
+				//查询recon的记录,更新监控表信息
+    			List<AccountPeriodTimer> accountPeriodTimerListExist = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+				if (null != accountPeriodTimerListExist && !accountPeriodTimerListExist.isEmpty()) {
+					accountPeriodTimerListExist.get(0).setStatus(-1);//执行失败
+					this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerListExist.get(0));
 				}
     			
     		}
     		
 		} catch (Exception e) {
-			//更新监控表信息
-			AccountPeriodTimer accountPeriodTimerFinish  = this.accountPeriodTimerService.selectByFunctionName(FUNCTIONNAME_GENERATERECON);
-			if (accountPeriodTimerFinish != null) {
-				accountPeriodTimerFinish.setStatus(-1);//执行失败
-				this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerFinish);
+			//查询recon的记录,更新监控表信息
+			List<AccountPeriodTimer> accountPeriodTimerListExist = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimerQuery);
+			if (null != accountPeriodTimerListExist && !accountPeriodTimerListExist.isEmpty()) {
+				accountPeriodTimerListExist.get(0).setStatus(-1);//执行失败
+				this.accountPeriodTimerService.updateByPrimaryKeySelective(accountPeriodTimerListExist.get(0));
 			}
 			result.put("code", "-1");
 			result.put("msg", e.getMessage());
@@ -910,6 +1074,7 @@ public class QueryCrsAccountPeriodController {
 		queryAccountPeriodDto.setRegion(request.getParameter("region"));
 		queryAccountPeriodDto.setCity(request.getParameter("city"));
 		queryAccountPeriodDto.setHotelName(request.getParameter("hotelName"));
+		queryAccountPeriodDto.setDoTime(StringUtils.isNotEmpty(request.getParameter("doTime")) ? Long.valueOf(request.getParameter("doTime")) : null);
 		
 		LocalDate localDate = LocalDate.now();
 		//如果开始结束账期都为空，那么开始结束账期均为当前月所在的账期
