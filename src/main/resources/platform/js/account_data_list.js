@@ -169,7 +169,7 @@ var Datatable_expRemoteAjaxDemo = function () {
 		    error:function(xhr,textStatus){
 		        console.log(xhr)
 		        console.log(textStatus);
-		        alert(textStatus);
+		        //alert(textStatus);
 		    },
 		    complete:function(data) {
 		    	if (data && data.responseJSON) {
@@ -236,7 +236,7 @@ var Datatable_expRemoteAjaxDemo = function () {
 		    error:function(xhr,textStatus){
 		        console.log(xhr)
 		        console.log(textStatus);
-		        alert(textStatus);
+		        //alert(textStatus);
 		    },
 		    complete:function(data) {
 		    	if (data && data.responseJSON) {
@@ -303,7 +303,7 @@ var Datatable_expRemoteAjaxDemo = function () {
 		    error:function(xhr,textStatus){
 		        console.log(xhr)
 		        console.log(textStatus);
-		        alert(textStatus);
+		        //alert(textStatus);
 		    },
 		    complete:function(data) {
 		    	if (data && data.responseJSON) {

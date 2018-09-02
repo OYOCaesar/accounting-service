@@ -161,7 +161,7 @@ public class QueryCrsAccountPeriodController {
     		for (Map.Entry<Integer, List<AccountPeriodDto>> entry : hotelGroupMap.entrySet()) {
     			List<AccountPeriodDto> eachList = entry.getValue();
     			excelFileName = eachList.get(0).getOyoId() + "-" + entry.getKey() + "-" + queryAccountPeriodDto.getStartYearAndMonthQuery().replace("-", "") + "-商户对账单" + ".xlsx";
-    			String templateName = "merchantAccount.xlsx";
+    			String templateName = "/accountPeriodExcelTemplates/merchantAccount.xlsx";
     			if (StringUtils.isNotEmpty(eachList.get(0).getRegion())) {
     				switch(eachList.get(0).getRegion()) {
 		    			case "East China":
