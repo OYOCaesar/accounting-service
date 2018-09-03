@@ -136,9 +136,9 @@ var Datatable_expRemoteAjaxDemo = function () {
 
 	  setParamValues();
 	  
-	  if (!myTimer) {
+	  /*if (!myTimer) {
 		  myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
-	  }
+	  }*/
 	  
 	  if (!startYearAndMonthQuery) {
 		  alert("请选择开始账期！");
@@ -210,9 +210,9 @@ var Datatable_expRemoteAjaxDemo = function () {
   $("#m_merchant_account_download_btn").on("click", function (t) {
 	  t.preventDefault();
 
-	  if (!myTimer) {
+	  /*if (!myTimer) {
 		  myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
-	  }
+	  }*/
 	  
 	  setParamValues();
 	  
@@ -286,9 +286,9 @@ var Datatable_expRemoteAjaxDemo = function () {
   $("#m_detail_download_btn").on("click", function (t) {
 	  t.preventDefault();
 	
-	  if (!myTimer) {
+	  /*if (!myTimer) {
 		  myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
-	  }
+	  }*/
 	  
 	  setParamValues();
 	  
@@ -360,9 +360,9 @@ var Datatable_expRemoteAjaxDemo = function () {
   $("#m_generate_recon_btn").on("click", function (t) {
       t.preventDefault();
       
-      if (!myTimer) {
+      /*if (!myTimer) {
 		  myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
-	  }
+	  }*/
       
       setParamValues();
       
@@ -541,12 +541,12 @@ function myInterval() {
 			}
 			
 			//如果都执行完，那么关掉定时器
-			if (merchantStatus == 0 && merchantStatus == 0 && datailsStatus == 0 && reconStatus == 0) {
+			/*if (merchantStatus == 0 && merchantStatus == 0 && datailsStatus == 0 && reconStatus == 0) {
 				clearInterval(myTimer);
 				myTimer = null;
 			} else {
 				myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
-			}
+			}*/
 		}
 	});   
 }
@@ -589,6 +589,6 @@ jQuery(document).ready(function () {
 	
     Datatable_expRemoteAjaxDemo.init();
     
-    //myTimer = setInterval("myInterval()",1000*30);//单位毫秒，60秒
+    myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
     
 });
