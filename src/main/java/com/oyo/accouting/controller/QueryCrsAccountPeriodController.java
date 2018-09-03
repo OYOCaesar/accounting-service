@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -62,9 +63,6 @@ import net.sf.json.JSONObject;
 public class QueryCrsAccountPeriodController {
 	private static Logger log = LoggerFactory.getLogger(SyncArAndApJob.class);
 
-	//下载文件的路径
-	private static String PATH = System.getProperty("user.dir") + "/src/main/resources/exportExcel/";//导出excel文件路径
-	
 	//功能名产量
 	private static String FUNCTIONNAME_EXPORTSUMMARYSTATISTICS = "exportSummaryStatistics";//汇总统计导出
 	private static String FUNCTIONNAME_EXPORTMERCHANTACCOUNT = "exportMerchantAccount";//商户对账单导出
@@ -81,9 +79,9 @@ public class QueryCrsAccountPeriodController {
     private AccountPeriodTimerService accountPeriodTimerService;
     
     //recon和导出定时器
-    @RequestMapping(value = "accountPeriodTimer")
+    @RequestMapping(value = "accountPeriodControl")
     @ResponseBody
-    public ResponseEntity<List<AccountPeriodTimer>> accountPeriodTimer() {
+    public ResponseEntity<List<AccountPeriodTimer>> accountPeriodControl() {
     	List<AccountPeriodTimer> list = new ArrayList<AccountPeriodTimer>();
     	try {
     		List<String> queryList = new ArrayList<String>();
@@ -178,8 +176,12 @@ public class QueryCrsAccountPeriodController {
     		// 遍历打包下载
     		String zipName = "商户对账-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-" + System.currentTimeMillis() + ".zip";
     		
+    		ServletContext servletContext = request.getServletContext();
+    		// 获得保存文件的路径
+    		String basePath = servletContext.getRealPath("exportExcel") + "/";
+    		
     		//先删掉当前年月的商户对账单excel
-			delFilesByPath(PATH, "商户对账-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-", ".xlsx");
+			delFilesByPath(basePath, "商户对账-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-", ".xlsx");
 			
     		//zipName = URLEncoder.encode(zipName,"UTF-8");
     		/*response.setContentType("APPLICATION/OCTET-STREAM");
@@ -189,7 +191,7 @@ public class QueryCrsAccountPeriodController {
     		if (!file.exists()) {
     			file.createNewFile();
     		}
-    		outputStrem = new FileOutputStream(PATH + file);
+    		outputStrem = new FileOutputStream(basePath + file);
     		zipOutputStream = new ZipOutputStream(outputStrem);
 			// 设置压缩方式
 			zipOutputStream.setMethod(ZipOutputStream.DEFLATED);
@@ -484,8 +486,12 @@ public class QueryCrsAccountPeriodController {
     		
 			String fileName = "汇总-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-" + System.currentTimeMillis() + ".xlsx";
 			
+			ServletContext servletContext = request.getServletContext();
+    		// 获得保存文件的路径
+    		String basePath = servletContext.getRealPath("exportExcel") + "/";
+    		
 			//先删掉当前年月的汇总统计excel
-			delFilesByPath(PATH, "汇总-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-", ".xlsx");
+			delFilesByPath(basePath, "汇总-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-", ".xlsx");
 			
     		//读取模块文件
 			XSSFWorkbook xssfWorkbook = new XSSFWorkbook(this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/summaryStatistics.xlsx"));
@@ -599,7 +605,7 @@ public class QueryCrsAccountPeriodController {
 				count ++;
     		}
 			
-    		File file = new File(PATH + fileName);
+    		File file = new File(basePath + fileName);
     		if (!file.exists()) {
     			file.createNewFile();
     		}
@@ -687,8 +693,12 @@ public class QueryCrsAccountPeriodController {
 			
 			String fileName = "明细-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-" + System.currentTimeMillis() + ".xlsx";
 			
+			ServletContext servletContext = request.getServletContext();
+    		// 获得保存文件的路径
+    		String basePath = servletContext.getRealPath("exportExcel") + "/";
+    		
 			//先删掉当前年月的明细excel
-			delFilesByPath(PATH, "明细-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-", ".xlsx");
+			delFilesByPath(basePath, "明细-" + queryAccountPeriodDto.getStartYearAndMonthQuery() + "-", ".xlsx");
 			
 			XSSFWorkbook xssfWorkbook = new XSSFWorkbook(this.getClass().getResourceAsStream("/accountPeriodExcelTemplates/details.xlsx"));
 	        workBook = new SXSSFWorkbook(xssfWorkbook, 1000);
@@ -766,7 +776,7 @@ public class QueryCrsAccountPeriodController {
 				
 			}
 			
-			File file = new File(PATH + fileName);
+			File file = new File(basePath + fileName);
     		if (!file.exists()) {
     			file.createNewFile();
     		}
@@ -804,7 +814,11 @@ public class QueryCrsAccountPeriodController {
 	//文件下载相关代码
 	@RequestMapping("/downloadExcel")
 	public String downloadExcel(HttpServletRequest request, HttpServletResponse response) {
-		String fileName = PATH + request.getParameter("fileName");
+		ServletContext servletContext = request.getServletContext();
+		// 获得保存文件的路径
+		String basePath = servletContext.getRealPath("exportExcel") + "/";
+		
+		String fileName = basePath + request.getParameter("fileName");
 	    if (StringUtils.isNotEmpty(fileName)) {
             byte[] buffer = new byte[2048];
             FileInputStream fis = null;
@@ -823,6 +837,20 @@ public class QueryCrsAccountPeriodController {
                 while (i != -1) {
                     os.write(buffer, 0, i);
                     i = bis.read(buffer);
+                }
+                
+                //删除服务器上的文件
+                file.delete();
+                
+                //删除掉该文件在表account_period_timer中的记录
+                AccountPeriodTimer accountPeriodTimer = new AccountPeriodTimer();
+                String deleteFileName = fileName.substring(fileName.lastIndexOf("/") + 1);
+                accountPeriodTimer.setExportFileName(deleteFileName);
+                List<AccountPeriodTimer> list = this.accountPeriodTimerService.selectByAccountPeriodTimer(accountPeriodTimer);
+                if (null != list && !list.isEmpty()) {
+                	list.forEach(q->{
+                		this.accountPeriodTimerService.deleteByPrimaryKey(q.getId());
+                	});
                 }
                 
             } catch (Exception e) {
@@ -851,6 +879,9 @@ public class QueryCrsAccountPeriodController {
 	private static boolean delFilesByPath(String path, String startStr, String endStr) {
 		boolean b = false;
 		File file = new File(path);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
 		File[] tempFile = file.listFiles();
 		if (null != tempFile && tempFile.length > 0) {
 			for (int i = 0; i < tempFile.length; i++) {

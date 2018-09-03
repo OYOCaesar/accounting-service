@@ -166,6 +166,9 @@
         <if test="createtime != null">
             and createTime = #{createtime,jdbcType=BIGINT}
         </if>
+        <if test="exportFileName != null and exportFileName != ''">
+            and export_file_name = #{exportFileName,jdbcType=VARCHAR}
+        </if>
     </where>
   </select>
   

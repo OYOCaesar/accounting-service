@@ -484,7 +484,7 @@ function myInterval() {
 	$.ajax({
 		type : "POST",
 		dataType : "json",
-		url : "/queryCrsAccountPeriod/accountPeriodTimer",
+		url : "/queryCrsAccountPeriod/accountPeriodControl",
 		data : "",
 		success : function(data) {
 			if (data && data.length > 0) {
