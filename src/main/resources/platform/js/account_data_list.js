@@ -415,10 +415,10 @@ var Datatable_expRemoteAjaxDemo = function () {
 		    },
 		    complete:function(data) {
 		    	if (data && data.responseJSON) {
-		    		if (data.responseJSON.code) {
-		    			//alert(data.responseJSON.msg);
-		    			//$("#m_generate_recon_btn").attr("disabled",false);
-				    	//$("#m_generate_recon_btn").html("生成recon数据");
+		    		if (data.responseJSON.code && data.responseJSON.code == -1) {
+		    			alert(data.responseJSON.msg);
+		    			$("#m_generate_recon_btn").attr("disabled",false);
+				    	$("#m_generate_recon_btn").html("生成recon数据");
 		    		} else {
 		    			console.log("生成recon数据失败，后台抛异常了，没有返回code!");
 		    		}
