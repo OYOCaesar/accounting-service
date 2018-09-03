@@ -852,16 +852,18 @@ public class QueryCrsAccountPeriodController {
 		boolean b = false;
 		File file = new File(path);
 		File[] tempFile = file.listFiles();
-		for (int i = 0; i < tempFile.length; i++) {
-			long createTime = Long.valueOf(tempFile[i].getName().substring(tempFile[i].getName().lastIndexOf("-") + 1, tempFile[i].getName().lastIndexOf(".")));
-			if (tempFile[i].getName().startsWith(startStr) && tempFile[i].getName().endsWith(endStr) 
-					&& (System.currentTimeMillis() - createTime >= 1000*3600*2)) {//删除2小时之前创建的文件(包括2小时)
-				boolean del = deleteFile(path + tempFile[i].getName());
-				if (del) {
-					log.info("文件" + tempFile[i].getName() + "删除成功");
-					b = true;
-				} else {
-					log.info("文件" + tempFile[i].getName() + "删除失败");
+		if (null != tempFile && tempFile.length > 0) {
+			for (int i = 0; i < tempFile.length; i++) {
+				long createTime = Long.valueOf(tempFile[i].getName().substring(tempFile[i].getName().lastIndexOf("-") + 1, tempFile[i].getName().lastIndexOf(".")));
+				if (tempFile[i].getName().startsWith(startStr) && tempFile[i].getName().endsWith(endStr) 
+						&& (System.currentTimeMillis() - createTime >= 1000*3600*2)) {//删除2小时之前创建的文件(包括2小时)
+					boolean del = deleteFile(path + tempFile[i].getName());
+					if (del) {
+						log.info("文件" + tempFile[i].getName() + "删除成功");
+						b = true;
+					} else {
+						log.info("文件" + tempFile[i].getName() + "删除失败");
+					}
 				}
 			}
 		}

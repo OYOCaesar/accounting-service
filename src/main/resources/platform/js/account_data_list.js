@@ -137,7 +137,7 @@ var Datatable_expRemoteAjaxDemo = function () {
 	  setParamValues();
 	  
 	  if (!myTimer) {
-		  myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
+		  myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
 	  }
 	  
 	  if (!startYearAndMonthQuery) {
@@ -211,7 +211,7 @@ var Datatable_expRemoteAjaxDemo = function () {
 	  t.preventDefault();
 
 	  if (!myTimer) {
-		  myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
+		  myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
 	  }
 	  
 	  setParamValues();
@@ -287,7 +287,7 @@ var Datatable_expRemoteAjaxDemo = function () {
 	  t.preventDefault();
 	
 	  if (!myTimer) {
-		  myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
+		  myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
 	  }
 	  
 	  setParamValues();
@@ -361,7 +361,7 @@ var Datatable_expRemoteAjaxDemo = function () {
       t.preventDefault();
       
       if (!myTimer) {
-		  myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
+		  myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
 	  }
       
       setParamValues();
@@ -490,7 +490,7 @@ function myInterval() {
 			if (data && data.length > 0) {
 				for (i = 0; i < data.length; i++) {
 					if (data[i].functionName == "exportSummaryStatistics") { 
-						if (data[i].status == -1 || data[i].status == 1 && summaryStatus == 1 && data[i].createtime == summaryTime) {//执行失败或成功，给出提示，并点亮按钮
+						if ((data[i].status == -1 || data[i].status == 1) && summaryStatus == 1 && summaryTime && data[i].createtime == summaryTime) {//执行失败或成功，给出提示，并点亮按钮
 							if (data[i].status == 1) {
 								location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data[i].exportFileName;
 							} else {
@@ -498,11 +498,11 @@ function myInterval() {
 							}
 							$("#m_summary_statistics_btn").attr("disabled",false);
 					    	$("#m_summary_statistics_btn").html("汇总下载");
-					    	summaryStatus = 2;//汇总统计导出状态
+					    	summaryStatus = 0;//汇总统计导出状态
 						};
 					}
 					if (data[i].functionName == "exportMerchantAccount") {
-						if (data[i].status == -1 || data[i].status == 1 && merchantStatus == 1 && data[i].createtime == merchantAccountTime) {//执行失败或成功，给出提示，并点亮按钮
+						if ((data[i].status == -1 || data[i].status == 1) && merchantStatus == 1 && merchantAccountTime && data[i].createtime == merchantAccountTime) {//执行失败或成功，给出提示，并点亮按钮
 							if (data[i].status == 1) {
 								location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data[i].exportFileName;
 							} else {
@@ -510,11 +510,11 @@ function myInterval() {
 							}
 							$("#m_merchant_account_download_btn").attr("disabled",false);
 					    	$("#m_merchant_account_download_btn").html("商户对账单下载");
-					    	merchantStatus = 2;//商户对账执导出状态
+					    	merchantStatus = 0;//商户对账执导出状态
 						};
 					}
 					if (data[i].functionName == "exportDetails") {
-						if (data[i].status == -1 || data[i].status == 1 && datailsStatus == 1 && data[i].createtime == detailTime) {//执行失败或成功，给出提示，并点亮按钮
+						if ((data[i].status == -1 || data[i].status == 1) && datailsStatus == 1 && detailTime && data[i].createtime == detailTime) {//执行失败或成功，给出提示，并点亮按钮
 							if (data[i].status == 1) {
 								location.href = "/queryCrsAccountPeriod/downloadExcel?fileName=" + data[i].exportFileName;
 							} else {
@@ -522,11 +522,11 @@ function myInterval() {
 							}
 							$("#m_detail_download_btn").attr("disabled",false);
 					    	$("#m_detail_download_btn").html("明细下载");
-					    	datailsStatus = 2;//明细导出状态
+					    	datailsStatus = 0;//明细导出状态
 						};
 					}
 					if (data[i].functionName == "generateRecon") {
-						if (data[i].status == -1 || data[i].status == 1 && reconStatus == 1) {//执行失败或成功，给出提示，并点亮按钮
+						if ((data[i].status == -1 || data[i].status == 1) && reconStatus == 1) {//执行失败或成功，给出提示，并点亮按钮
 							if (data[i].status == 1) {
 								alert("Generate Recon successfully.");
 							} else {
@@ -534,18 +534,18 @@ function myInterval() {
 							}
 							$("#m_generate_recon_btn").attr("disabled",false);
 					    	$("#m_generate_recon_btn").html("生成recon数据");
-					    	reconStatus = 2;//生成recon状态
+					    	reconStatus = 0;//生成recon状态
 						};
 					}
 				}
 			}
 			
 			//如果都执行完，那么关掉定时器
-			if (merchantStatus == 2 && merchantStatus == 2 && datailsStatus == 2 && reconStatus == 2) {
+			if (merchantStatus == 0 && merchantStatus == 0 && datailsStatus == 0 && reconStatus == 0) {
 				clearInterval(myTimer);
 				myTimer = null;
 			} else {
-				myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
+				myTimer = setInterval("myInterval()",1000*60);//单位毫秒，60秒
 			}
 		}
 	});   
@@ -589,6 +589,6 @@ jQuery(document).ready(function () {
 	
     Datatable_expRemoteAjaxDemo.init();
     
-    myTimer = setInterval("myInterval()",1000*30);//单位毫秒，30秒
+    //myTimer = setInterval("myInterval()",1000*30);//单位毫秒，60秒
     
 });
